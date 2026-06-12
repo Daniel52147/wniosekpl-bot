@@ -1,0 +1,63 @@
+id: meldunek_staly
+title_pl: "Zgłoszenie pobytu stałego (EL/ZPS/1)"
+title_ru: "Meldunek — pobyt stały (EL/ZPS/1)"
+title_en: "Permanent residence registration (EL/ZPS/1)"
+title_ua: "Meldunek — pobyt stały (EL/ZPS/1)"
+description_ru: "Официальный бланк EL/ZPS/1 (gov.pl). Подпись właściciela. Адрес: ulica, nr, 00-000, miasto."
+description_en: "Official EL/ZPS/1 (gov.pl). Landlord signature required."
+description_pl: "Oficjalny formularz EL/ZPS/1 (gov.pl). Podpis właściciela. Adres: ulica, nr, 00-000, miasto."
+description_ua: "Офіційний бланк EL/ZPS/1. Підпис власника обов'язковий."
+fields:
+  - key: imie
+    label_pl: Imię
+    question_ru: "Имя (латиницей, как в паспорте)"
+    question_en: "First name (Latin, as in passport)"
+    question_ua: "Ім'я (латиницею)"
+    hint_ru: "Только латиница, как в паспорте — WIELKIE LITERY в urzędzie."
+    hint_en: "Latin letters only, as in passport."
+  - key: nazwisko
+    label_pl: Nazwisko
+    question_ru: "Фамилия"
+    question_en: "Last name"
+    question_ua: "Прізвище"
+  - key: data_urodzenia
+    label_pl: Data urodzenia
+    question_ru: "Дата рождения (15.03.1990)"
+    question_en: "Date of birth (DD.MM.YYYY)"
+    question_ua: "Дата народження"
+  - key: miejsce_urodzenia
+    label_pl: Miejsce urodzenia
+    question_ru: "Место рождения (город, страна)"
+    question_en: "Place of birth"
+    question_ua: "Місце народження"
+  - key: obywatelstwo
+    label_pl: Obywatelstwo
+    question_ru: "Гражданство (np. Ukraina)"
+    question_en: "Citizenship"
+    question_ua: "Громадянство"
+  - key: numer_paszportu
+    label_pl: Numer dokumentu
+    question_ru: "Номер паспорта"
+    question_en: "Passport number"
+    question_ua: "Номер паспорта"
+  - key: pesel
+    label_pl: Numer PESEL
+    question_ru: "PESEL если есть, иначе: brak"
+    question_en: "PESEL if any, else: brak"
+    question_ua: "PESEL або brak"
+  - key: adres_zamieszkania
+    label_pl: Adres zamieszkania
+    question_ru: "Адрес: ul. Przykładowa 10/5, 00-001 Warszawa"
+    question_en: "Address: street, no., postal code, city"
+    question_ua: "Адреса в Польщі"
+    hint_ru: "Формат: улица и номер, потом индекс и город через запятую."
+  - key: data_zameldowania
+    label_pl: Data zameldowania
+    question_ru: "С какой даты живёте по этому адресу?"
+    question_en: "From which date at this address?"
+    question_ua: "З якої дати проживаєте?"
+  - key: wlasciciel_nieruchomosci
+    label_pl: Właściciel lokalu
+    question_ru: "ФИО владельца (подпись на формуляре)"
+    question_en: "Landlord full name (signs the form)"
+    question_ua: "ПІБ власника"

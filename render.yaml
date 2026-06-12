@@ -1,0 +1,22 @@
+# Blueprint Render — Background Worker (Telegram polling)
+# https://render.com/docs/blueprint-spec
+services:
+  - type: worker
+    name: wniosekpl-bot
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: BOT_USERNAME
+        sync: false
+      - key: ADMIN_TELEGRAM_IDS
+        sync: false
+      - key: DATABASE_PATH
+        value: /data/urzad.db
+    disk:
+      name: wniosekpl-data
+      mountPath: /data
+      sizeGB: 1

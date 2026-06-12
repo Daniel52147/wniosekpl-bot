@@ -1,0 +1,67 @@
+id: pesel
+title_pl: "Wniosek o nadanie numeru PESEL"
+title_ru: "Заявление на номер PESEL"
+title_en: "PESEL number application"
+title_ua: "Заява на номер PESEL"
+description_ru: "Официальный бланк gov.pl (Wniosek o nadanie numeru PESEL). Заполните §7 — podstawa prawna. Распечатайте и подпишите."
+description_en: "Official gov.pl PESEL application form. Fill §7 legal basis. Print and sign."
+description_pl: "Oficjalny formularz gov.pl. Wypełnij §7 — podstawę prawną. Wydrukuj i podpisz."
+description_ua: "Офіційний бланк gov.pl. Заповніть §7 podstawa prawna. Роздрукуйте і підпишіть."
+fields:
+  - key: imie
+    label_pl: Imię
+    question_ru: "Имя (латиницей, как в паспорте)"
+    question_en: "First name (Latin, as in passport)"
+    question_ua: "Ім'я (латиницею, як у паспорті)"
+  - key: nazwisko
+    label_pl: Nazwisko
+    question_ru: "Фамилия"
+    question_en: "Last name"
+    question_ua: "Прізвище"
+  - key: imie_ojca
+    label_pl: Imię ojca
+    question_ru: "Имя отца (латиницей, если известно)"
+    question_en: "Father's first name (Latin, if known)"
+    question_ua: "Ім'я батька (латиницею, якщо відомо)"
+  - key: imie_matki
+    label_pl: Imię matki
+    question_ru: "Имя матери (латиницей, если известно)"
+    question_en: "Mother's first name (Latin, if known)"
+    question_ua: "Ім'я матері (латиницею, якщо відомо)"
+  - key: data_urodzenia
+    label_pl: Data urodzenia
+    question_ru: "Дата рождения (DD.MM.RRRR)"
+    question_en: "Date of birth (DD.MM.RRRR)"
+    question_ua: "Дата народження (DD.MM.RRRR)"
+  - key: miejsce_urodzenia
+    label_pl: Miejsce urodzenia
+    question_ru: "Место рождения (город, страна)"
+    question_en: "Place of birth (city, country)"
+    question_ua: "Місце народження (місто, країна)"
+  - key: obywatelstwo
+    label_pl: Obywatelstwo
+    question_ru: "Гражданство"
+    question_en: "Citizenship"
+    question_ua: "Громадянство"
+  - key: adres_zamieszkania
+    label_pl: Adres zameldowania / zamieszkania w Polsce
+    question_ru: "Адрес в Польше (после meldunku или планируемый)"
+    question_en: "Address in Poland (after meldunek or planned)"
+    question_ua: "Адреса в Польщі (після meldunku або планована)"
+  - key: numer_paszportu
+    label_pl: Seria i numer dokumentu tożsamości
+    question_ru: "Серия и номер паспорта"
+    question_en: "Passport series and number"
+    question_ua: "Серія та номер паспорта"
+  - key: data_wjazdu
+    label_pl: Data wjazdu do Polski
+    question_ru: "Дата въезда в Польшу (DD.MM.RRRR)"
+    question_en: "Date of entry to Poland (DD.MM.RRRR)"
+    question_ua: "Дата в'їзду до Польщі (DD.MM.RRRR)"
+  - key: podstawa_prawna
+    label_pl: Podstawa prawna (§7 wniosku)
+    question_ru: "Правовое основание для PESEL (что указал urząd/ZUS? Напр.: art. 242 ustawy o świadczeniach)"
+    question_en: "Legal basis for PESEL (as required by office/ZUS, e.g. provision of law)"
+    question_ua: "Правова підстава для PESEL (як вимагає urząd/ZUS)"
+    hint_ru: "§7 — обязательное поле. Используйте кнопки ZUS/praca или текст с официального письма urzędu."
+    hint_en: "§7 is mandatory. Use preset buttons or text from your office/ZUS letter."

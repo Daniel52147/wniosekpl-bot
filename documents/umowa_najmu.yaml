@@ -1,0 +1,60 @@
+id: umowa_najmu
+title_pl: "Umowa najmu lokalu (szablon)"
+title_ru: "Договор аренды жилья (шаблон)"
+title_en: "Rental agreement template"
+title_ua: "Договір оренди житла (шаблон)"
+description_ru: "Простой шаблон umowy najmu. Рекомендуется показать юристу перед подписанием."
+description_en: "Simple rental agreement template. Consider legal review before signing."
+description_pl: "Szablon umowy najmu — nie jest formularzem urzędowym. Przed podpisem warto skonsultować z prawnikiem."
+description_ua: "Простий шаблон umowy najmu. Рекомендуємо показати юристу."
+fields:
+  - key: wynajmujacy_imie_nazwisko
+    label_pl: Wynajmujący (imię i nazwisko / firma)
+    question_ru: "Арендодатель: ФИО или название фирмы"
+    question_en: "Landlord: full name or company name"
+    question_ua: "Орендодавець: ПІБ або назва фірми"
+  - key: wynajmujacy_adres
+    label_pl: Adres wynajmującego
+    question_ru: "Адрес арендодателя"
+    question_en: "Landlord address"
+    question_ua: "Адреса орендодавця"
+  - key: najemca_imie_nazwisko
+    label_pl: Najemca (imię i nazwisko)
+    question_ru: "Арендатор: ваше имя и фамилия"
+    question_en: "Tenant: your full name"
+    question_ua: "Орендар: ваше ім'я та прізвище"
+  - key: najemca_dokument
+    label_pl: Dokument tożsamości najemcy
+    question_ru: "Паспорт арендатора (серия, номер)"
+    question_en: "Tenant ID document (series, number)"
+    question_ua: "Паспорт орендаря (серія, номер)"
+  - key: adres_lokalu
+    label_pl: Adres wynajmowanego lokalu
+    question_ru: "Адрес сдаваемого жилья (полный)"
+    question_en: "Rented property full address"
+    question_ua: "Повна адреса орендованого житла"
+  - key: czynsz
+    label_pl: Czynsz miesięczny (PLN)
+    question_ru: "Ежемесячная арендная плата (злотые, число)"
+    question_en: "Monthly rent (PLN, number)"
+    question_ua: "Щомісячна орендна плата (злоті, число)"
+  - key: kaucja
+    label_pl: Kaucja (PLN)
+    question_ru: "Залог / kaucja (злотые, 0 если нет)"
+    question_en: "Deposit / kaucja (PLN, 0 if none)"
+    question_ua: "Завдаток / kaucja (злоті, 0 якщо немає)"
+  - key: data_od
+    label_pl: Umowa od dnia
+    question_ru: "Договор с даты (DD.MM.RRRR)"
+    question_en: "Agreement from date (DD.MM.RRRR)"
+    question_ua: "Договір з дати (DD.MM.RRRR)"
+  - key: data_do
+    label_pl: Umowa do dnia (lub czas nieoznaczony)
+    question_ru: "Договор до даты или напишите: czas nieoznaczony"
+    question_en: "Until date or write: czas nieoznaczony"
+    question_ua: "Договір до дати або напишіть: czas nieoznaczony"
+  - key: media_opis
+    label_pl: Media i opłaty dodatkowe
+    question_ru: "Коммунальные: кто платит? (np. najemca płaci prąd, woda w czynszu)"
+    question_en: "Utilities: who pays? (e.g. tenant pays electricity)"
+    question_ua: "Комунальні: хто платить? (напр. орендар платить за електрику)"

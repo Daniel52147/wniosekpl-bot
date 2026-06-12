@@ -1,0 +1,64 @@
+id: meldunek
+title_pl: "Zgłoszenie pobytu czasowego (EL/ZC/1)"
+title_ru: "Meldunek — pobyt czasowy (EL/ZC/1)"
+title_en: "Temporary residence (EL/ZC/1)"
+title_ua: "Meldunek — pobyt czasowy (EL/ZC/1)"
+description_ru: "Официальный бланк EL/ZC/1 (MSWiA). Владелец жилья должен подписать §5. Адрес: ulica, nr, 00-000, miasto."
+description_en: "Official EL/ZC/1 form (MSWiA). Landlord must sign §5. Address format: street, no., 00-000, city."
+description_pl: "Oficjalny formularz EL/ZC/1 (MSWiA). Właściciel musi podpisać §5. Adres: ulica, nr, 00-000, miasto."
+description_ua: "Офіційний бланк EL/ZC/1. Власник житла повинен підписати §5."
+fields:
+  - key: imie
+    label_pl: Imię
+    question_ru: "Имя (как в паспорте, латиницей)"
+    question_en: "First name (as in passport, Latin letters)"
+    question_ua: "Ім'я (як у паспорті, латиницею)"
+  - key: nazwisko
+    label_pl: Nazwisko
+    question_ru: "Фамилия (как в паспорте)"
+    question_en: "Last name (as in passport)"
+    question_ua: "Прізвище (як у паспорті)"
+  - key: data_urodzenia
+    label_pl: Data urodzenia (DD.MM.RRRR)
+    question_ru: "Дата рождения (формат: 15.03.1990)"
+    question_en: "Date of birth (format: 15.03.1990)"
+    question_ua: "Дата народження (формат: 15.03.1990)"
+  - key: miejsce_urodzenia
+    label_pl: Miejsce urodzenia
+    question_ru: "Место рождения (город, страна — латиницей)"
+    question_en: "Place of birth (city, country)"
+    question_ua: "Місце народження (місто, країна)"
+  - key: pesel
+    label_pl: Numer PESEL (jeśli masz)
+    question_ru: "Номер PESEL, если уже есть (или напишите: brak)"
+    question_en: "PESEL number if you have one (or write: brak)"
+    question_ua: "Номер PESEL, якщо є (або: brak)"
+  - key: obywatelstwo
+    label_pl: Obywatelstwo
+    question_ru: "Гражданство (например: Ukraina)"
+    question_en: "Citizenship (e.g. Ukraina)"
+    question_ua: "Громадянство (наприклад: Ukraina)"
+  - key: numer_paszportu
+    label_pl: Numer paszportu / dokumentu
+    question_ru: "Номер паспорта или документа"
+    question_en: "Passport or ID document number"
+    question_ua: "Номер паспорта або документа"
+  - key: adres_zamieszkania
+    label_pl: Adres zamieszkania w Polsce
+    hint_ru: "ulica + numer / lok., kod 00-000, miasto. Np. ul. Marszałkowska 10/5, 00-001 Warszawa"
+    hint_en: "street, number, postal code, city — comma separated."
+    question_ru: "Адрес в Польше: ul. Przykładowa 10/5, 00-001 Warszawa"
+    question_en: "Address in Poland: ul. Example 10/5, 00-001 Warsaw"
+    question_ua: "Повна адреса в Польщі (вулиця, номер, індекс, місто)"
+  - key: data_zameldowania
+    label_pl: Data rozpoczęcia pobytu pod adresem
+    question_ru: "С какой даты живёте по этому адресу? (DD.MM.RRRR)"
+    question_en: "From which date do you live at this address? (DD.MM.RRRR)"
+    question_ua: "З якої дати проживаєте за цією адресою? (DD.MM.RRRR)"
+  - key: wlasciciel_nieruchomosci
+    label_pl: Właściciel / wynajmujący
+    hint_ru: "Podpis właściciela na formularzu §5 — obowiązkowy w urzędzie."
+    hint_pl: "Właściciel musi podpisać formularz — bez podpisu urząd może odmówić."
+    question_ru: "ФИО владельца квартиры или арендодателя"
+    question_en: "Landlord full name"
+    question_ua: "ПІБ власника квартири або орендодавця"

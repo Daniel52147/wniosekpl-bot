@@ -1,0 +1,26 @@
+{
+  "pesel": {
+    "file": "pesel_gov.pdf",
+    "form_code": "Wniosek o nadanie numeru PESEL",
+    "source_url": "https://www.gov.pl/attachment/36f4bf5c-702b-4c89-ad0d-3484a02fa913",
+    "publisher": "Ministerstwo Cyfryzacji / gov.pl",
+    "fill_method": "acroform",
+    "pages": 4
+  },
+  "meldunek": {
+    "file": "meldunek_el_zc_1.pdf",
+    "form_code": "EL/ZC/1",
+    "source_url": "https://samorzad.gov.pl/attachment/1875311f-f8f5-454e-b37b-8c54afcd10a7",
+    "publisher": "MSWiA — wzór z rozporządzenia o formularzach meldunkowych",
+    "fill_method": "overlay",
+    "pages": 3
+  },
+  "meldunek_staly": {
+    "file": "meldunek_el_zps_1.pdf",
+    "form_code": "EL/ZPS/1",
+    "source_url": "https://www.gov.pl/attachment/fac08267-59f8-4a09-bbe5-07ac653e0eb3",
+    "publisher": "MSWiA / gov.pl",
+    "fill_method": "overlay",
+    "pages": 3
+  }
+}
