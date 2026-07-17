@@ -9,28 +9,21 @@ from urllib.parse import urlencode
 import httpx
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
-from src.config import (
-    APP_SECRET,
-    FACEBOOK_APP_ID,
-    FACEBOOK_APP_SECRET,
-    GOOGLE_CLIENT_ID,
-    GOOGLE_CLIENT_SECRET,
-    PUBLIC_BASE_URL,
-)
+import src.config as config
 
 logger = logging.getLogger(__name__)
 
 
 def _serializer() -> URLSafeTimedSerializer:
-    return URLSafeTimedSerializer(APP_SECRET, salt="wniosekpl-oauth")
+    return URLSafeTimedSerializer(config.APP_SECRET, salt="wniosekpl-oauth")
 
 
 def google_configured() -> bool:
-    return bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET)
+    return bool(config.GOOGLE_CLIENT_ID and config.GOOGLE_CLIENT_SECRET)
 
 
 def facebook_configured() -> bool:
-    return bool(FACEBOOK_APP_ID and FACEBOOK_APP_SECRET)
+    return bool(config.FACEBOOK_APP_ID and config.FACEBOOK_APP_SECRET)
 
 
 def make_state(provider: str, user_id: int | None = None) -> str:
@@ -51,8 +44,8 @@ def parse_state(state: str, max_age: int = 600) -> dict:
 def google_authorize_url(state: str) -> str:
     qs = urlencode(
         {
-            "client_id": GOOGLE_CLIENT_ID,
-            "redirect_uri": f"{PUBLIC_BASE_URL}/api/auth/google/callback",
+            "client_id": config.GOOGLE_CLIENT_ID,
+            "redirect_uri": f"{config.PUBLIC_BASE_URL}/api/auth/google/callback",
             "response_type": "code",
             "scope": "openid email profile",
             "state": state,
@@ -66,8 +59,8 @@ def google_authorize_url(state: str) -> str:
 def facebook_authorize_url(state: str) -> str:
     qs = urlencode(
         {
-            "client_id": FACEBOOK_APP_ID,
-            "redirect_uri": f"{PUBLIC_BASE_URL}/api/auth/facebook/callback",
+            "client_id": config.FACEBOOK_APP_ID,
+            "redirect_uri": f"{config.PUBLIC_BASE_URL}/api/auth/facebook/callback",
             "state": state,
             "scope": "email,public_profile",
         }
@@ -81,9 +74,9 @@ async def google_exchange(code: str) -> dict:
             "https://oauth2.googleapis.com/token",
             data={
                 "code": code,
-                "client_id": GOOGLE_CLIENT_ID,
-                "client_secret": GOOGLE_CLIENT_SECRET,
-                "redirect_uri": f"{PUBLIC_BASE_URL}/api/auth/google/callback",
+                "client_id": config.GOOGLE_CLIENT_ID,
+                "client_secret": config.GOOGLE_CLIENT_SECRET,
+                "redirect_uri": f"{config.PUBLIC_BASE_URL}/api/auth/google/callback",
                 "grant_type": "authorization_code",
             },
         )
@@ -109,9 +102,9 @@ async def facebook_exchange(code: str) -> dict:
         token_resp = await client.get(
             "https://graph.facebook.com/v19.0/oauth/access_token",
             params={
-                "client_id": FACEBOOK_APP_ID,
-                "client_secret": FACEBOOK_APP_SECRET,
-                "redirect_uri": f"{PUBLIC_BASE_URL}/api/auth/facebook/callback",
+                "client_id": config.FACEBOOK_APP_ID,
+                "client_secret": config.FACEBOOK_APP_SECRET,
+                "redirect_uri": f"{config.PUBLIC_BASE_URL}/api/auth/facebook/callback",
                 "code": code,
             },
         )

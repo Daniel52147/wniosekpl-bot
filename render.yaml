@@ -1,12 +1,14 @@
-# Blueprint Render — Web API + optional Telegram polling worker
-# https://render.com/docs/blueprint-spec
+# One-click Render Blueprint for WniosekPL
+# https://dashboard.render.com/select-repo?type=blueprint
 services:
   - type: web
     name: wniosekpl-api
     runtime: python
     plan: free
+    region: frankfurt
     buildCommand: pip install -r requirements.txt
     startCommand: python -m uvicorn server:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
     envVars:
       - key: WEB_CORS_ORIGINS
         value: "*"
@@ -14,6 +16,38 @@ services:
         value: "5"
       - key: DATABASE_PATH
         value: /data/urzad.db
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: APP_SECRET
+        generateValue: true
+      - key: ADMIN_API_KEY
+        generateValue: true
+      - key: BOT_TOKEN
+        sync: false
+      - key: BOT_USERNAME
+        value: wniosekpl_bot
+      - key: OMNIROUTE_ENABLED
+        value: "false"
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_AI_MONTHLY
+        sync: false
+      - key: STRIPE_PRICE_HUMAN_REVIEW
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: FACEBOOK_APP_ID
+        sync: false
+      - key: FACEBOOK_APP_SECRET
+        sync: false
     disk:
       name: wniosekpl-api-data
       mountPath: /data
@@ -23,17 +57,24 @@ services:
     name: wniosekpl-bot
     runtime: python
     plan: free
+    region: frankfurt
     buildCommand: pip install -r requirements.txt
     startCommand: python bot.py
     envVars:
       - key: BOT_TOKEN
         sync: false
       - key: BOT_USERNAME
-        sync: false
+        value: wniosekpl_bot
       - key: ADMIN_TELEGRAM_IDS
         sync: false
       - key: DATABASE_PATH
         value: /data/urzad.db
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
     disk:
       name: wniosekpl-bot-data
       mountPath: /data

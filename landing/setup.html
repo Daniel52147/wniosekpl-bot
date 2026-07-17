@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WniosekPL Setup</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=Syne:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink:#10231f; --moss:#1f6b57; --line:rgba(16,35,31,.14); }
+    body { margin:0; font-family:"IBM Plex Sans",sans-serif; color:var(--ink);
+      background:linear-gradient(180deg,#f7f2e8,#e8f0ea); min-height:100vh; padding:1.5rem; }
+    .box { width:min(760px,100%); margin:0 auto; }
+    h1 { font-family:Syne,sans-serif; margin:0 0 .4rem; }
+    .card { background:#fffdf8; border:1px solid var(--line); border-radius:16px; padding:1rem; margin:1rem 0; }
+    .ok { color:#0f7a4c; font-weight:600; } .bad { color:#b45309; font-weight:600; }
+    label { display:block; font-size:.9rem; margin:.55rem 0 .2rem; }
+    input { width:100%; padding:.7rem .8rem; border-radius:10px; border:1px solid var(--line); font:inherit; box-sizing:border-box; }
+    button { margin-top:.9rem; background:var(--moss); color:#fff; border:0; border-radius:12px; padding:.75rem 1rem; font:inherit; font-weight:600; cursor:pointer; }
+    code { background:rgba(16,35,31,.06); padding:.1rem .35rem; border-radius:6px; }
+    pre { white-space:pre-wrap; background:#f4efe4; padding:.8rem; border-radius:12px; }
+    a { color:var(--moss); }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Setup за 1 шаг</h1>
+    <p>Вставь ключи ниже — я применю их сам. Аккаунты Stripe/Google создаются только в их кабинетах (это нельзя сделать без твоего логина).</p>
+    <div class="card" id="status">Загрузка…</div>
+    <div class="card">
+      <label>Admin API key (или оставь пустым если ADMIN_API_KEY не задан)</label>
+      <input id="admin" type="password" placeholder="ADMIN_API_KEY" />
+      <label>PUBLIC_BASE_URL</label>
+      <input id="PUBLIC_BASE_URL" placeholder="https://..." />
+      <label>STRIPE_SECRET_KEY</label>
+      <input id="STRIPE_SECRET_KEY" placeholder="sk_test_... или sk_live_..." />
+      <label>STRIPE_PUBLISHABLE_KEY</label>
+      <input id="STRIPE_PUBLISHABLE_KEY" placeholder="pk_test_..." />
+      <label>STRIPE_WEBHOOK_SECRET</label>
+      <input id="STRIPE_WEBHOOK_SECRET" placeholder="whsec_..." />
+      <label>STRIPE_PRICE_AI_MONTHLY</label>
+      <input id="STRIPE_PRICE_AI_MONTHLY" placeholder="price_..." />
+      <label>STRIPE_PRICE_HUMAN_REVIEW</label>
+      <input id="STRIPE_PRICE_HUMAN_REVIEW" placeholder="price_..." />
+      <label>GOOGLE_CLIENT_ID</label>
+      <input id="GOOGLE_CLIENT_ID" />
+      <label>GOOGLE_CLIENT_SECRET</label>
+      <input id="GOOGLE_CLIENT_SECRET" type="password" />
+      <label>FACEBOOK_APP_ID</label>
+      <input id="FACEBOOK_APP_ID" />
+      <label>FACEBOOK_APP_SECRET</label>
+      <input id="FACEBOOK_APP_SECRET" type="password" />
+      <button id="save">Сохранить и включить</button>
+      <pre id="out"></pre>
+    </div>
+    <p><a href="/">← На сайт</a> · <a href="/#account">Аккаунт / оплата</a></p>
+  </div>
+  <script>
+    async function load() {
+      const res = await fetch('/api/setup/status');
+      const s = await res.json();
+      const row = (ok, label) => `<div class="${ok?'ok':'bad'}">${ok?'✓':'○'} ${label}</div>`;
+      document.getElementById('status').innerHTML = [
+        row(!!s.public_base_url, `Public URL: ${s.public_base_url||'-'}`),
+        row(s.stripe, 'Stripe secret'),
+        row(s.stripe_prices, 'Stripe price IDs'),
+        row(s.stripe_webhook, 'Stripe webhook secret'),
+        row(s.google, 'Google OAuth'),
+        row(s.facebook, 'Facebook OAuth'),
+        `<pre>Google redirect:\n${s.redirects.google}\n\nFacebook redirect:\n${s.redirects.facebook}\n\nStripe webhook:\n${s.redirects.stripe_webhook}</pre>`
+      ].join('');
+      if (s.public_base_url) document.getElementById('PUBLIC_BASE_URL').value = s.public_base_url;
+    }
+    document.getElementById('save').onclick = async () => {
+      const keys = {};
+      ['PUBLIC_BASE_URL','STRIPE_SECRET_KEY','STRIPE_PUBLISHABLE_KEY','STRIPE_WEBHOOK_SECRET','STRIPE_PRICE_AI_MONTHLY','STRIPE_PRICE_HUMAN_REVIEW','GOOGLE_CLIENT_ID','GOOGLE_CLIENT_SECRET','FACEBOOK_APP_ID','FACEBOOK_APP_SECRET'].forEach(k => {
+        const v = document.getElementById(k).value.trim();
+        if (v) keys[k] = v;
+      });
+      const headers = {'Content-Type':'application/json'};
+      const admin = document.getElementById('admin').value.trim();
+      if (admin) headers['X-Admin-Key'] = admin;
+      const res = await fetch('/api/setup/configure', { method:'POST', headers, body: JSON.stringify({ keys }) });
+      const data = await res.json();
+      document.getElementById('out').textContent = JSON.stringify(data, null, 2);
+      load();
+    };
+    load();
+  </script>
+</body>
+</html>

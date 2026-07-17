@@ -11,15 +11,8 @@ from urllib.parse import urlencode
 
 import httpx
 
-from src.config import (
-    PLAN_PRICES,
-    PUBLIC_BASE_URL,
-    STRIPE_PRICE_AI_MONTHLY,
-    STRIPE_PRICE_HUMAN_REVIEW,
-    STRIPE_PUBLISHABLE_KEY,
-    STRIPE_SECRET_KEY,
-    STRIPE_WEBHOOK_SECRET,
-)
+import src.config as config
+from src.config import PLAN_PRICES
 from src.database import (
     clear_subscription,
     get_subscription,
@@ -38,18 +31,18 @@ logger = logging.getLogger(__name__)
 
 
 def stripe_configured() -> bool:
-    return bool((STRIPE_SECRET_KEY or "").strip())
+    return bool((config.STRIPE_SECRET_KEY or "").strip())
 
 
 def stripe_webhook_configured() -> bool:
-    return bool((STRIPE_WEBHOOK_SECRET or "").strip())
+    return bool((config.STRIPE_WEBHOOK_SECRET or "").strip())
 
 
 def price_id_for(product: str) -> str:
     if product == "ai_subscription":
-        return STRIPE_PRICE_AI_MONTHLY
+        return config.STRIPE_PRICE_AI_MONTHLY
     if product == "human_review":
-        return STRIPE_PRICE_HUMAN_REVIEW
+        return config.STRIPE_PRICE_HUMAN_REVIEW
     return ""
 
 
@@ -57,11 +50,11 @@ def billing_status() -> dict:
     return {
         "stripe_configured": stripe_configured(),
         "stripe_webhook_configured": stripe_webhook_configured(),
-        "publishable_key": STRIPE_PUBLISHABLE_KEY or None,
+        "publishable_key": config.STRIPE_PUBLISHABLE_KEY or None,
         "prices": PLAN_PRICES,
         "price_ids": {
-            "ai_subscription": bool(STRIPE_PRICE_AI_MONTHLY),
-            "human_review": bool(STRIPE_PRICE_HUMAN_REVIEW),
+            "ai_subscription": bool(config.STRIPE_PRICE_AI_MONTHLY),
+            "human_review": bool(config.STRIPE_PRICE_HUMAN_REVIEW),
         },
         "modes": ["stripe", "mock"],
     }
@@ -73,7 +66,7 @@ async def _stripe(method: str, path: str, data: dict | None = None) -> dict:
             method,
             f"https://api.stripe.com/v1{path}",
             data=data,
-            auth=(STRIPE_SECRET_KEY, ""),
+            auth=(config.STRIPE_SECRET_KEY, ""),
         )
         if resp.status_code >= 400:
             logger.warning("Stripe %s %s -> %s %s", method, path, resp.status_code, resp.text[:300])
@@ -113,7 +106,7 @@ async def create_checkout_session(user_id: int, product: str) -> dict:
     qs = urlencode({"user_id": user_id, "product": product})
     return {
         "mode": "mock",
-        "checkout_url": f"{PUBLIC_BASE_URL}/api/billing/mock-complete?{qs}",
+        "checkout_url": f"{config.PUBLIC_BASE_URL}/api/billing/mock-complete?{qs}",
         "product": product,
         "amount_pln": PLAN_PRICES[product]["amount_pln"],
     }
@@ -124,8 +117,8 @@ async def _stripe_checkout(user_id: int, product: str) -> dict:
     customer = await ensure_stripe_customer(user_id)
     data = {
         "mode": "subscription" if product == "ai_subscription" else "payment",
-        "success_url": f"{PUBLIC_BASE_URL}/?billing=success&product={product}",
-        "cancel_url": f"{PUBLIC_BASE_URL}/?billing=cancel",
+        "success_url": f"{config.PUBLIC_BASE_URL}/?billing=success&product={product}",
+        "cancel_url": f"{config.PUBLIC_BASE_URL}/?billing=cancel",
         "line_items[0][price]": price,
         "line_items[0][quantity]": "1",
         "metadata[user_id]": str(user_id),
@@ -155,7 +148,7 @@ async def create_billing_portal(user_id: int) -> dict:
     if not stripe_configured():
         return {
             "mode": "mock",
-            "portal_url": f"{PUBLIC_BASE_URL}/#account",
+            "portal_url": f"{config.PUBLIC_BASE_URL}/#account",
             "message": "Stripe not configured — use mock cancel/manage on site.",
         }
     customer = await ensure_stripe_customer(user_id)
@@ -166,7 +159,7 @@ async def create_billing_portal(user_id: int) -> dict:
         "/billing_portal/sessions",
         {
             "customer": customer,
-            "return_url": f"{PUBLIC_BASE_URL}/?billing=portal#account",
+            "return_url": f"{config.PUBLIC_BASE_URL}/?billing=portal#account",
         },
     )
     return {"mode": "stripe", "portal_url": payload["url"]}
@@ -302,7 +295,7 @@ def verify_stripe_signature(payload: bytes, sig_header: str | None) -> bool:
         return False
     signed = f"{timestamp}.".encode("utf-8") + payload
     expected = hmac.new(
-        STRIPE_WEBHOOK_SECRET.encode("utf-8"),
+        config.STRIPE_WEBHOOK_SECRET.encode("utf-8"),
         signed,
         hashlib.sha256,
     ).hexdigest()

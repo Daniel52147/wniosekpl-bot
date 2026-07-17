@@ -131,6 +131,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    from src.runtime_secrets import apply_runtime_secrets
+
+    apply_runtime_secrets()
     await init_db()
     app.state.documents = load_all_documents()
     yield
@@ -287,6 +290,41 @@ async def admin_page():
     if page.exists():
         return FileResponse(page)
     raise HTTPException(status_code=404, detail="admin_ui_missing")
+
+
+@app.get("/setup", include_in_schema=False)
+async def setup_page():
+    page = LANDING_DIR / "setup.html"
+    if page.exists():
+        return FileResponse(page)
+    raise HTTPException(status_code=404, detail="setup_ui_missing")
+
+
+@app.get("/api/setup/status")
+async def setup_status_api():
+    from src.runtime_secrets import setup_status
+
+    return setup_status()
+
+
+class SetupConfigure(BaseModel):
+    keys: dict[str, str]
+
+
+@app.post("/api/setup/configure")
+async def setup_configure(
+    payload: SetupConfigure,
+    x_admin_key: str | None = Header(default=None),
+):
+    require_admin(x_admin_key)
+    from src.runtime_secrets import save_runtime_secrets, setup_status
+
+    saved = save_runtime_secrets(payload.keys or {})
+    return {
+        "ok": True,
+        "saved_keys": sorted(saved.keys()),
+        "status": setup_status(),
+    }
 
 
 @app.get("/health")
