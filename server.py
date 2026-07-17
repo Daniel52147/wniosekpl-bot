@@ -13,6 +13,15 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.middleware.base import BaseHTTPMiddleware
 
+from src.accounts import (
+    login_or_register_oauth,
+    login_with_password,
+    public_user,
+    register_with_password,
+    request_password_reset,
+    reset_password,
+    verify_email_token,
+)
 from src.ai_assistant import answer_question_smart
 from src.auth import hash_token, issue_session, new_token, resolve_session
 from src.checklists import checklist
@@ -39,12 +48,12 @@ from src.database import (
     consume_magic_link,
     create_magic_link,
     get_karta_progress,
+    get_subscription,
     init_db,
     join_waitlist,
     list_calendar_events,
     list_payments,
     list_uploads,
-    payment_by_external_id,
     recent_ai_questions,
     record_ai_question,
     record_completion,
@@ -52,21 +61,36 @@ from src.database import (
     save_lawyer_lead,
     save_upload,
     set_karta_progress,
-    set_subscription,
     set_user_email,
+    set_user_profile_fields,
     upsert_user,
 )
 from src.documents import load_all_documents
-from src.entitlements import can_ask_ai, mark_human_review_purchased, user_plan
+from src.entitlements import can_ask_ai, user_plan
 from src.karta_wizard import default_progress, progress_view
 from src.letter_writer import write_official_letter
 from src.llm import complete_chat, llm_configured, llm_status, omniroute_reachable
 from src.marketplace import get_lawyer, list_lawyers
 from src.notifications import email_configured, notify_user
+from src.oauth import (
+    facebook_authorize_url,
+    facebook_configured,
+    facebook_exchange,
+    google_authorize_url,
+    google_configured,
+    google_exchange,
+    make_state,
+    parse_state,
+)
 from src.ocr import extract_text, ocr_engine_status
 from src.payments import (
+    apply_successful_purchase,
+    billing_status,
+    cancel_subscription,
+    create_billing_portal,
     create_checkout_session,
-    parse_checkout_completed,
+    handle_stripe_event,
+    list_invoices,
     stripe_configured,
     stripe_webhook_configured,
     verify_stripe_signature,
@@ -77,7 +101,7 @@ from src.services_directory import search_services
 from src.validators import is_required, validate_field
 
 LANDING_DIR = ROOT / "landing"
-PRODUCT_VERSION = "2.0.0"
+PRODUCT_VERSION = "2.1.0"
 
 
 def telegram_configured() -> bool:
@@ -202,6 +226,31 @@ class LawyerLeadRequest(BaseModel):
     message: str = ""
 
 
+class RegisterRequest(BaseModel):
+    email: str
+    password: str = Field(..., min_length=8, max_length=128)
+    name: str = ""
+    lang: Literal["ru", "en", "ua", "pl"] = "ru"
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class PasswordResetRequest(BaseModel):
+    email: str
+
+
+class PasswordResetConfirm(BaseModel):
+    token: str
+    password: str = Field(..., min_length=8, max_length=128)
+
+
+class BillingUserRequest(BaseModel):
+    user_id: int
+
+
 def _docs() -> dict:
     return getattr(app.state, "documents", None) or load_all_documents()
 
@@ -299,7 +348,131 @@ async def product_meta(
         "prices": PLAN_PRICES,
         "public_base_url": PUBLIC_BASE_URL,
         "ai_gateway": "omniroute",
+        "auth": {
+            "password": True,
+            "google": google_configured(),
+            "facebook": facebook_configured(),
+            "magic_link": True,
+        },
+        "billing": billing_status(),
     }
+
+
+@app.post("/api/auth/register")
+async def auth_register(payload: RegisterRequest):
+    try:
+        result = await register_with_password(
+            payload.email,
+            payload.password,
+            name=payload.name,
+            lang=payload.lang,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return result
+
+
+@app.post("/api/auth/login")
+async def auth_login(payload: LoginRequest):
+    try:
+        return await login_with_password(payload.email, payload.password)
+    except ValueError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
+
+
+@app.post("/api/auth/password/forgot")
+async def auth_password_forgot(payload: PasswordResetRequest):
+    try:
+        return await request_password_reset(payload.email)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/auth/password/reset")
+async def auth_password_reset(payload: PasswordResetConfirm):
+    try:
+        return await reset_password(payload.token, payload.password)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/api/auth/verify-email")
+async def auth_verify_email(token: str):
+    try:
+        user_id = await verify_email_token(token)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    session = await issue_session(user_id, label="email_verified")
+    return RedirectResponse(
+        f"/?auth=verified&user_id={user_id}&token={session['token']}#account",
+        status_code=302,
+    )
+
+
+@app.get("/api/auth/providers")
+async def auth_providers():
+    return {
+        "password": True,
+        "google": google_configured(),
+        "facebook": facebook_configured(),
+        "magic_link": True,
+    }
+
+
+@app.get("/api/auth/google/start")
+async def auth_google_start():
+    if not google_configured():
+        raise HTTPException(status_code=503, detail="google_oauth_not_configured")
+    state = make_state("google")
+    return RedirectResponse(google_authorize_url(state), status_code=302)
+
+
+@app.get("/api/auth/google/callback")
+async def auth_google_callback(code: str | None = None, state: str | None = None):
+    if not code or not state:
+        raise HTTPException(status_code=400, detail="oauth_missing_params")
+    try:
+        parse_state(state)
+        profile = await google_exchange(code)
+        result = await login_or_register_oauth(profile)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail="oauth_failed") from exc
+    tok = result["session"]["token"]
+    uid = result["user"]["user_id"]
+    return RedirectResponse(
+        f"/?auth=ok&provider=google&user_id={uid}&token={tok}#account",
+        status_code=302,
+    )
+
+
+@app.get("/api/auth/facebook/start")
+async def auth_facebook_start():
+    if not facebook_configured():
+        raise HTTPException(status_code=503, detail="facebook_oauth_not_configured")
+    state = make_state("facebook")
+    return RedirectResponse(facebook_authorize_url(state), status_code=302)
+
+
+@app.get("/api/auth/facebook/callback")
+async def auth_facebook_callback(code: str | None = None, state: str | None = None):
+    if not code or not state:
+        raise HTTPException(status_code=400, detail="oauth_missing_params")
+    try:
+        parse_state(state)
+        profile = await facebook_exchange(code)
+        result = await login_or_register_oauth(profile)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail="oauth_failed") from exc
+    tok = result["session"]["token"]
+    uid = result["user"]["user_id"]
+    return RedirectResponse(
+        f"/?auth=ok&provider=facebook&user_id={uid}&token={tok}#account",
+        status_code=302,
+    )
 
 
 @app.post("/api/auth/session")
@@ -314,6 +487,7 @@ async def auth_session(payload: SessionRequest):
 async def auth_magic_link(payload: MagicLinkRequest):
     await upsert_user(payload.user_id, None, None, None)
     await set_user_email(payload.user_id, payload.email)
+    await set_user_profile_fields(payload.user_id, email=payload.email)
     token = new_token()
     expires = (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
     await create_magic_link(hash_token(token), payload.user_id, payload.email, expires)
@@ -324,7 +498,6 @@ async def auth_magic_link(payload: MagicLinkRequest):
         subject="WniosekPL login link",
         body=f"Open this link to sign in: {link}",
     )
-    # In demo/dev return the link so the flow is testable without SMTP.
     return {
         "ok": True,
         "email": payload.email,
@@ -343,7 +516,7 @@ async def auth_claim(token: str):
     await set_user_email(user_id, row.get("email") or "")
     session = await issue_session(user_id, days=SESSION_DAYS, label="magic")
     return RedirectResponse(
-        f"/?auth=ok&user_id={user_id}&token={session['token']}",
+        f"/?auth=ok&user_id={user_id}&token={session['token']}#account",
         status_code=302,
     )
 
@@ -353,7 +526,12 @@ async def auth_me(authorization: str | None = Header(default=None)):
     user_id = await resolve_session(authorization)
     if not user_id:
         raise HTTPException(status_code=401, detail="invalid_session")
-    return {"user_id": user_id, "plan": await user_plan(user_id)}
+    return {
+        "user": await public_user(user_id),
+        "plan": await user_plan(user_id),
+        "subscription": await get_subscription(user_id),
+        "billing": billing_status(),
+    }
 
 
 @app.get("/api/documents")
@@ -459,15 +637,25 @@ async def create_lead(payload: LeadRequest):
     return {"product": payload.product, "created": created}
 
 
+@app.get("/api/billing/status")
+async def billing_status_api():
+    return billing_status()
+
+
 @app.post("/api/billing/checkout")
-async def billing_checkout(payload: CheckoutRequest, request: Request):
+async def billing_checkout(
+    payload: CheckoutRequest,
+    request: Request,
+    authorization: str | None = Header(default=None),
+):
     ip = request.client.host if request.client else "unknown"
-    if not billing_limiter.allow(f"{ip}:{payload.user_id}"):
+    user_id = await _resolve_user(payload.user_id, authorization)
+    if not billing_limiter.allow(f"{ip}:{user_id}"):
         raise HTTPException(status_code=429, detail="rate_limited")
-    await upsert_user(payload.user_id, None, None, None)
-    session = await create_checkout_session(payload.user_id, payload.product)
+    await upsert_user(user_id, None, None, None)
+    session = await create_checkout_session(user_id, payload.product)
     await record_payment(
-        payload.user_id,
+        user_id,
         payload.product,
         PLAN_PRICES[payload.product]["amount_pln"],
         "checkout_created",
@@ -481,25 +669,48 @@ async def billing_checkout(payload: CheckoutRequest, request: Request):
 async def billing_mock_complete(user_id: int, product: str):
     if product not in PLAN_PRICES:
         raise HTTPException(status_code=400, detail="unknown_product")
-    await upsert_user(user_id, None, None, None)
-    await record_payment(
+    await apply_successful_purchase(
         user_id,
         product,
-        PLAN_PRICES[product]["amount_pln"],
-        "paid",
-        "mock",
-        f"mock-{uuid4().hex[:10]}",
+        provider="mock",
+        external_id=f"mock-{uuid4().hex[:10]}",
     )
-    if product == "ai_subscription":
-        await set_subscription(user_id, "ai_subscription", source="mock", days=30)
-    elif product == "human_review":
-        await mark_human_review_purchased(user_id)
     await notify_user(
         user_id=user_id,
         subject="WniosekPL payment (demo)",
         body=f"Product {product} activated for user {user_id}.",
     )
-    return RedirectResponse(f"/?billing=success&product={product}&user_id={user_id}")
+    return RedirectResponse(f"/?billing=success&product={product}&user_id={user_id}#account")
+
+
+@app.post("/api/billing/portal")
+async def billing_portal(
+    payload: BillingUserRequest,
+    authorization: str | None = Header(default=None),
+):
+    user_id = await _resolve_user(payload.user_id, authorization)
+    try:
+        return await create_billing_portal(user_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/billing/cancel")
+async def billing_cancel(
+    payload: BillingUserRequest,
+    authorization: str | None = Header(default=None),
+):
+    user_id = await _resolve_user(payload.user_id, authorization)
+    return await cancel_subscription(user_id, at_period_end=True)
+
+
+@app.get("/api/billing/invoices/{user_id}")
+async def billing_invoices(
+    user_id: int,
+    authorization: str | None = Header(default=None),
+):
+    resolved = await _resolve_user(user_id, authorization)
+    return {"items": await list_invoices(resolved)}
 
 
 @app.post("/api/billing/webhook")
@@ -517,37 +728,14 @@ async def billing_webhook(
     except Exception as exc:
         raise HTTPException(status_code=400, detail="invalid_json") from exc
 
-    parsed = parse_checkout_completed(event)
-    if not parsed:
-        return {"received": True, "handled": False}
-
-    external_id = parsed.get("session_id") or ""
-    if external_id:
-        existing = await payment_by_external_id(external_id)
-        if existing and existing.get("status") == "paid":
-            return {"received": True, "handled": True, "duplicate": True}
-
-    user_id = parsed["user_id"]
-    product = parsed["product"]
-    await upsert_user(user_id, None, None, None)
-    await record_payment(
-        user_id,
-        product,
-        PLAN_PRICES[product]["amount_pln"],
-        "paid",
-        "stripe",
-        external_id or None,
-    )
-    if product == "ai_subscription":
-        await set_subscription(user_id, "ai_subscription", source="stripe", days=30)
-    elif product == "human_review":
-        await mark_human_review_purchased(user_id)
-    await notify_user(
-        user_id=user_id,
-        subject="WniosekPL payment confirmed",
-        body=f"Stripe checkout completed for {product}.",
-    )
-    return {"received": True, "handled": True, "user_id": user_id, "product": product}
+    result = await handle_stripe_event(event)
+    if result.get("handled") and result.get("user_id"):
+        await notify_user(
+            user_id=int(result["user_id"]),
+            subject="WniosekPL payment update",
+            body=f"Billing event: {event.get('type')}",
+        )
+    return {"received": True, **result}
 
 
 @app.get("/api/cabinet/{user_id}")

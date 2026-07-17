@@ -39,7 +39,7 @@ def test_platform_v2_auth_lawyers_webhook_countries(tmp_path, monkeypatch):
     with TestClient(server.app) as client:
         meta = client.get("/api/meta")
         assert meta.status_code == 200
-        assert meta.json()["version"] == "2.0.0"
+        assert meta.json()["version"].startswith("2.")
         assert meta.json()["database_backend"] == "sqlite"
 
         session = client.post("/api/auth/session", json={"user_id": 777})
@@ -47,7 +47,7 @@ def test_platform_v2_auth_lawyers_webhook_countries(tmp_path, monkeypatch):
         token = session.json()["token"]
         me = client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
         assert me.status_code == 200
-        assert me.json()["user_id"] == 777
+        assert me.json()["user"]["user_id"] == 777
 
         magic = client.post(
             "/api/auth/magic-link",

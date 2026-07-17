@@ -61,9 +61,15 @@ def test_server_assistant_ask_records_usage_and_enforces_limit(tmp_path, monkeyp
     monkeypatch.setattr(server, "AI_FREE_DAILY_LIMIT", 1)
     import src.config as config
     import src.entitlements as entitlements
+    import src.llm as llm
 
     monkeypatch.setattr(config, "AI_FREE_DAILY_LIMIT", 1)
     monkeypatch.setattr(entitlements, "AI_FREE_DAILY_LIMIT", 1)
+    # Keep topic classification deterministic (no live OmniRoute/LLM).
+    monkeypatch.setattr(llm, "llm_configured", lambda: False)
+    async def _no_llm(*args, **kwargs):
+        return None
+    monkeypatch.setattr(llm, "complete_chat", _no_llm)
 
     payload = {
         "user_id": 42,

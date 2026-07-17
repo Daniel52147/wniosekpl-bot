@@ -671,21 +671,61 @@
     <section id="account">
       <div class="section-head">
         <div>
-          <h2>Konto web</h2>
-          <p>Sesja przeglądarki + opcjonalny magic link (email).</p>
+          <h2>Konto i płatności</h2>
+          <p>Rejestracja email/hasło, Google, Facebook + Stripe checkout / portal.</p>
         </div>
+        <div id="auth-user-box" class="status"></div>
+      </div>
+      <div class="pricing" style="margin-bottom:1rem">
+        <article class="plan featured">
+          <strong>Rejestracja</strong>
+          <form id="register-form" style="display:grid;gap:0.55rem;margin-top:0.7rem">
+            <input id="reg-name" placeholder="Imię" />
+            <input id="reg-email" type="email" placeholder="Email" required />
+            <input id="reg-password" type="password" placeholder="Hasło (min. 8)" required minlength="8" />
+            <button class="cta" type="submit">Załóż konto</button>
+          </form>
+        </article>
+        <article class="plan">
+          <strong>Logowanie</strong>
+          <form id="login-form" style="display:grid;gap:0.55rem;margin-top:0.7rem">
+            <input id="login-email" type="email" placeholder="Email" required />
+            <input id="login-password" type="password" placeholder="Hasło" required />
+            <button class="cta" type="submit">Zaloguj</button>
+          </form>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.8rem">
+            <a class="ghost" id="btn-google" href="/api/auth/google/start">Google</a>
+            <a class="ghost" id="btn-facebook" href="/api/auth/facebook/start">Facebook</a>
+          </div>
+        </article>
+        <article class="plan">
+          <strong>Płatności</strong>
+          <p id="billing-status-line" class="muted">Ładowanie…</p>
+          <div style="display:grid;gap:0.5rem;margin-top:0.6rem">
+            <a class="cta" href="#" id="pay-ai-account">Kup AI 19 zł</a>
+            <a class="ghost" href="#" id="pay-review-account">Human review 29 zł</a>
+            <a class="ghost" href="#" id="btn-portal">Stripe portal / zarządzaj</a>
+            <a class="ghost" href="#" id="btn-cancel-sub">Anuluj subskrypcję</a>
+          </div>
+          <div id="invoices-box" class="muted" style="margin-top:0.8rem"></div>
+        </article>
       </div>
       <form id="magic-form" class="chat" style="padding:1rem;display:grid;gap:0.7rem">
-        <input id="magic-email" type="email" placeholder="email@example.com" required />
+        <input id="magic-email" type="email" placeholder="Magic link email" required />
         <button class="cta" type="submit">Wyślij link logowania</button>
         <p id="magic-note" class="muted"></p>
+      </form>
+      <form id="reset-form" class="chat" style="padding:1rem;display:grid;gap:0.7rem;margin-top:0.8rem">
+        <input id="reset-email" type="email" placeholder="Reset hasła — email" required />
+        <button class="ghost" type="submit">Wyślij reset</button>
+        <p id="reset-note" class="muted"></p>
       </form>
       <p class="muted" style="margin-top:0.8rem"><a href="/admin">Admin panel</a></p>
     </section>
 
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.</span>
-      <span>WniosekPL · v2.0</span>
+      <span>WniosekPL · v2.1</span>
     </footer>
   </div>
 
@@ -1213,5 +1253,6 @@
     })();
   </script>
   <script src="/static/platform.js"></script>
+  <script src="/static/auth.js"></script>
 </body>
 </html>

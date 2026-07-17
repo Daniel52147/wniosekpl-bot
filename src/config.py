@@ -54,15 +54,22 @@ LLM_FALLBACK_MODELS = {
 }
 
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 STRIPE_PRICE_AI_MONTHLY = os.getenv("STRIPE_PRICE_AI_MONTHLY", "")
 STRIPE_PRICE_HUMAN_REVIEW = os.getenv("STRIPE_PRICE_HUMAN_REVIEW", "")
 
 ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "")
+APP_SECRET = os.getenv("APP_SECRET", "") or ADMIN_API_KEY or "wniosekpl-dev-secret-change-me"
 SESSION_DAYS = int(os.getenv("SESSION_DAYS", "30"))
 SMTP_HOST = os.getenv("SMTP_HOST", "")
 SMTP_FROM = os.getenv("SMTP_FROM", "")
 DEFAULT_COUNTRY = os.getenv("DEFAULT_COUNTRY", "pl").lower()
+
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
+FACEBOOK_APP_ID = os.getenv("FACEBOOK_APP_ID", "")
+FACEBOOK_APP_SECRET = os.getenv("FACEBOOK_APP_SECRET", "")
 
 
 def database_backend() -> str:

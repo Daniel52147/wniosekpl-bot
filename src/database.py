@@ -210,14 +210,62 @@ async def init_db() -> None:
             ON sessions (telegram_id)
             """
         )
-        try:
-            await db.execute("ALTER TABLE users ADD COLUMN referral TEXT")
-        except aiosqlite.OperationalError:
-            pass
-        try:
-            await db.execute("ALTER TABLE users ADD COLUMN email TEXT")
-        except aiosqlite.OperationalError:
-            pass
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS email_tokens (
+                token_hash TEXT PRIMARY KEY,
+                telegram_id INTEGER NOT NULL,
+                email TEXT NOT NULL,
+                purpose TEXT NOT NULL,
+                expires_at TEXT NOT NULL,
+                used INTEGER DEFAULT 0,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS web_id_seq (
+                name TEXT PRIMARY KEY,
+                value INTEGER NOT NULL
+            )
+            """
+        )
+        for col, decl in (
+            ("referral", "TEXT"),
+            ("email", "TEXT"),
+            ("password_hash", "TEXT"),
+            ("display_name", "TEXT"),
+            ("email_verified", "INTEGER DEFAULT 0"),
+            ("google_id", "TEXT"),
+            ("facebook_id", "TEXT"),
+            ("auth_provider", "TEXT"),
+            ("stripe_customer_id", "TEXT"),
+        ):
+            try:
+                await db.execute(f"ALTER TABLE users ADD COLUMN {col} {decl}")
+            except aiosqlite.OperationalError:
+                pass
+        for col, decl in (
+            ("stripe_subscription_id", "TEXT"),
+            ("cancel_at_period_end", "INTEGER DEFAULT 0"),
+        ):
+            try:
+                await db.execute(f"ALTER TABLE subscriptions ADD COLUMN {col} {decl}")
+            except aiosqlite.OperationalError:
+                pass
+        await db.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) "
+            "WHERE email IS NOT NULL AND email != ''"
+        )
+        await db.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google ON users(google_id) "
+            "WHERE google_id IS NOT NULL AND google_id != ''"
+        )
+        await db.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_facebook ON users(facebook_id) "
+            "WHERE facebook_id IS NOT NULL AND facebook_id != ''"
+        )
         await db.commit()
 
 
@@ -919,3 +967,278 @@ async def payment_by_external_id(external_id: str) -> dict | None:
         )
         row = await cur.fetchone()
         return dict(row) if row else None
+
+
+async def _next_web_user_id(db: aiosqlite.Connection) -> int:
+    """Allocate IDs in 3_000_000_000+ range to avoid clashing with Telegram IDs."""
+    cur = await db.execute(
+        "SELECT value FROM web_id_seq WHERE name = 'web_user'"
+    )
+    row = await cur.fetchone()
+    if row:
+        nxt = int(row[0]) + 1
+        await db.execute(
+            "UPDATE web_id_seq SET value = ? WHERE name = 'web_user'",
+            (nxt,),
+        )
+    else:
+        nxt = 3_000_000_001
+        await db.execute(
+            "INSERT INTO web_id_seq (name, value) VALUES ('web_user', ?)",
+            (nxt,),
+        )
+    return nxt
+
+
+async def create_web_user(
+    *,
+    email: str,
+    password_hash: str | None,
+    display_name: str,
+    lang: str = "ru",
+    provider: str = "password",
+    google_id: str | None = None,
+    facebook_id: str | None = None,
+    email_verified: bool = False,
+) -> int:
+    now = _now()
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        user_id = await _next_web_user_id(db)
+        await db.execute(
+            """
+            INSERT INTO users (
+                telegram_id, username, first_name, language,
+                created_at, last_active_at, email, password_hash,
+                display_name, email_verified, google_id, facebook_id, auth_provider
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                user_id,
+                None,
+                display_name,
+                lang,
+                now,
+                now,
+                email,
+                password_hash,
+                display_name,
+                1 if email_verified else 0,
+                google_id,
+                facebook_id,
+                provider,
+            ),
+        )
+        await db.commit()
+        return user_id
+
+
+async def get_user_profile(telegram_id: int) -> dict | None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM users WHERE telegram_id = ?",
+            (telegram_id,),
+        )
+        row = await cur.fetchone()
+        return dict(row) if row else None
+
+
+async def get_user_by_email(email: str) -> dict | None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM users WHERE lower(email) = lower(?) LIMIT 1",
+            (email.strip(),),
+        )
+        row = await cur.fetchone()
+        return dict(row) if row else None
+
+
+async def get_user_by_google(google_id: str) -> dict | None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM users WHERE google_id = ? LIMIT 1",
+            (google_id,),
+        )
+        row = await cur.fetchone()
+        return dict(row) if row else None
+
+
+async def get_user_by_facebook(facebook_id: str) -> dict | None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM users WHERE facebook_id = ? LIMIT 1",
+            (facebook_id,),
+        )
+        row = await cur.fetchone()
+        return dict(row) if row else None
+
+
+async def set_password_hash(telegram_id: int, password_hash: str) -> None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            """
+            UPDATE users
+            SET password_hash = ?, auth_provider = COALESCE(auth_provider, 'password')
+            WHERE telegram_id = ?
+            """,
+            (password_hash, telegram_id),
+        )
+        await db.commit()
+
+
+async def set_user_profile_fields(telegram_id: int, **fields) -> None:
+    allowed = {
+        "email",
+        "display_name",
+        "email_verified",
+        "google_id",
+        "facebook_id",
+        "auth_provider",
+        "stripe_customer_id",
+        "first_name",
+    }
+    cols = []
+    vals = []
+    for key, value in fields.items():
+        if key not in allowed:
+            continue
+        if key == "email_verified":
+            value = 1 if value else 0
+        cols.append(f"{key} = ?")
+        vals.append(value)
+    if not cols:
+        return
+    vals.append(telegram_id)
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            f"UPDATE users SET {', '.join(cols)}, last_active_at = ? WHERE telegram_id = ?",
+            (*vals[:-1], _now(), telegram_id),
+        )
+        await db.commit()
+
+
+async def link_oauth_identity(
+    telegram_id: int,
+    *,
+    provider: str,
+    provider_id: str,
+    email: str | None,
+    name: str | None,
+    email_verified: bool = False,
+) -> None:
+    fields: dict = {"auth_provider": provider}
+    if provider == "google":
+        fields["google_id"] = provider_id
+    if provider == "facebook":
+        fields["facebook_id"] = provider_id
+    if email:
+        fields["email"] = email
+    if name:
+        fields["display_name"] = name
+        fields["first_name"] = name
+    if email_verified:
+        fields["email_verified"] = True
+    await set_user_profile_fields(telegram_id, **fields)
+
+
+async def create_email_token(
+    token_hash: str,
+    telegram_id: int,
+    email: str,
+    purpose: str,
+    expires_at: str,
+) -> None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            """
+            INSERT INTO email_tokens
+            (token_hash, telegram_id, email, purpose, expires_at, created_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (token_hash, telegram_id, email, purpose, expires_at, _now()),
+        )
+        await db.commit()
+
+
+async def consume_email_token(token_hash: str, purpose: str) -> dict | None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            """
+            SELECT * FROM email_tokens
+            WHERE token_hash = ? AND purpose = ? AND used = 0
+            """,
+            (token_hash, purpose),
+        )
+        row = await cur.fetchone()
+        if not row:
+            return None
+        data = dict(row)
+        if data.get("expires_at", "") < _now():
+            return None
+        await db.execute(
+            "UPDATE email_tokens SET used = 1 WHERE token_hash = ?",
+            (token_hash,),
+        )
+        await db.commit()
+        return data
+
+
+async def set_stripe_customer_id(telegram_id: int, customer_id: str) -> None:
+    await set_user_profile_fields(telegram_id, stripe_customer_id=customer_id)
+
+
+async def update_subscription_record(
+    telegram_id: int,
+    *,
+    plan: str,
+    status: str,
+    source: str = "stripe",
+    expires_at: str | None = None,
+    stripe_subscription_id: str | None = None,
+    cancel_at_period_end: bool = False,
+) -> None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            """
+            INSERT INTO subscriptions (
+                telegram_id, plan, status, source, expires_at, updated_at,
+                stripe_subscription_id, cancel_at_period_end
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(telegram_id) DO UPDATE SET
+                plan = excluded.plan,
+                status = excluded.status,
+                source = excluded.source,
+                expires_at = excluded.expires_at,
+                updated_at = excluded.updated_at,
+                stripe_subscription_id = COALESCE(excluded.stripe_subscription_id, subscriptions.stripe_subscription_id),
+                cancel_at_period_end = excluded.cancel_at_period_end
+            """,
+            (
+                telegram_id,
+                plan,
+                status,
+                source,
+                expires_at,
+                _now(),
+                stripe_subscription_id,
+                1 if cancel_at_period_end else 0,
+            ),
+        )
+        await db.commit()
+
+
+async def clear_subscription(telegram_id: int) -> None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            """
+            UPDATE subscriptions
+            SET status = 'canceled', updated_at = ?, cancel_at_period_end = 1
+            WHERE telegram_id = ?
+            """,
+            (_now(), telegram_id),
+        )
+        await db.commit()
