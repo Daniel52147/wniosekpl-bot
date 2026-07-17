@@ -17,12 +17,40 @@ def _load() -> dict:
 def version_line(doc_id: str, lang: str) -> str:
     entry = _load().get(doc_id)
     if not entry:
-        if doc_id == "umowa_najmu":
-            return {
+        helper_docs = {
+            "umowa_najmu": {
                 "ru": "📅 Szablon umowy — wersja pomocnicza WniosekPL",
                 "en": "📅 Agreement template — helper version",
                 "ua": "📅 Szablon umowy — wersja pomocnicza",
-            }.get(lang, "")
+                "pl": "📅 Szablon umowy — wersja pomocnicza WniosekPL",
+            },
+            "pismo_do_urzedu": {
+                "ru": "📅 Szablon pisma do urzędu — WniosekPL",
+                "en": "📅 Office letter template — WniosekPL",
+                "ua": "📅 Шаблон листа до urzędu — WniosekPL",
+                "pl": "📅 Szablon pisma do urzędu — WniosekPL",
+            },
+            "upowaznienie": {
+                "ru": "📅 Szablon upoważnienia — WniosekPL",
+                "en": "📅 Authorization template — WniosekPL",
+                "ua": "📅 Шаблон upoważnienia — WniosekPL",
+                "pl": "📅 Szablon upoważnienia — WniosekPL",
+            },
+            "oswiadczenie_dochodow": {
+                "ru": "📅 Szablon oświadczenia o dochodach — WniosekPL",
+                "en": "📅 Income declaration template — WniosekPL",
+                "ua": "📅 Шаблон заяви про доходи — WniosekPL",
+                "pl": "📅 Szablon oświadczenia o dochodach — WniosekPL",
+            },
+            "karta_pobytu_przygotowanie": {
+                "ru": "📅 Подготовка к karcie pobytu — WniosekPL",
+                "en": "📅 Residence card prep — WniosekPL",
+                "ua": "📅 Підготовка до karty pobytu — WniosekPL",
+                "pl": "📅 Przygotowanie do karty pobytu — WniosekPL",
+            },
+        }
+        if doc_id in helper_docs:
+            return helper_docs[doc_id].get(lang, helper_docs[doc_id]["ru"])
         return ""
 
     code = entry.get("form_code", doc_id)

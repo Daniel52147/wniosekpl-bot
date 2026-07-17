@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WniosekPL Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=Syne:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #10231f;
+      --moss: #1f6b57;
+      --paper: #f4efe4;
+      --line: rgba(16, 35, 31, 0.14);
+    }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 70% 40% at 0% 0%, rgba(31, 107, 87, 0.18), transparent 50%),
+        linear-gradient(180deg, #f7f2e8, #e8f0ea);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+    .box { width: min(820px, 100%); margin: 0 auto; }
+    h1 { font-family: Syne, sans-serif; margin: 0 0 0.4rem; }
+    .row { display: flex; gap: 0.6rem; flex-wrap: wrap; margin: 1rem 0; }
+    input, button {
+      font: inherit;
+      padding: 0.7rem 0.9rem;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+    }
+    button {
+      background: var(--moss);
+      color: white;
+      border: 0;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    pre {
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 1rem;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+    a { color: var(--moss); }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>WniosekPL Admin</h1>
+    <p>Overview API. Set <code>ADMIN_API_KEY</code> in production.</p>
+    <div class="row">
+      <input id="key" type="password" placeholder="Admin API key" style="flex:1;min-width:220px" />
+      <button id="load">Load overview</button>
+      <a href="/">← Back to site</a>
+    </div>
+    <pre id="out">Ready.</pre>
+  </div>
+  <script>
+    const keyInput = document.getElementById("key");
+    keyInput.value = localStorage.getItem("wniosekpl_admin_key") || "";
+    document.getElementById("load").addEventListener("click", async () => {
+      const key = keyInput.value.trim();
+      localStorage.setItem("wniosekpl_admin_key", key);
+      const headers = key ? { "X-Admin-Key": key } : {};
+      const res = await fetch("/api/admin/overview", { headers });
+      const text = await res.text();
+      try {
+        document.getElementById("out").textContent = JSON.stringify(JSON.parse(text), null, 2);
+      } catch {
+        document.getElementById("out").textContent = text;
+      }
+    });
+  </script>
+</body>
+</html>

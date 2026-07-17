@@ -1,0 +1,70 @@
+id: oswiadczenie_dochodow
+title_pl: "Oświadczenie o dochodach (szablon)"
+title_ru: "Заявление о доходах (шаблон)"
+title_en: "Income declaration (template)"
+title_ua: "Заява про доходи (шаблон)"
+description_ru: "Шаблон oświadczenia o dochodach — часто нужен к karcie pobytu. Проверьте требования вашего urzędu wojewódzkiego."
+description_en: "Income declaration template — often needed for a residence card. Verify your voivodeship office requirements."
+description_pl: "Szablon oświadczenia o dochodach — często wymagany do karty pobytu. Sprawdź wymagania swojego urzędu."
+description_ua: "Шаблон заяви про доходи — часто потрібен до karty pobytu."
+fields:
+  - key: imie
+    label_pl: Imię
+    question_ru: "Имя (латиницей)"
+    question_en: "First name (Latin)"
+    question_ua: "Ім'я (латиницею)"
+    question_pl: "Podaj imię"
+  - key: nazwisko
+    label_pl: Nazwisko
+    question_ru: "Фамилия"
+    question_en: "Last name"
+    question_ua: "Прізвище"
+    question_pl: "Podaj nazwisko"
+  - key: data_urodzenia
+    label_pl: Data urodzenia
+    question_ru: "Дата рождения (DD.MM.RRRR)"
+    question_en: "Date of birth (DD.MM.RRRR)"
+    question_ua: "Дата народження (DD.MM.RRRR)"
+    question_pl: "Podaj datę urodzenia (DD.MM.RRRR)"
+  - key: adres_zamieszkania
+    label_pl: Adres zamieszkania
+    question_ru: "Адрес проживания в Польше"
+    question_en: "Address in Poland"
+    question_ua: "Адреса проживання в Польщі"
+    question_pl: "Podaj adres zamieszkania"
+  - key: zrodlo_dochodu
+    label_pl: Źródło dochodu
+    question_ru: "Источник дохода (np. umowa o pracę, B2B, stypendium)"
+    question_en: "Income source (e.g. employment, B2B, scholarship)"
+    question_ua: "Джерело доходу"
+    question_pl: "Podaj źródło dochodu"
+  - key: pracodawca_nazwa
+    label_pl: Pracodawca / płatnik
+    question_ru: "Работодатель или плательщик (если есть)"
+    question_en: "Employer / payer (if any)"
+    question_ua: "Роботодавець / платник"
+    question_pl: "Podaj pracodawcę lub płatnika"
+  - key: dochod_miesieczny
+    label_pl: Dochód miesięczny netto (PLN)
+    question_ru: "Месячный доход netto (PLN, число)"
+    question_en: "Monthly net income (PLN, number)"
+    question_ua: "Місячний дохід netto (PLN)"
+    question_pl: "Podaj dochód miesięczny netto (PLN)"
+  - key: okres_dochodu
+    label_pl: Okres, którego dotyczy oświadczenie
+    question_ru: "Период (np. styczeń–czerwiec 2026)"
+    question_en: "Period (e.g. January–June 2026)"
+    question_ua: "Період"
+    question_pl: "Podaj okres oświadczenia"
+  - key: data_oswiadczenia
+    label_pl: Data oświadczenia
+    question_ru: "Дата заявления (DD.MM.RRRR)"
+    question_en: "Declaration date (DD.MM.RRRR)"
+    question_ua: "Дата заяви (DD.MM.RRRR)"
+    question_pl: "Podaj datę oświadczenia (DD.MM.RRRR)"
+  - key: miejscowosc_oswiadczenia
+    label_pl: Miejscowość
+    question_ru: "Город"
+    question_en: "City"
+    question_ua: "Місто"
+    question_pl: "Podaj miejscowość"

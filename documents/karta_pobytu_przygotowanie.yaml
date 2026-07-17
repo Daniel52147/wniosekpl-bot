@@ -1,0 +1,65 @@
+id: karta_pobytu_przygotowanie
+title_pl: "Karta pobytu — przygotowanie danych"
+title_ru: "Karta pobytu — подготовка данных"
+title_en: "Residence card — data preparation"
+title_ua: "Karta pobytu — підготовка даних"
+description_ru: "Сбор данных для karty pobytu. Это не официальный бланк воеводства — распечатайте как памятку и сверьте список на сайте urzędu."
+description_en: "Data collection for a residence card. Not the official voivodeship form — use as a checklist and verify locally."
+description_pl: "Zbieranie danych do karty pobytu. To nie oficjalny wniosek wojewody — użyj jako checklistę."
+description_ua: "Збір даних для karty pobytu. Це не офіційний бланк — використайте як чекліст."
+fields:
+  - key: imie
+    label_pl: Imię
+    question_ru: "Имя"
+    question_en: "First name"
+    question_ua: "Ім'я"
+  - key: nazwisko
+    label_pl: Nazwisko
+    question_ru: "Фамилия"
+    question_en: "Last name"
+    question_ua: "Прізвище"
+  - key: data_urodzenia
+    label_pl: Data urodzenia
+    question_ru: "Дата рождения (DD.MM.RRRR)"
+    question_en: "Date of birth (DD.MM.RRRR)"
+    question_ua: "Дата народження (DD.MM.RRRR)"
+  - key: obywatelstwo
+    label_pl: Obywatelstwo
+    question_ru: "Гражданство"
+    question_en: "Citizenship"
+    question_ua: "Громадянство"
+  - key: numer_paszportu
+    label_pl: Numer paszportu
+    question_ru: "Номер паспорта"
+    question_en: "Passport number"
+    question_ua: "Номер паспорта"
+  - key: cel_pobytu
+    label_pl: Cel pobytu
+    question_ru: "Цель пребывания (работа / учёба / семья / бизнес)"
+    question_en: "Purpose of stay (work / studies / family / business)"
+    question_ua: "Мета перебування"
+  - key: adres_zamieszkania
+    label_pl: Adres w Polsce
+    question_ru: "Адрес в Польше"
+    question_en: "Address in Poland"
+    question_ua: "Адреса в Польщі"
+  - key: pracodawca_nazwa
+    label_pl: Pracodawca / uczelnia
+    question_ru: "Работодатель или вуз"
+    question_en: "Employer or university"
+    question_ua: "Роботодавець або виш"
+  - key: dochod_miesieczny
+    label_pl: Dochód miesięczny (PLN)
+    question_ru: "Доход в месяц (PLN)"
+    question_en: "Monthly income (PLN)"
+    question_ua: "Дохід на місяць (PLN)"
+  - key: ubezpieczenie
+    label_pl: Ubezpieczenie
+    question_ru: "Какая страховка (ZUS / NFZ / частная)"
+    question_en: "Insurance type (ZUS / NFZ / private)"
+    question_ua: "Страхування"
+  - key: data_wniosku
+    label_pl: Planowana data złożenia
+    question_ru: "Планируемая дата подачи (DD.MM.RRRR)"
+    question_en: "Planned filing date (DD.MM.RRRR)"
+    question_ua: "Планована дата подачі (DD.MM.RRRR)"

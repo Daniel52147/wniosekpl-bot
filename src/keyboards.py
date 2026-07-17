@@ -20,13 +20,23 @@ def language_keyboard() -> InlineKeyboardMarkup:
     )
 
 
-DOC_ORDER = ("pesel", "meldunek", "meldunek_staly", "umowa_najmu")
+DOC_ORDER = (
+    "pesel",
+    "meldunek",
+    "meldunek_staly",
+    "umowa_najmu",
+    "pismo_do_urzedu",
+    "upowaznienie",
+    "oswiadczenie_dochodow",
+    "karta_pobytu_przygotowanie",
+)
 
 
 def quick_keyboard(lang: str) -> InlineKeyboardMarkup:
     pkg = PACKAGES["przeprowadzka"]
     return InlineKeyboardMarkup(
         inline_keyboard=[
+            [InlineKeyboardButton(text=t("ai_ask_btn", lang), callback_data="action:ask_ai")],
             [
                 InlineKeyboardButton(text=pkg.title(lang), callback_data="package:przeprowadzka"),
                 InlineKeyboardButton(text=t("quick_pesel", lang), callback_data="doc:pesel"),
@@ -39,6 +49,26 @@ def quick_keyboard(lang: str) -> InlineKeyboardMarkup:
                 InlineKeyboardButton(text=t("guide_btn", lang), callback_data="action:guide"),
                 InlineKeyboardButton(text=t("repeat_last_btn", lang), callback_data="action:repeat_last"),
             ],
+            [InlineKeyboardButton(text=t("review_btn", lang), callback_data="action:review")],
+        ]
+    )
+
+
+def review_keyboard(lang: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=t("review_waitlist_btn", lang), callback_data="waitlist:human_review")],
+            [InlineKeyboardButton(text=t("another", lang), callback_data="action:docs")],
+        ]
+    )
+
+
+def ai_upgrade_keyboard(lang: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=t("ai_subscription_btn", lang), callback_data="waitlist:ai_subscription")],
+            [InlineKeyboardButton(text=t("review_btn", lang), callback_data="action:review")],
+            [InlineKeyboardButton(text=t("another", lang), callback_data="action:docs")],
         ]
     )
 
@@ -65,6 +95,7 @@ def meldunek_menu_keyboard(lang: str) -> InlineKeyboardMarkup:
 def documents_keyboard(docs: dict[str, DocumentDef], lang: str) -> InlineKeyboardMarkup:
     pkg = PACKAGES["przeprowadzka"]
     buttons = [
+        [InlineKeyboardButton(text=t("ai_ask_btn", lang), callback_data="action:ask_ai")],
         [InlineKeyboardButton(text=pkg.title(lang), callback_data="package:przeprowadzka")],
         [
             InlineKeyboardButton(text="🆔 PESEL", callback_data="doc:pesel"),
@@ -90,6 +121,7 @@ def documents_keyboard(docs: dict[str, DocumentDef], lang: str) -> InlineKeyboar
             InlineKeyboardButton(text=t("guide_btn", lang), callback_data="action:guide"),
         ]
     )
+    buttons.append([InlineKeyboardButton(text=t("review_btn", lang), callback_data="action:review")])
     buttons.append(
         [InlineKeyboardButton(text=t("profile_use_btn", lang), callback_data="action:use_profile")]
     )
@@ -215,6 +247,7 @@ def after_pdf_keyboard(lang: str) -> InlineKeyboardMarkup:
         f"&text=WniosekPL%20%E2%80%94%20darmowy%20pomocnik%20formularzy%20%F0%9F%87%B5%F0%9F%87%B1"
     )
     rows = [
+        [InlineKeyboardButton(text=t("review_btn", lang), callback_data="action:review")],
         [InlineKeyboardButton(text=t("share_btn", lang), url=share_url)],
         [InlineKeyboardButton(text=t("another", lang), callback_data="action:docs")],
         [InlineKeyboardButton(text=t("menu", lang), callback_data="action:menu")],

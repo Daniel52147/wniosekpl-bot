@@ -1,0 +1,70 @@
+id: pismo_do_urzedu
+title_pl: "Pismo do urzędu (szablon)"
+title_ru: "Письмо в urząd (шаблон)"
+title_en: "Letter to the office (template)"
+title_ua: "Лист до urzędu (шаблон)"
+description_ru: "Официальное письмо на польском: ответ на wezwanie, пояснение или просьба. Распечатайте, подпишите и приложите копии."
+description_en: "Official Polish letter: reply to a summons, explanation, or request. Print, sign, and attach copies."
+description_pl: "Szablon pisma urzędowego po polsku. Wydrukuj, podpisz i dołącz załączniki."
+description_ua: "Офіційний лист польською: відповідь на wezwanie, пояснення або прохання."
+fields:
+  - key: nadawca_imie_nazwisko
+    label_pl: Nadawca (imię i nazwisko)
+    question_ru: "Ваше имя и фамилия (латиницей)"
+    question_en: "Your full name (Latin)"
+    question_ua: "Ваше ім'я та прізвище (латиницею)"
+    question_pl: "Podaj imię i nazwisko nadawcy"
+  - key: nadawca_adres
+    label_pl: Adres nadawcy
+    question_ru: "Ваш адрес в Польше (улица, код, город)"
+    question_en: "Your address in Poland"
+    question_ua: "Ваша адреса в Польщі"
+    question_pl: "Podaj adres nadawcy w Polsce"
+  - key: nadawca_telefon
+    label_pl: Telefon / e-mail
+    question_ru: "Телефон или e-mail для связи"
+    question_en: "Phone or email for contact"
+    question_ua: "Телефон або e-mail"
+    question_pl: "Podaj telefon lub e-mail"
+  - key: urzad_nazwa
+    label_pl: Adresat (nazwa urzędu)
+    question_ru: "Название urzędu (np. Urząd Wojewódzki w Warszawie)"
+    question_en: "Office name (e.g. Urząd Wojewódzki w Warszawie)"
+    question_ua: "Назва urzędu"
+    question_pl: "Podaj nazwę urzędu"
+  - key: urzad_adres
+    label_pl: Adres urzędu
+    question_ru: "Адрес urzędu"
+    question_en: "Office address"
+    question_ua: "Адреса urzędu"
+    question_pl: "Podaj adres urzędu"
+  - key: znak_sprawy
+    label_pl: Znak sprawy (jeśli masz)
+    question_ru: "Номер дела / znak sprawy (или напишите: brak)"
+    question_en: "Case number / znak sprawy (or type: brak)"
+    question_ua: "Номер справи / znak sprawy (або: brak)"
+    question_pl: "Podaj znak sprawy albo wpisz: brak"
+  - key: temat_pisma
+    label_pl: Temat / dotyczy
+    question_ru: "Тема письма (np. Uzupełnienie dokumentów do karty pobytu)"
+    question_en: "Letter subject (e.g. Missing documents for residence card)"
+    question_ua: "Тема листа"
+    question_pl: "Podaj temat pisma"
+  - key: tresc_pisma
+    label_pl: Treść pisma
+    question_ru: "Текст письма своими словами — бот оформит как польское pismo"
+    question_en: "Write the content in your words — we format it as a Polish letter"
+    question_ua: "Текст листа своїми словами"
+    question_pl: "Napisz treść pisma"
+  - key: data_pisma
+    label_pl: Data pisma
+    question_ru: "Дата письма (DD.MM.RRRR)"
+    question_en: "Letter date (DD.MM.RRRR)"
+    question_ua: "Дата листа (DD.MM.RRRR)"
+    question_pl: "Podaj datę pisma (DD.MM.RRRR)"
+  - key: miejscowosc_pisma
+    label_pl: Miejscowość
+    question_ru: "Город (для шапки письма)"
+    question_en: "City (letter header)"
+    question_ua: "Місто (для шапки листа)"
+    question_pl: "Podaj miejscowość"

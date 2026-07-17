@@ -1,0 +1,64 @@
+id: upowaznienie
+title_pl: "Upoważnienie / pełnomocnictwo (szablon)"
+title_ru: "Доверенность / upoważnienie (шаблон)"
+title_en: "Authorization / power of attorney (template)"
+title_ua: "Довіреність / upoważnienie (шаблон)"
+description_ru: "Простой шаблон upoważnienia: кто, кого и к чему уполномочивает. Не заменяет нотариальное pełnomocnictwo, если urząd требует акт notarialny."
+description_en: "Simple authorization template. Not a notarial power of attorney if the office requires one."
+description_pl: "Szablon upoważnienia. Nie zastępuje pełnomocnictwa notarialnego, jeśli urząd tego wymaga."
+description_ua: "Простий шаблон upoważnienia. Не замінює нотаріальне pełnomocnictwo."
+fields:
+  - key: mocodawca_imie_nazwisko
+    label_pl: Mocodawca (kto upoważnia)
+    question_ru: "Кто выдаёт доверенность: ФИО"
+    question_en: "Principal: full name"
+    question_ua: "Хто видає довіреність: ПІБ"
+    question_pl: "Podaj imię i nazwisko mocodawcy"
+  - key: mocodawca_dokument
+    label_pl: Dokument tożsamości mocodawcy
+    question_ru: "Паспорт / PESEL mocodawcy"
+    question_en: "Principal passport / PESEL"
+    question_ua: "Паспорт / PESEL mocodawcy"
+    question_pl: "Podaj dokument mocodawcy"
+  - key: mocodawca_adres
+    label_pl: Adres mocodawcy
+    question_ru: "Адрес mocodawcy"
+    question_en: "Principal address"
+    question_ua: "Адреса mocodawcy"
+    question_pl: "Podaj adres mocodawcy"
+  - key: pelnomocnik_imie_nazwisko
+    label_pl: Pełnomocnik (kogo upoważniasz)
+    question_ru: "Кого уполномочиваете: ФИО"
+    question_en: "Attorney: full name"
+    question_ua: "Кого уповноважуєте: ПІБ"
+    question_pl: "Podaj imię i nazwisko pełnomocnika"
+  - key: pelnomocnik_dokument
+    label_pl: Dokument tożsamości pełnomocnika
+    question_ru: "Паспорт / PESEL pełnomocnika"
+    question_en: "Attorney passport / PESEL"
+    question_ua: "Паспорт / PESEL pełnomocnika"
+    question_pl: "Podaj dokument pełnomocnika"
+  - key: zakres_upowaznienia
+    label_pl: Zakres upoważnienia
+    question_ru: "К чему уполномочиваете (np. złożenie dokumentów w urzędzie wojewódzkim)"
+    question_en: "Scope (e.g. submit documents at the voivodeship office)"
+    question_ua: "До чого уповноважуєте"
+    question_pl: "Opisz zakres upoważnienia"
+  - key: urzad_nazwa
+    label_pl: Urząd / instytucja
+    question_ru: "В какой urząd / институт"
+    question_en: "Which office / institution"
+    question_ua: "Який urząd / інституція"
+    question_pl: "Podaj urząd lub instytucję"
+  - key: data_upowaznienia
+    label_pl: Data upoważnienia
+    question_ru: "Дата (DD.MM.RRRR)"
+    question_en: "Date (DD.MM.RRRR)"
+    question_ua: "Дата (DD.MM.RRRR)"
+    question_pl: "Podaj datę (DD.MM.RRRR)"
+  - key: miejscowosc_upowaznienia
+    label_pl: Miejscowość
+    question_ru: "Город"
+    question_en: "City"
+    question_ua: "Місто"
+    question_pl: "Podaj miejscowość"

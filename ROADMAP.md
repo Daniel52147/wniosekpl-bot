@@ -1,39 +1,35 @@
 # WniosekPL — roadmap
 
-## Faza 1 — zaufanie (1–2 mies.) ✅ w bocie
+## Faza 1 — zaufanie ✅
+- [x] Pakiet Przeprowadzka
+- [x] Checklisty
+- [x] Podstawa prawna presets
+- [x] Wersja blanke
 
-- [x] Pakiet Przeprowadzka (umowa + meldunek + PESEL)
-- [x] Checklisty do urzędu
-- [x] Przyciski podstawa prawna (ZUS / praca / uczelnia / pobyt)
-- [x] Wersja blanke: «aktualny na: czerwiec 2025»
+## Faza 2 — skala ✅
+- [x] EL/ZPS/1
+- [x] Podgląd PDF
+- [x] Landing + web UI
+- [x] PL/EN/UA/RU
+- [x] Helper docs: pismo, upoważnienie, oświadczenie, karta prep
 
-## Faza 2 — skala (3–6 mies.)
+## Faza 3 — biznes ✅ (v1.0 foundation)
+- [x] AI assistant + knowledge base
+- [x] LLM hook (OPENAI_API_KEY)
+- [x] Billing checkout (Stripe or mock)
+- [x] Human review + AI subscription entitlements
+- [x] Personal cabinet
+- [x] Karta pobytu checklist wizard
+- [x] Calendar reminders
+- [x] Upload/analyze documents
+- [x] Letter generator
+- [x] Services directory
+- [x] Admin overview API
 
-- [x] EL/ZPS/1 (pobyt stały)
-- [ ] Formularz cudzoziemca (osobny)
-- [ ] Karta pobytu (osobny produkt)
-- [x] Podgląd PDF przed finałem (watermark)
-- [x] Landing `landing/index.html`
-- [x] Podpowiedzi pól (❓) + /usun RODO
-- [x] PL / EN / UA / RU — podstawowe copy + język PL w menu
-
-## Faza 3 — biznes (6–12 mies.)
-
-- [ ] 19 zł / dokument, pakiet 79 zł
-- [ ] B2B white-label
-- [ ] Human review +29 zł
-- [ ] Partnerstwo kancelaria
-
-## Faza 3+ (częściowo w bocie)
-
-- [x] Profil użytkownika — autouzupełnianie pól
-- [x] Przycisk Wstecz podczas wypełniania
-- [x] Przypomnienia meldunek (25 / 90 dni)
-- [x] Waitlist Karta pobytu
-- [x] Menu komend Telegram
-
-## Faza 4 — moat
-
-- [ ] AI tylko wyjaśnienia pól (rozszerzyć hinty)
-- [ ] ePUAP
-- [ ] 50k users → banki, ubezpieczenia
+## Faza 4 — perfection (next)
+- [ ] Real Stripe webhook signature verification in production
+- [ ] Tesseract OCR for photos
+- [ ] Postgres shared DB for web+bot
+- [ ] Full auth (email/magic link) beyond numeric user_id
+- [ ] Partner law-firm marketplace
+- [ ] Multi-country packs (DE/CZ/NL)

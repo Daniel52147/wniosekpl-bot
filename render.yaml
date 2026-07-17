@@ -1,6 +1,24 @@
-# Blueprint Render — Background Worker (Telegram polling)
+# Blueprint Render — Web API + optional Telegram polling worker
 # https://render.com/docs/blueprint-spec
 services:
+  - type: web
+    name: wniosekpl-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m uvicorn server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: WEB_CORS_ORIGINS
+        value: "*"
+      - key: AI_FREE_DAILY_LIMIT
+        value: "5"
+      - key: DATABASE_PATH
+        value: /data/urzad.db
+    disk:
+      name: wniosekpl-api-data
+      mountPath: /data
+      sizeGB: 1
+
   - type: worker
     name: wniosekpl-bot
     runtime: python
@@ -17,6 +35,6 @@ services:
       - key: DATABASE_PATH
         value: /data/urzad.db
     disk:
-      name: wniosekpl-data
+      name: wniosekpl-bot-data
       mountPath: /data
       sizeGB: 1
