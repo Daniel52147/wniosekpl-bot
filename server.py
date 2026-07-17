@@ -1,9 +1,10 @@
 from contextlib import asynccontextmanager
 from typing import Literal
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from src.ai_assistant import answer_question
@@ -17,6 +18,9 @@ from src.database import (
 )
 from src.documents import load_all_documents
 
+LANDING_DIR = ROOT / "landing"
+PRODUCT_VERSION = "0.2.0"
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -27,8 +31,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="WniosekPL API",
-    description="Web API for the WniosekPL AI assistant and document workflows.",
-    version="0.1.0",
+    description="Web API and product surface for the WniosekPL AI assistant.",
+    version=PRODUCT_VERSION,
     lifespan=lifespan,
 )
 
@@ -39,6 +43,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+if LANDING_DIR.exists():
+    app.mount("/static", StaticFiles(directory=LANDING_DIR), name="static")
 
 
 class AssistantRequest(BaseModel):
@@ -71,17 +78,39 @@ class DocumentSummary(BaseModel):
     fields_count: int
 
 
+class MetaResponse(BaseModel):
+    name: str
+    version: str
+    ai_free_daily_limit: int
+    used_today: int
+    free_questions_left: int
+    channels: list[str]
+
+
 @app.get("/", include_in_schema=False)
 async def landing_page():
-    landing = ROOT / "landing" / "index.html"
+    landing = LANDING_DIR / "index.html"
     if landing.exists():
         return FileResponse(landing)
-    return {"name": "WniosekPL API"}
+    return {"name": "WniosekPL API", "version": PRODUCT_VERSION}
 
 
 @app.get("/health")
 async def health():
-    return {"status": "ok"}
+    return {"status": "ok", "version": PRODUCT_VERSION}
+
+
+@app.get("/api/meta", response_model=MetaResponse)
+async def product_meta(user_id: int | None = Query(default=None)):
+    used = await ai_questions_today(user_id) if user_id else 0
+    return MetaResponse(
+        name="WniosekPL",
+        version=PRODUCT_VERSION,
+        ai_free_daily_limit=AI_FREE_DAILY_LIMIT,
+        used_today=used,
+        free_questions_left=max(AI_FREE_DAILY_LIMIT - used, 0),
+        channels=["web", "telegram"],
+    )
 
 
 @app.get("/api/documents", response_model=list[DocumentSummary])

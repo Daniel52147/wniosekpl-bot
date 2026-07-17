@@ -3,27 +3,34 @@ BRAND = "WniosekPL"
 TEXTS = {
     "welcome": {
         "ru": (
-            f"👋 <b>{BRAND}</b> — pomocnik, <b>nie urząd</b>.\n\n"
-            "Бесплатно: официальные PDF (PESEL gov.pl, Meldunek EL/ZC/1) "
-            "или <b>📦 Пакет «Переезд»</b> — 3 документа за один раз.\n\n"
-            "⚠️ Не юридическая консультация. Проверьте dane i podpis właściciela.\n\n"
-            "💯 <b>100% бесплатно</b> — без оплаты, без подписки."
+            f"👋 <b>{BRAND}</b> — AI-помощник для иностранцев в Польше, "
+            "<b>nie urząd</b>.\n\n"
+            "Бесплатно: <b>/ask</b> (5 вопросов в день), официальные PDF "
+            "(PESEL, Meldunek) или <b>📦 Пакет «Переезд»</b>.\n\n"
+            "Опционально: проверка человеком за 29 zł, подписка AI 19 zł/мес.\n\n"
+            "⚠️ Не юридическая консультация. Проверьте dane i podpis właściciela."
         ),
         "en": (
-            f"👋 <b>{BRAND}</b> — helper, <b>not a government office</b>.\n\n"
-            "Free official PDFs or <b>📦 Relocation package</b> (3 docs at once).\n\n"
-            "💯 <b>100% free</b> — no payment, no subscription."
+            f"👋 <b>{BRAND}</b> — AI assistant for foreigners in Poland, "
+            "<b>not a government office</b>.\n\n"
+            "Free: <b>/ask</b> (5 questions/day), official PDFs, "
+            "or <b>📦 Relocation package</b>.\n\n"
+            "Optional: human review 29 zł, AI subscription 19 zł/mo."
         ),
         "ua": (
-            f"👋 <b>{BRAND}</b> — помічник, <b>не urząd</b>.\n\n"
-            "Безкоштовно: офіційні PDF (PESEL, Meldunek) або "
-            "<b>📦 Пакет «Переїзд»</b> — 3 документи за раз.\n\n"
-            "💯 <b>100% безкоштовно</b> — без оплати, без підписки."
+            f"👋 <b>{BRAND}</b> — AI-помічник для іноземців у Польщі, "
+            "<b>не urząd</b>.\n\n"
+            "Безкоштовно: <b>/ask</b> (5 питань/день), офіційні PDF "
+            "або <b>📦 Пакет «Переїзд»</b>.\n\n"
+            "Опційно: перевірка людиною 29 zł, підписка AI 19 zł/міс."
         ),
         "pl": (
-            f"👋 <b>{BRAND}</b> — pomocnik, <b>nie urząd</b>.\n\n"
-            "Bezpłatnie: PESEL, Meldunek, pakiet Przeprowadzka.\n\n"
-            "💯 <b>100% za darmo</b> — bez płatności."
+            f"👋 <b>{BRAND}</b> — AI-pomocnik dla cudzoziemców w Polsce, "
+            "<b>nie urząd</b>.\n\n"
+            "Za darmo: <b>/ask</b> (5 pytań/dzień), PESEL, Meldunek, "
+            "pakiet Przeprowadzka.\n\n"
+            "Opcjonalnie: sprawdzenie przez człowieka 29 zł, "
+            "subskrypcja AI 19 zł/mies."
         ),
     },
     "all_docs": {

@@ -3,103 +3,533 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="WniosekPL — AI-pomocnik w Telegram: PESEL, Meldunek, karta pobytu, pisma do urzędu, darmowe PDF i opcjonalne sprawdzenie dokumentów." />
-  <meta property="og:title" content="WniosekPL — formularze urzędowe w Telegram" />
-  <meta property="og:description" content="AI-pomocnik dla cudzoziemców w Polsce: dokumenty, checklisty, PDF, pisma do urzędu i opcjonalna weryfikacja." />
+  <meta name="description" content="WniosekPL — AI-pomocnik dla cudzoziemców w Polsce. PESEL, meldunek, karta pobytu, pisma do urzędu, checklisty i PDF." />
+  <meta property="og:title" content="WniosekPL — AI-pomocnik w Polsce" />
+  <meta property="og:description" content="Zapytaj o dokumenty, wypełnij formularze i uniknij błędów przed urzędem. Pomocnik — nie urząd." />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="pl_PL" />
   <meta property="og:image" content="og.svg" />
-  <meta property="og:image:type" content="image/svg+xml" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="WniosekPL — formularze urzędowe w Telegram" />
-  <meta name="twitter:description" content="AI-pomocnik dla cudzoziemców w Polsce: dokumenty, checklisty, PDF i pisma do urzędu." />
+  <meta name="twitter:title" content="WniosekPL — AI-pomocnik w Polsce" />
+  <meta name="twitter:description" content="PESEL, meldunek, karta pobytu i pisma do urzędu — w jednym miejscu." />
   <meta name="twitter:image" content="og.svg" />
-  <title>WniosekPL — formularze urzędowe w Telegram</title>
+  <title>WniosekPL — AI-pomocnik dla cudzoziemców w Polsce</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
   <style>
-    * { box-sizing: border-box; }
-    body { font-family: system-ui, sans-serif; margin: 0; background: #0f172a; color: #e2e8f0; }
-    .wrap { max-width: 560px; margin: 0 auto; padding: 2rem 1.5rem; }
-    h1 { color: #fff; font-size: 1.85rem; text-align: center; }
-    .sub { text-align: center; color: #94a3b8; line-height: 1.6; }
-    .langs { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 1.2rem 0; }
-    .langs button { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
-    .langs button.active { background: #2563eb; border-color: #2563eb; }
-    .card { background: #1e293b; border-radius: 12px; padding: 1.2rem; margin: 1rem 0; }
-    ul { margin: 0.5rem 0; padding-left: 1.2rem; }
-    li { margin: 0.35rem 0; }
-    .btn {
-      display: block; text-align: center; margin: 1.5rem auto 0; padding: 14px 28px;
-      background: #2563eb; color: #fff; text-decoration: none; border-radius: 10px; font-weight: 600; max-width: 280px;
+    :root {
+      --ink: #10231f;
+      --paper: #f4efe4;
+      --sand: #e7dcc8;
+      --moss: #1f6b57;
+      --moss-deep: #0f3f35;
+      --amber: #d97706;
+      --line: rgba(16, 35, 31, 0.12);
+      --muted: rgba(16, 35, 31, 0.68);
+      --white: #fffdf8;
+      --shadow: 0 24px 60px rgba(16, 35, 31, 0.14);
+      --radius: 22px;
     }
-    .btn.secondary { background: #0f172a; border: 1px solid #38bdf8; color: #e0f2fe; }
-    .pricing { display: grid; gap: 12px; margin-top: 1rem; }
-    .plan { border: 1px solid #334155; border-radius: 12px; padding: 1rem; background: #111827; }
-    .plan strong { color: #fff; display: block; font-size: 1.05rem; }
-    .price { color: #38bdf8; font-size: 1.4rem; font-weight: 700; margin: 0.35rem 0; }
-    .muted { color: #94a3b8; font-size: 0.9rem; line-height: 1.5; }
-    .badge { text-align: center; font-size: 0.9rem; color: #fbbf24; margin-top: 1rem; }
-    .foot { text-align: center; font-size: 0.75rem; color: #64748b; margin-top: 2rem; }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "IBM Plex Sans", sans-serif;
+      background:
+        radial-gradient(ellipse 80% 50% at 10% -10%, rgba(217, 119, 6, 0.18), transparent 55%),
+        radial-gradient(ellipse 70% 45% at 100% 0%, rgba(31, 107, 87, 0.2), transparent 50%),
+        linear-gradient(180deg, #f7f2e8 0%, #efe6d6 42%, #e8f0ea 100%);
+      min-height: 100vh;
+    }
+
+    .shell { width: min(1120px, calc(100% - 2rem)); margin: 0 auto; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.1rem 0 0.4rem;
+      animation: rise 0.7s ease both;
+    }
+
+    .brand {
+      font-family: Syne, sans-serif;
+      font-weight: 800;
+      font-size: 1.35rem;
+      letter-spacing: -0.03em;
+      text-decoration: none;
+      color: var(--ink);
+    }
+
+    .langs { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    .langs button,
+    .chip,
+    .send,
+    .cta,
+    .ghost {
+      font: inherit;
+      cursor: pointer;
+      border: 0;
+    }
+    .langs button {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      padding: 0.4rem 0.7rem;
+      border-radius: 999px;
+    }
+    .langs button.active {
+      background: var(--ink);
+      color: var(--white);
+      border-color: var(--ink);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 2.2rem;
+      align-items: end;
+      min-height: calc(100vh - 5.5rem);
+      padding: 1.4rem 0 2.6rem;
+    }
+
+    .hero-copy { animation: rise 0.8s ease both; }
+    .hero h1 {
+      font-family: Syne, sans-serif;
+      font-size: clamp(2.7rem, 7vw, 5.4rem);
+      line-height: 0.94;
+      letter-spacing: -0.05em;
+      margin: 0 0 1rem;
+      max-width: 10ch;
+    }
+    .hero p {
+      margin: 0;
+      max-width: 34ch;
+      font-size: 1.08rem;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1.6rem;
+    }
+    .cta, .ghost {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      padding: 0.95rem 1.25rem;
+      border-radius: 999px;
+      font-weight: 600;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .cta {
+      background: var(--moss);
+      color: var(--white);
+      box-shadow: 0 12px 30px rgba(31, 107, 87, 0.28);
+    }
+    .cta:hover, .ghost:hover, .send:hover { transform: translateY(-1px); }
+    .ghost {
+      background: rgba(255, 253, 248, 0.55);
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    .hero-visual {
+      position: relative;
+      min-height: 420px;
+      border-radius: 32px;
+      overflow: hidden;
+      isolation: isolate;
+      animation: rise 1s ease both;
+      box-shadow: var(--shadow);
+      background:
+        linear-gradient(145deg, rgba(15, 63, 53, 0.92), rgba(31, 107, 87, 0.72)),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cpath fill='none' stroke='rgba(255,253,248,0.08)' stroke-width='1' d='M0 40h160M0 80h160M0 120h160M40 0v160M80 0v160M120 0v160'/%3E%3C/svg%3E");
+    }
+    .hero-visual::after {
+      content: "";
+      position: absolute;
+      inset: auto -10% -20% 35%;
+      height: 70%;
+      background: radial-gradient(circle, rgba(217, 119, 6, 0.45), transparent 68%);
+      animation: glow 5s ease-in-out infinite alternate;
+    }
+    .visual-panel {
+      position: absolute;
+      inset: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: var(--white);
+      z-index: 1;
+    }
+    .visual-kicker {
+      font-size: 0.82rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      opacity: 0.8;
+    }
+    .visual-title {
+      font-family: Syne, sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      max-width: 12ch;
+      margin: 0.7rem 0 0;
+    }
+    .visual-note {
+      max-width: 28ch;
+      line-height: 1.45;
+      color: rgba(255, 253, 248, 0.86);
+    }
+
+    section {
+      padding: 1.2rem 0 3.2rem;
+      animation: rise 0.8s ease both;
+    }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: end;
+      margin-bottom: 1.2rem;
+    }
+    .section-head h2 {
+      font-family: Syne, sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      letter-spacing: -0.04em;
+      margin: 0;
+    }
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 34ch;
+      line-height: 1.45;
+    }
+
+    .chat {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-height: 480px;
+      background: rgba(255, 253, 248, 0.72);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+    .chat-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      padding: 1rem 1.1rem;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 253, 248, 0.8);
+    }
+    .status {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+    .chip {
+      background: rgba(31, 107, 87, 0.08);
+      color: var(--moss-deep);
+      border: 1px solid rgba(31, 107, 87, 0.18);
+      border-radius: 999px;
+      padding: 0.45rem 0.8rem;
+      font-size: 0.9rem;
+    }
+    .messages {
+      padding: 1.1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      background:
+        linear-gradient(180deg, rgba(244, 239, 228, 0.35), transparent 30%),
+        rgba(255, 253, 248, 0.4);
+    }
+    .bubble {
+      max-width: min(78%, 560px);
+      padding: 0.9rem 1rem;
+      border-radius: 18px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      animation: pop 0.25s ease both;
+    }
+    .bubble.bot {
+      align-self: flex-start;
+      background: var(--white);
+      border: 1px solid var(--line);
+    }
+    .bubble.user {
+      align-self: flex-end;
+      background: var(--moss);
+      color: var(--white);
+    }
+    .composer {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.7rem;
+      padding: 0.95rem;
+      border-top: 1px solid var(--line);
+      background: rgba(255, 253, 248, 0.9);
+    }
+    .composer textarea {
+      width: 100%;
+      min-height: 54px;
+      max-height: 140px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 0.85rem 1rem;
+      font: inherit;
+      background: var(--white);
+      color: var(--ink);
+    }
+    .send {
+      align-self: end;
+      background: var(--amber);
+      color: #1a1205;
+      border-radius: 16px;
+      padding: 0.9rem 1.15rem;
+      font-weight: 700;
+      min-width: 7.5rem;
+    }
+    .send:disabled { opacity: 0.55; cursor: wait; }
+
+    .docs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.9rem;
+    }
+    .doc {
+      padding: 1.1rem 1.15rem;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 253, 248, 0.55);
+    }
+    .doc strong {
+      display: block;
+      font-family: Syne, sans-serif;
+      font-size: 1.15rem;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.35rem;
+    }
+    .doc p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 0.95rem;
+    }
+
+    .pricing {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.9rem;
+    }
+    .plan {
+      padding: 1.2rem;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 253, 248, 0.55);
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+    .plan.featured {
+      background: linear-gradient(180deg, rgba(31, 107, 87, 0.12), rgba(255, 253, 248, 0.7));
+      border-color: rgba(31, 107, 87, 0.28);
+    }
+    .plan strong {
+      font-family: Syne, sans-serif;
+      font-size: 1.2rem;
+      letter-spacing: -0.03em;
+    }
+    .price {
+      font-family: Syne, sans-serif;
+      font-size: 2rem;
+      letter-spacing: -0.04em;
+      color: var(--moss-deep);
+    }
+    .plan p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+      flex: 1;
+    }
+    .plan a {
+      text-decoration: none;
+      color: var(--moss-deep);
+      font-weight: 600;
+    }
+
+    .foot {
+      padding: 1rem 0 2.4rem;
+      color: var(--muted);
+      font-size: 0.86rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      border-top: 1px solid var(--line);
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pop {
+      from { opacity: 0; transform: translateY(8px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes glow {
+      from { transform: translateY(0) scale(1); opacity: 0.7; }
+      to { transform: translateY(-12px) scale(1.08); opacity: 1; }
+    }
+
+    @media (max-width: 900px) {
+      .hero, .docs, .pricing { grid-template-columns: 1fr; }
+      .hero { min-height: auto; padding-top: 1.6rem; }
+      .hero-visual { min-height: 320px; }
+      .section-head { flex-direction: column; align-items: start; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>WniosekPL</h1>
-    <p class="sub" id="tagline">Pomocnik — <strong>nie urząd</strong>. Odpowiadasz po rusku / angielsku / ukraińsku — dostajesz PDF.</p>
-    <div class="langs">
-      <button type="button" data-lang="pl" class="active">PL</button>
-      <button type="button" data-lang="ru">RU</button>
-      <button type="button" data-lang="en">EN</button>
-      <button type="button" data-lang="ua">UA</button>
-    </div>
-    <div class="card">
-      <ul id="features">
-        <li>PESEL (gov.pl)</li>
-        <li>Meldunek EL/ZC/1 i EL/ZPS/1</li>
-        <li>AI-pomocnik: karta pobytu, ZUS/NFZ, pisma z urzędu</li>
-        <li>Pakiet Przeprowadzka — 3 PDF naraz</li>
-        <li>Checklisty do urzędu + podgląd PDF</li>
-      </ul>
-    </div>
-    <a class="btn" id="tg-link" href="https://t.me/wniosekpl_bot">Otwórz w Telegram</a>
-    <p class="badge" id="free">🎁 PDF bezpłatnie — płatna tylko opcjonalna weryfikacja</p>
-    <div class="card">
-      <strong id="pricing-title">Taryfy</strong>
-      <div class="pricing">
-        <div class="plan">
-          <strong id="free-title">Start</strong>
-          <div class="price" id="free-price">0 zł</div>
-          <div class="muted" id="free-desc">PDF samodzielnie + 5 pytań dziennie do AI-pomocnika.</div>
-        </div>
-        <div class="plan">
-          <strong id="ai-title">AI bez limitu</strong>
-          <div class="price" id="ai-price">19 zł / mies.</div>
-          <div class="muted" id="ai-desc">Plan w przygotowaniu: więcej pytań, analiza PDF/zdjęć, pisma do urzędu i przypomnienia.</div>
-          <a class="btn secondary" id="ai-link" href="https://t.me/wniosekpl_bot?start=ai">Chcę subskrypcję</a>
-        </div>
-        <div class="plan">
-          <strong id="review-title">Sprawdzenie przez człowieka</strong>
-          <div class="price" id="review-price">29 zł</div>
-          <div class="muted" id="review-desc">Dodatkowa kontrola danych, typowych błędów i checklisty przed urzędem.</div>
-          <a class="btn secondary" id="review-link" href="https://t.me/wniosekpl_bot?start=review">Chcę sprawdzenie</a>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="/">WniosekPL</a>
+      <div class="langs" id="langs">
+        <button type="button" data-lang="pl" class="active">PL</button>
+        <button type="button" data-lang="ru">RU</button>
+        <button type="button" data-lang="en">EN</button>
+        <button type="button" data-lang="ua">UA</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <h1 id="hero-title">WniosekPL</h1>
+        <p id="hero-sub">AI-pomocnik dla cudzoziemców w Polsce. Pytasz po swoim języku — dostajesz checklistę, wyjaśnienie i gotowy kierunek.</p>
+        <div class="cta-row">
+          <a class="cta" id="cta-chat" href="#assistant">Zapytaj AI</a>
+          <a class="ghost" id="cta-tg" href="https://t.me/wniosekpl_bot">Otwórz w Telegram</a>
         </div>
       </div>
-    </div>
-    <p class="foot">Nie jesteśmy urzędem. Sprawdź dane przed złożeniem.</p>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="visual-panel">
+          <div>
+            <div class="visual-kicker" id="visual-kicker">Pomocnik, nie urząd</div>
+            <h2 class="visual-title" id="visual-title">PESEL, meldunek, karta pobytu</h2>
+          </div>
+          <p class="visual-note" id="visual-note">Jedno miejsce na dokumenty, pisma i szybkie odpowiedzi przed wizytą w urzędzie.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="assistant">
+      <div class="section-head">
+        <div>
+          <h2 id="assistant-title">AI-asystent</h2>
+          <p id="assistant-sub">5 darmowych pytań dziennie. Napisz sytuację — dostaniesz konkretny plan.</p>
+        </div>
+        <div class="status" id="usage">Ładowanie limitu…</div>
+      </div>
+      <div class="chat">
+        <div class="chat-top">
+          <div class="chips" id="chips"></div>
+        </div>
+        <div class="messages" id="messages" aria-live="polite"></div>
+        <form class="composer" id="ask-form">
+          <textarea id="question" rows="2" maxlength="2000" placeholder="Np. Jestem z Ukrainy, pracuję legalnie i chcę kartę pobytu"></textarea>
+          <button class="send" id="send" type="submit">Wyślij</button>
+        </form>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2 id="docs-title">Dokumenty</h2>
+          <p id="docs-sub">Oficjalne formularze i pakiet przeprowadzki — dostępne też w Telegram.</p>
+        </div>
+      </div>
+      <div class="docs" id="docs"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2 id="pricing-title">Taryfy</h2>
+          <p id="pricing-sub">Zaczynasz za darmo. Płacisz tylko za więcej AI albo sprawdzenie przez człowieka.</p>
+        </div>
+      </div>
+      <div class="pricing">
+        <article class="plan">
+          <strong id="free-title">Start</strong>
+          <div class="price" id="free-price">0 zł</div>
+          <p id="free-desc">PDF samodzielnie + 5 pytań dziennie do AI-pomocnika.</p>
+        </article>
+        <article class="plan featured">
+          <strong id="ai-title">AI bez limitu</strong>
+          <div class="price" id="ai-price">19 zł / mies.</div>
+          <p id="ai-desc">Plan w przygotowaniu: więcej pytań, analiza PDF/zdjęć, pisma do urzędu i przypomnienia.</p>
+          <a href="#" id="ai-link">Chcę subskrypcję</a>
+        </article>
+        <article class="plan">
+          <strong id="review-title">Sprawdzenie przez człowieka</strong>
+          <div class="price" id="review-price">29 zł</div>
+          <p id="review-desc">Dodatkowa kontrola danych, typowych błędów i checklisty przed urzędem.</p>
+          <a href="#" id="review-link">Chcę sprawdzenie</a>
+        </article>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <span id="foot">Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.</span>
+      <span>WniosekPL · v0.2</span>
+    </footer>
   </div>
+
   <script>
     const BOT = "wniosekpl_bot";
-    const ref = new URLSearchParams(location.search).get("ref");
-    const start = ref ? `?start=ref_${encodeURIComponent(ref)}` : "";
-    document.getElementById("tg-link").href = `https://t.me/${BOT}${start}`;
-    document.getElementById("review-link").href = `https://t.me/${BOT}?start=review`;
-    document.getElementById("ai-link").href = `https://t.me/${BOT}?start=ai`;
+    const API = "";
+    const STORAGE_KEY = "wniosekpl_web_user_id";
+    const LANG_KEY = "wniosekpl_lang";
 
     const copy = {
       pl: {
-        tagline: "Pomocnik — <strong>nie urząd</strong>. PDF na polskich blankach.",
-        btn: "Otwórz w Telegram",
-        free: "🎁 PDF bezpłatnie — płatna tylko opcjonalna weryfikacja",
+        heroSub: "AI-pomocnik dla cudzoziemców w Polsce. Pytasz po swoim języku — dostajesz checklistę, wyjaśnienie i gotowy kierunek.",
+        ctaChat: "Zapytaj AI",
+        ctaTg: "Otwórz w Telegram",
+        visualKicker: "Pomocnik, nie urząd",
+        visualTitle: "PESEL, meldunek, karta pobytu",
+        visualNote: "Jedno miejsce na dokumenty, pisma i szybkie odpowiedzi przed wizytą w urzędzie.",
+        assistantTitle: "AI-asystent",
+        assistantSub: "5 darmowych pytań dziennie. Napisz sytuację — dostaniesz konkretny plan.",
+        usage: (left, limit) => `Darmowe pytania dziś: ${left}/${limit}`,
+        placeholder: "Np. Jestem z Ukrainy, pracuję legalnie i chcę kartę pobytu",
+        send: "Wyślij",
+        welcome: "Cześć. Napisz, czego potrzebujesz w Polsce — PESEL, meldunek, karta pobytu, ZUS/NFZ albo pismo z urzędu.",
+        thinking: "Myślę…",
+        limit: "Dzisiejszy limit darmowych pytań został wykorzystany. Zostaw zainteresowanie subskrypcją 19 zł/mies.",
+        leadOk: "Zapisane. Dziękujemy — to pomaga uruchomić plan szybciej.",
+        leadDup: "Już zapisaliśmy Twoje zainteresowanie.",
+        error: "Nie udało się połączyć z API. Odśwież stronę i spróbuj ponownie.",
+        docsTitle: "Dokumenty",
+        docsSub: "Oficjalne formularze i pakiet przeprowadzki — dostępne też w Telegram.",
         pricingTitle: "Taryfy",
+        pricingSub: "Zaczynasz za darmo. Płacisz tylko za więcej AI albo sprawdzenie przez człowieka.",
         freeTitle: "Start",
         freePrice: "0 zł",
         freeDesc: "PDF samodzielnie + 5 pytań dziennie do AI-pomocnika.",
@@ -111,12 +541,36 @@
         reviewPrice: "29 zł",
         reviewDesc: "Dodatkowa kontrola danych, typowych błędów i checklisty przed urzędem.",
         reviewBtn: "Chcę sprawdzenie",
+        foot: "Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.",
+        chips: [
+          "Chcę kartę pobytu",
+          "Jak dostać PESEL?",
+          "Dostałem pismo z urzędu",
+          "Co z ZUS i NFZ?",
+        ],
       },
       ru: {
-        tagline: "Помощник — <strong>не urząd</strong>. PDF на польских бланках.",
-        btn: "Открыть в Telegram",
-        free: "🎁 PDF бесплатно — платная только дополнительная проверка",
+        heroSub: "AI-помощник для иностранцев в Польше. Спрашиваете на своём языке — получаете чеклист, объяснение и следующий шаг.",
+        ctaChat: "Спросить AI",
+        ctaTg: "Открыть в Telegram",
+        visualKicker: "Помощник, не urząd",
+        visualTitle: "PESEL, meldunek, karta pobytu",
+        visualNote: "Одно место для документов, писем и быстрых ответов перед визитом в ужонд.",
+        assistantTitle: "AI-ассистент",
+        assistantSub: "5 бесплатных вопросов в день. Опишите ситуацию — получите конкретный план.",
+        usage: (left, limit) => `Бесплатных вопросов сегодня: ${left}/${limit}`,
+        placeholder: "Напр. Я из Украины, работаю официально и хочу карту побыту",
+        send: "Отправить",
+        welcome: "Привет. Напишите, что нужно в Польше — PESEL, meldunek, karta pobytu, ZUS/NFZ или письмо из urzędu.",
+        thinking: "Думаю…",
+        limit: "Лимит бесплатных вопросов на сегодня закончился. Оставьте интерес к подписке 19 zł/мес.",
+        leadOk: "Сохранено. Спасибо — это помогает быстрее запустить тариф.",
+        leadDup: "Интерес уже сохранён.",
+        error: "Не удалось связаться с API. Обновите страницу и попробуйте снова.",
+        docsTitle: "Документы",
+        docsSub: "Официальные бланки и пакет переезда — также в Telegram.",
         pricingTitle: "Тарифы",
+        pricingSub: "Старт бесплатный. Платите только за больше AI или проверку человеком.",
         freeTitle: "Старт",
         freePrice: "0 zł",
         freeDesc: "PDF самостоятельно + 5 вопросов в день AI-помощнику.",
@@ -126,14 +580,38 @@
         aiBtn: "Хочу подписку",
         reviewTitle: "Проверка человеком",
         reviewPrice: "29 zł",
-        reviewDesc: "Проверка данных, типичных ошибок и чеклиста перед походом в urząd.",
+        reviewDesc: "Проверка данных, типичных ошибок и чеклиста перед urzędem.",
         reviewBtn: "Хочу проверку",
+        foot: "Мы не urząd. Это не юридическая консультация. Проверьте данные перед подачей.",
+        chips: [
+          "Хочу карту побыту",
+          "Как получить PESEL?",
+          "Пришло письмо из urzędu",
+          "Что с ZUS и NFZ?",
+        ],
       },
       en: {
-        tagline: "Helper — <strong>not a government office</strong>. Official PDFs.",
-        btn: "Open in Telegram",
-        free: "🎁 PDFs are free — only optional review is paid",
+        heroSub: "AI assistant for foreigners in Poland. Ask in your language — get a checklist, plain explanation, and next step.",
+        ctaChat: "Ask AI",
+        ctaTg: "Open in Telegram",
+        visualKicker: "Helper, not a government office",
+        visualTitle: "PESEL, meldunek, residence card",
+        visualNote: "One place for documents, office letters, and quick answers before your visit.",
+        assistantTitle: "AI assistant",
+        assistantSub: "5 free questions per day. Describe your case — get a concrete plan.",
+        usage: (left, limit) => `Free questions today: ${left}/${limit}`,
+        placeholder: "e.g. I am Ukrainian, legally employed, and need a residence card",
+        send: "Send",
+        welcome: "Hi. Ask about PESEL, meldunek, residence card, ZUS/NFZ, or an office letter in Poland.",
+        thinking: "Thinking…",
+        limit: "You reached today's free question limit. Leave interest in the 19 zł/mo plan.",
+        leadOk: "Saved. Thanks — this helps launch the plan faster.",
+        leadDup: "Interest already saved.",
+        error: "Could not reach the API. Refresh and try again.",
+        docsTitle: "Documents",
+        docsSub: "Official forms and the relocation package — also available in Telegram.",
         pricingTitle: "Pricing",
+        pricingSub: "Start free. Pay only for more AI or human review.",
         freeTitle: "Starter",
         freePrice: "0 zł",
         freeDesc: "Self-service PDFs + 5 AI assistant questions per day.",
@@ -145,12 +623,36 @@
         reviewPrice: "29 zł",
         reviewDesc: "Extra check of data, common mistakes, and office checklist before submission.",
         reviewBtn: "I want review",
+        foot: "We are not a government office. This is not legal advice. Verify data before submitting.",
+        chips: [
+          "I need a residence card",
+          "How do I get PESEL?",
+          "I got an office letter",
+          "What about ZUS and NFZ?",
+        ],
       },
       ua: {
-        tagline: "Помічник — <strong>не urząd</strong>. PDF на польських бланках.",
-        btn: "Відкрити в Telegram",
-        free: "🎁 PDF безкоштовно — платна лише додаткова перевірка",
+        heroSub: "AI-помічник для іноземців у Польщі. Питаєте своєю мовою — отримуєте чекліст, пояснення і наступний крок.",
+        ctaChat: "Запитати AI",
+        ctaTg: "Відкрити в Telegram",
+        visualKicker: "Помічник, не urząd",
+        visualTitle: "PESEL, meldunek, karta pobytu",
+        visualNote: "Одне місце для документів, листів і швидких відповідей перед візитом до urzędu.",
+        assistantTitle: "AI-асистент",
+        assistantSub: "5 безкоштовних питань на день. Опишіть ситуацію — отримаєте конкретний план.",
+        usage: (left, limit) => `Безкоштовних питань сьогодні: ${left}/${limit}`,
+        placeholder: "Напр. Я з України, працюю офіційно і хочу карту побиту",
+        send: "Надіслати",
+        welcome: "Привіт. Запитайте про PESEL, meldunek, karta pobytu, ZUS/NFZ або лист з urzędu.",
+        thinking: "Думаю…",
+        limit: "Ліміт безкоштовних питань на сьогодні закінчився. Залиште інтерес до підписки 19 zł/міс.",
+        leadOk: "Збережено. Дякуємо — це допомагає швидше запустити план.",
+        leadDup: "Інтерес уже збережено.",
+        error: "Не вдалося з'єднатися з API. Оновіть сторінку і спробуйте ще раз.",
+        docsTitle: "Документи",
+        docsSub: "Офіційні бланки і пакет переїзду — також у Telegram.",
         pricingTitle: "Тарифи",
+        pricingSub: "Старт безкоштовний. Платите лише за більше AI або перевірку людиною.",
         freeTitle: "Старт",
         freePrice: "0 zł",
         freeDesc: "PDF самостійно + 5 питань на день AI-помічнику.",
@@ -162,30 +664,217 @@
         reviewPrice: "29 zł",
         reviewDesc: "Додаткова перевірка даних, типових помилок і чекліста перед urzędem.",
         reviewBtn: "Хочу перевірку",
+        foot: "Ми не urząd. Це не юридична консультація. Перевірте дані перед подачею.",
+        chips: [
+          "Хочу карту побиту",
+          "Як отримати PESEL?",
+          "Прийшов лист з urzędu",
+          "Що з ZUS і NFZ?",
+        ],
       },
     };
+
+    let lang = localStorage.getItem(LANG_KEY) || "pl";
+    let limit = 5;
+    let left = 5;
+
+    function getUserId() {
+      let id = Number(localStorage.getItem(STORAGE_KEY));
+      if (!Number.isInteger(id) || id <= 0) {
+        id = Math.floor(Math.random() * 900000000) + 100000000;
+        localStorage.setItem(STORAGE_KEY, String(id));
+      }
+      return id;
+    }
+
+    function sanitize(html) {
+      const allowed = new Set(["B", "STRONG", "I", "EM", "BR"]);
+      const template = document.createElement("template");
+      template.innerHTML = html;
+      template.content.querySelectorAll("*").forEach((node) => {
+        if (!allowed.has(node.tagName)) {
+          node.replaceWith(...node.childNodes);
+        } else {
+          [...node.attributes].forEach((attr) => node.removeAttribute(attr.name));
+        }
+      });
+      return template.innerHTML;
+    }
+
+    function addBubble(text, role, asHtml = false) {
+      const el = document.createElement("div");
+      el.className = `bubble ${role}`;
+      if (asHtml) el.innerHTML = sanitize(text);
+      else el.textContent = text;
+      messages.appendChild(el);
+      messages.scrollTop = messages.scrollHeight;
+      return el;
+    }
+
+    function applyLang() {
+      const c = copy[lang];
+      document.documentElement.lang = lang;
+      document.getElementById("hero-sub").textContent = c.heroSub;
+      document.getElementById("cta-chat").textContent = c.ctaChat;
+      document.getElementById("cta-tg").textContent = c.ctaTg;
+      document.getElementById("visual-kicker").textContent = c.visualKicker;
+      document.getElementById("visual-title").textContent = c.visualTitle;
+      document.getElementById("visual-note").textContent = c.visualNote;
+      document.getElementById("assistant-title").textContent = c.assistantTitle;
+      document.getElementById("assistant-sub").textContent = c.assistantSub;
+      document.getElementById("usage").textContent = c.usage(left, limit);
+      document.getElementById("question").placeholder = c.placeholder;
+      document.getElementById("send").textContent = c.send;
+      document.getElementById("docs-title").textContent = c.docsTitle;
+      document.getElementById("docs-sub").textContent = c.docsSub;
+      document.getElementById("pricing-title").textContent = c.pricingTitle;
+      document.getElementById("pricing-sub").textContent = c.pricingSub;
+      document.getElementById("free-title").textContent = c.freeTitle;
+      document.getElementById("free-price").textContent = c.freePrice;
+      document.getElementById("free-desc").textContent = c.freeDesc;
+      document.getElementById("ai-title").textContent = c.aiTitle;
+      document.getElementById("ai-price").textContent = c.aiPrice;
+      document.getElementById("ai-desc").textContent = c.aiDesc;
+      document.getElementById("ai-link").textContent = c.aiBtn;
+      document.getElementById("review-title").textContent = c.reviewTitle;
+      document.getElementById("review-price").textContent = c.reviewPrice;
+      document.getElementById("review-desc").textContent = c.reviewDesc;
+      document.getElementById("review-link").textContent = c.reviewBtn;
+      document.getElementById("foot").textContent = c.foot;
+
+      document.querySelectorAll(".langs button").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.lang === lang);
+      });
+
+      chips.innerHTML = "";
+      c.chips.forEach((text) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "chip";
+        button.textContent = text;
+        button.addEventListener("click", () => {
+          question.value = text;
+          askForm.requestSubmit();
+        });
+        chips.appendChild(button);
+      });
+    }
+
+    async function loadMeta() {
+      const res = await fetch(`${API}/api/meta?user_id=${getUserId()}`);
+      if (!res.ok) throw new Error("meta");
+      const data = await res.json();
+      limit = data.ai_free_daily_limit || 5;
+      left = data.free_questions_left ?? Math.max(limit - (data.used_today || 0), 0);
+      document.getElementById("usage").textContent = copy[lang].usage(left, limit);
+    }
+
+    async function loadDocs() {
+      const res = await fetch(`${API}/api/documents?lang=${lang}`);
+      if (!res.ok) throw new Error("docs");
+      const data = await res.json();
+      docs.innerHTML = "";
+      data.forEach((doc) => {
+        const item = document.createElement("article");
+        item.className = "doc";
+        item.innerHTML = `<strong></strong><p></p>`;
+        item.querySelector("strong").textContent = doc.title;
+        item.querySelector("p").textContent = doc.description || `${doc.fields_count} fields`;
+        docs.appendChild(item);
+      });
+    }
+
+    async function createLead(product) {
+      const res = await fetch(`${API}/api/leads`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: getUserId(), product }),
+      });
+      const data = await res.json();
+      addBubble(data.created ? copy[lang].leadOk : copy[lang].leadDup, "bot");
+    }
+
+    async function askAssistant(text) {
+      addBubble(text, "user");
+      const thinking = addBubble(copy[lang].thinking, "bot");
+      send.disabled = true;
+      try {
+        const res = await fetch(`${API}/api/assistant/ask`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: getUserId(),
+            question: text,
+            lang,
+          }),
+        });
+        const data = await res.json();
+        if (res.status === 429) {
+          thinking.textContent = copy[lang].limit;
+          left = 0;
+          document.getElementById("usage").textContent = copy[lang].usage(left, limit);
+          return;
+        }
+        if (!res.ok) throw new Error("ask");
+        thinking.innerHTML = sanitize(data.answer);
+        left = data.free_questions_left;
+        limit = data.limit;
+        document.getElementById("usage").textContent = copy[lang].usage(left, limit);
+      } catch (err) {
+        thinking.textContent = copy[lang].error;
+      } finally {
+        send.disabled = false;
+      }
+    }
+
+    const messages = document.getElementById("messages");
+    const chips = document.getElementById("chips");
+    const docs = document.getElementById("docs");
+    const askForm = document.getElementById("ask-form");
+    const question = document.getElementById("question");
+    const send = document.getElementById("send");
+
+    const ref = new URLSearchParams(location.search).get("ref");
+    const tgStart = ref ? `?start=ref_${encodeURIComponent(ref)}` : "";
+    document.getElementById("cta-tg").href = `https://t.me/${BOT}${tgStart}`;
+
+    document.getElementById("ai-link").addEventListener("click", (event) => {
+      event.preventDefault();
+      createLead("ai_subscription");
+    });
+    document.getElementById("review-link").addEventListener("click", (event) => {
+      event.preventDefault();
+      createLead("human_review");
+    });
+
     document.querySelectorAll(".langs button").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".langs button").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        const c = copy[btn.dataset.lang];
-        document.getElementById("tagline").innerHTML = c.tagline;
-        document.getElementById("tg-link").textContent = c.btn;
-        document.getElementById("free").textContent = c.free;
-        document.getElementById("pricing-title").textContent = c.pricingTitle;
-        document.getElementById("free-title").textContent = c.freeTitle;
-        document.getElementById("free-price").textContent = c.freePrice;
-        document.getElementById("free-desc").textContent = c.freeDesc;
-        document.getElementById("ai-title").textContent = c.aiTitle;
-        document.getElementById("ai-price").textContent = c.aiPrice;
-        document.getElementById("ai-desc").textContent = c.aiDesc;
-        document.getElementById("ai-link").textContent = c.aiBtn;
-        document.getElementById("review-title").textContent = c.reviewTitle;
-        document.getElementById("review-price").textContent = c.reviewPrice;
-        document.getElementById("review-desc").textContent = c.reviewDesc;
-        document.getElementById("review-link").textContent = c.reviewBtn;
+      btn.addEventListener("click", async () => {
+        lang = btn.dataset.lang;
+        localStorage.setItem(LANG_KEY, lang);
+        applyLang();
+        messages.innerHTML = "";
+        addBubble(copy[lang].welcome, "bot");
+        await loadDocs();
       });
     });
+
+    askForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const text = question.value.trim();
+      if (!text || send.disabled) return;
+      question.value = "";
+      await askAssistant(text);
+    });
+
+    (async function init() {
+      applyLang();
+      addBubble(copy[lang].welcome, "bot");
+      try {
+        await Promise.all([loadMeta(), loadDocs()]);
+      } catch (err) {
+        document.getElementById("usage").textContent = copy[lang].usage(left, limit);
+      }
+    })();
   </script>
 </body>
 </html>

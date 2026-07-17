@@ -1,8 +1,17 @@
 # WniosekPL
 
-Бесплатный Telegram-бот для иностранцев в Польше: отвечаете на вопросы на RU/EN/UA/PL — получаете PDF на польских бланках.
+AI-помощник для иностранцев в Польше: web + Telegram.
+
+Спрашиваете на RU/EN/UA/PL — получаете чеклист, объяснение и PDF на польских бланках.
 
 **Pomocnik, nie urząd** — не юридическая консультация.
+
+## Что это
+
+| Канал | Как запускать |
+|-------|----------------|
+| **Web / API** | `python -m uvicorn server:app --reload` |
+| **Telegram** | `python bot.py` |
 
 ## Документы
 
@@ -21,30 +30,26 @@ python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
 copy .env.example .env
-# BOT_TOKEN от @BotFather
-python bot.py
+# BOT_TOKEN от @BotFather — только если нужен Telegram
+python -m uvicorn server:app --reload
 ```
 
 На Windows при SSL-ошибках: `RELAX_SSL=true` в `.env` (только локально).
 
+Откройте `http://127.0.0.1:8000` — сайт с AI-чатом.
+
 ## Web API
-
-Проект можно запускать как сервер, а Telegram оставить дополнительным каналом:
-
-```bash
-python -m uvicorn server:app --reload
-```
-
-Основные endpoints:
 
 | Endpoint | Описание |
 |----------|----------|
+| `GET /` | Продуктовый web UI |
 | `GET /health` | Проверка сервера |
+| `GET /api/meta?user_id=` | Версия, лимит AI, остаток вопросов |
 | `GET /api/documents?lang=ru` | Список доступных документов |
 | `POST /api/assistant/ask` | AI-помощник с лимитом бесплатных вопросов |
 | `POST /api/leads` | Заявки на подписку, human review или waitlist |
 
-## Команды
+## Telegram-команды
 
 | Команда | Описание |
 |---------|----------|
@@ -63,14 +68,14 @@ python -m uvicorn server:app --reload
 
 ## Функции
 
+- Web UI с живым AI-чатом
+- AI-помощник MVP: 5 бесплатных вопросов в день (PESEL, karta pobytu, ZUS/NFZ, письма)
 - Официальные PDF PESEL / Meldunek
-- AI-помощник MVP: 5 бесплатных вопросов в день по PESEL, karta pobytu, ZUS/NFZ и письмам из urzędu
 - Пакет «Переезд» — 3 документа за один раз
 - Профиль и автозаполнение, черновик формы
-- Валидация полей, исправление одного поля
-- Чеклисты (PESEL, meldunek, ZUS, karta pobytu)
-- Podgląd PDF, напоминания meldunek, рефералы `?start=ref_xxx`
-- Lead capture для подписки AI и проверки документов человеком
+- Чеклисты, podgląd PDF, напоминания meldunek
+- Lead capture: подписка AI 19 zł/мес и human review 29 zł
+- Telegram как дополнительный канал
 
 ## Тесты
 
@@ -80,8 +85,8 @@ python -m pytest tests/ -q
 
 ## Деплой
 
-См. `DEPLOY_RENDER.md`. Лендинг: `landing/index.html`.
+См. `DEPLOY_RENDER.md`. Основной сервис — Web API; Telegram worker опционален.
 
 ## База
 
-SQLite: `data/urzad.db`
+SQLite: `data/urzad.db` (или `DATABASE_PATH`)
