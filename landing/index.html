@@ -18,20 +18,20 @@
   <meta name="theme-color" content="#1f6b57" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --ink: #10231f;
-      --paper: #f4efe4;
-      --sand: #e7dcc8;
-      --moss: #1f6b57;
-      --moss-deep: #0f3f35;
-      --amber: #d97706;
-      --line: rgba(16, 35, 31, 0.12);
-      --muted: rgba(16, 35, 31, 0.68);
-      --white: #fffdf8;
-      --shadow: 0 24px 60px rgba(16, 35, 31, 0.14);
-      --radius: 22px;
+      --ink: #071c1a;
+      --paper: #e8f2ee;
+      --mist: #d3e8e0;
+      --moss: #0f7a62;
+      --moss-deep: #064c3d;
+      --citron: #c8f04d;
+      --line: rgba(7, 28, 26, 0.12);
+      --muted: rgba(7, 28, 26, 0.66);
+      --white: #f7fcf9;
+      --shadow: 0 28px 70px rgba(6, 40, 34, 0.18);
+      --radius: 20px;
     }
 
     * { box-sizing: border-box; }
@@ -39,40 +39,97 @@
     body {
       margin: 0;
       color: var(--ink);
-      font-family: "IBM Plex Sans", sans-serif;
+      font-family: "DM Sans", sans-serif;
       background:
-        radial-gradient(ellipse 80% 50% at 10% -10%, rgba(217, 119, 6, 0.18), transparent 55%),
-        radial-gradient(ellipse 70% 45% at 100% 0%, rgba(31, 107, 87, 0.2), transparent 50%),
-        linear-gradient(180deg, #f7f2e8 0%, #efe6d6 42%, #e8f0ea 100%);
+        radial-gradient(ellipse 90% 55% at 0% -5%, rgba(200, 240, 77, 0.22), transparent 55%),
+        radial-gradient(ellipse 70% 50% at 100% 0%, rgba(15, 122, 98, 0.28), transparent 52%),
+        linear-gradient(165deg, #eef7f3 0%, #dceee7 40%, #cfe5dc 100%);
       min-height: 100vh;
+      background-attachment: fixed;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.35;
+      z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
     }
 
-    .shell { width: min(1120px, calc(100% - 2rem)); margin: 0 auto; }
+    .shell { width: min(1160px, calc(100% - 2rem)); margin: 0 auto; position: relative; z-index: 1; }
 
     .topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
-      padding: 1.1rem 0 0.4rem;
+      padding: 1rem 0 0.5rem;
       animation: rise 0.7s ease both;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(180deg, rgba(238, 247, 243, 0.92), rgba(238, 247, 243, 0.72));
+      border-bottom: 1px solid transparent;
+    }
+    .topbar.scrolled {
+      border-bottom-color: var(--line);
+      box-shadow: 0 10px 30px rgba(6, 40, 34, 0.06);
     }
 
     .brand {
       font-family: Syne, sans-serif;
       font-weight: 800;
-      font-size: 1.35rem;
-      letter-spacing: -0.03em;
+      font-size: 1.45rem;
+      letter-spacing: -0.04em;
       text-decoration: none;
       color: var(--ink);
+      position: relative;
+    }
+    .brand::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -0.2rem;
+      width: 42%;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--citron);
+      transform-origin: left;
+      animation: brandline 1.2s ease both;
     }
 
-    .langs { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .nav-links {
+      display: flex;
+      gap: 0.2rem;
+      align-items: center;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.92rem;
+      padding: 0.45rem 0.7rem;
+      border-radius: 10px;
+      transition: color 0.15s ease, background 0.15s ease;
+    }
+    .nav-links a:hover { color: var(--ink); background: rgba(15, 122, 98, 0.08); }
+
+    .langs { display: flex; gap: 0.3rem; flex-wrap: wrap; }
     .langs button,
     .chip,
     .send,
     .cta,
-    .ghost {
+    .ghost,
+    .auth-btn {
       font: inherit;
       cursor: pointer;
       border: 0;
@@ -81,37 +138,89 @@
       background: transparent;
       border: 1px solid var(--line);
       color: var(--ink);
-      padding: 0.4rem 0.7rem;
-      border-radius: 999px;
+      padding: 0.38rem 0.65rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.82rem;
     }
     .langs button.active {
-      background: var(--ink);
+      background: var(--moss-deep);
       color: var(--white);
-      border-color: var(--ink);
+      border-color: var(--moss-deep);
+    }
+
+    .auth-cluster { display: flex; align-items: center; gap: 0.45rem; }
+    .auth-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      padding: 0.55rem 0.95rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+    .auth-btn.ghost {
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    .auth-btn.solid {
+      background: var(--moss-deep);
+      color: var(--white);
+      box-shadow: 0 8px 20px rgba(6, 76, 61, 0.22);
+    }
+    .auth-btn:hover { transform: translateY(-1px); }
+    .auth-user {
+      max-width: 14rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--moss-deep);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .hero {
+      position: relative;
       display: grid;
       grid-template-columns: 1.05fr 0.95fr;
-      gap: 2.2rem;
+      gap: 2rem;
       align-items: end;
-      min-height: calc(100vh - 5.5rem);
-      padding: 1.4rem 0 2.6rem;
+      min-height: calc(100vh - 5.2rem);
+      padding: 1.6rem 0 2.8rem;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: -1rem -1.2rem auto;
+      height: min(72vh, 620px);
+      border-radius: 28px;
+      z-index: -1;
+      background:
+        linear-gradient(120deg, rgba(6, 76, 61, 0.08), transparent 45%),
+        linear-gradient(180deg, rgba(200, 240, 77, 0.12), transparent 60%);
+      animation: wash 8s ease-in-out infinite alternate;
     }
 
     .hero-copy { animation: rise 0.8s ease both; }
     .hero h1 {
       font-family: Syne, sans-serif;
-      font-size: clamp(2.7rem, 7vw, 5.4rem);
-      line-height: 0.94;
-      letter-spacing: -0.05em;
+      font-size: clamp(3rem, 8vw, 5.8rem);
+      line-height: 0.92;
+      letter-spacing: -0.055em;
       margin: 0 0 1rem;
       max-width: 10ch;
+      background: linear-gradient(120deg, var(--ink) 40%, var(--moss) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }
     .hero p {
       margin: 0;
       max-width: 34ch;
-      font-size: 1.08rem;
+      font-size: 1.1rem;
       line-height: 1.55;
       color: var(--muted);
     }
@@ -127,40 +236,43 @@
       justify-content: center;
       text-decoration: none;
       padding: 0.95rem 1.25rem;
-      border-radius: 999px;
-      font-weight: 600;
-      transition: transform 0.2s ease, background 0.2s ease;
+      border-radius: 14px;
+      font-weight: 700;
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
     }
     .cta {
       background: var(--moss);
       color: var(--white);
-      box-shadow: 0 12px 30px rgba(31, 107, 87, 0.28);
+      box-shadow: 0 14px 34px rgba(15, 122, 98, 0.28);
     }
-    .cta:hover, .ghost:hover, .send:hover { transform: translateY(-1px); }
+    .cta:hover, .ghost:hover, .send:hover, .auth-btn:hover { transform: translateY(-1px); }
     .ghost {
-      background: rgba(255, 253, 248, 0.55);
+      background: rgba(247, 252, 249, 0.65);
       color: var(--ink);
       border: 1px solid var(--line);
     }
 
     .hero-visual {
       position: relative;
-      min-height: 420px;
-      border-radius: 32px;
+      min-height: 440px;
+      border-radius: 0;
       overflow: hidden;
       isolation: isolate;
-      animation: rise 1s ease both;
-      box-shadow: var(--shadow);
+      animation: rise 1s ease both 0.1s;
+      box-shadow: none;
+      margin-right: calc(-50vw + 50%);
+      min-width: min(100%, 520px);
       background:
-        linear-gradient(145deg, rgba(15, 63, 53, 0.92), rgba(31, 107, 87, 0.72)),
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cpath fill='none' stroke='rgba(255,253,248,0.08)' stroke-width='1' d='M0 40h160M0 80h160M0 120h160M40 0v160M80 0v160M120 0v160'/%3E%3C/svg%3E");
+        linear-gradient(145deg, rgba(4, 48, 40, 0.96), rgba(15, 122, 98, 0.78)),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cpath fill='none' stroke='rgba(200,240,77,0.12)' stroke-width='1' d='M0 40h160M0 80h160M0 120h160M40 0v160M80 0v160M120 0v160'/%3E%3C/svg%3E");
+      clip-path: polygon(8% 0, 100% 0, 100% 100%, 0 100%);
     }
     .hero-visual::after {
       content: "";
       position: absolute;
-      inset: auto -10% -20% 35%;
+      inset: auto -10% -20% 25%;
       height: 70%;
-      background: radial-gradient(circle, rgba(217, 119, 6, 0.45), transparent 68%);
+      background: radial-gradient(circle, rgba(200, 240, 77, 0.42), transparent 68%);
       animation: glow 5s ease-in-out infinite alternate;
     }
     .visual-panel {
@@ -299,8 +411,8 @@
     }
     .send {
       align-self: end;
-      background: var(--amber);
-      color: #1a1205;
+      background: var(--citron);
+      color: var(--ink);
       border-radius: 16px;
       padding: 0.9rem 1.15rem;
       font-weight: 700;
@@ -398,12 +510,67 @@
       from { transform: translateY(0) scale(1); opacity: 0.7; }
       to { transform: translateY(-12px) scale(1.08); opacity: 1; }
     }
+    @keyframes brandline {
+      from { transform: scaleX(0); opacity: 0; }
+      to { transform: scaleX(1); opacity: 1; }
+    }
+    @keyframes wash {
+      from { opacity: 0.55; transform: translateY(0); }
+      to { opacity: 1; transform: translateY(-6px); }
+    }
+
+    .auth-tabs {
+      display: flex;
+      gap: 0.35rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem;
+      background: rgba(15, 122, 98, 0.08);
+      border-radius: 14px;
+    }
+    .auth-tabs button {
+      flex: 1;
+      font: inherit;
+      border: 0;
+      cursor: pointer;
+      padding: 0.65rem 0.8rem;
+      border-radius: 11px;
+      font-weight: 700;
+      background: transparent;
+      color: var(--muted);
+    }
+    .auth-tabs button.active {
+      background: var(--white);
+      color: var(--moss-deep);
+      box-shadow: 0 4px 14px rgba(6, 40, 34, 0.08);
+    }
+    .auth-modal .oauth-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.9rem;
+    }
+    .auth-modal .oauth-row a {
+      flex: 1;
+      min-width: 7rem;
+      text-align: center;
+    }
+    .auth-guest, .auth-session { display: contents; }
+    .auth-guest.hidden, .auth-session.hidden { display: none; }
+    #auth-modal-note { min-height: 1.2em; margin: 0.6rem 0 0; }
 
     @media (max-width: 900px) {
       .hero, .docs, .pricing { grid-template-columns: 1fr; }
       .hero { min-height: auto; padding-top: 1.6rem; }
-      .hero-visual { min-height: 320px; }
+      .hero-visual {
+        min-height: 300px;
+        margin-right: 0;
+        clip-path: none;
+        border-radius: 22px;
+      }
+      .nav-links { display: none; }
       .section-head { flex-direction: column; align-items: start; }
+      .top-right { gap: 0.4rem; }
+      .auth-btn { padding: 0.48rem 0.75rem; font-size: 0.86rem; }
     }
 
     .doc { cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease; }
@@ -442,13 +609,30 @@
 </head>
 <body>
   <div class="shell">
-    <header class="topbar">
+    <header class="topbar" id="topbar">
       <a class="brand" href="/">WniosekPL</a>
-      <div class="langs" id="langs">
-        <button type="button" data-lang="pl" class="active">PL</button>
-        <button type="button" data-lang="ru">RU</button>
-        <button type="button" data-lang="en">EN</button>
-        <button type="button" data-lang="ua">UA</button>
+      <div class="top-right">
+        <nav class="nav-links" aria-label="Sekcje">
+          <a href="#assistant">AI</a>
+          <a href="#documents">Dokumenty</a>
+          <a href="#account">Konto</a>
+        </nav>
+        <div class="langs" id="langs">
+          <button type="button" data-lang="pl" class="active">PL</button>
+          <button type="button" data-lang="ru">RU</button>
+          <button type="button" data-lang="en">EN</button>
+          <button type="button" data-lang="ua">UA</button>
+        </div>
+        <div class="auth-cluster" id="auth-cluster">
+          <div class="auth-guest" id="auth-guest">
+            <button type="button" class="auth-btn ghost" id="btn-open-login">Zaloguj</button>
+            <button type="button" class="auth-btn solid" id="btn-open-register">Załóż konto</button>
+          </div>
+          <div class="auth-session hidden" id="auth-session">
+            <a class="auth-user" id="auth-user-chip" href="#account" title="Konto"></a>
+            <button type="button" class="auth-btn ghost" id="btn-top-logout">Wyloguj</button>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -493,7 +677,7 @@
       </div>
     </section>
 
-    <section>
+    <section id="documents">
       <div class="section-head">
         <div>
           <h2 id="docs-title">Dokumenty</h2>
@@ -685,31 +869,19 @@
       <div class="section-head">
         <div>
           <h2>Konto i płatności</h2>
-          <p>Rejestracja email/hasło, Google, Facebook + Stripe checkout / portal.</p>
+          <p>Zaloguj się u góry po prawej. Tu zarządzasz planem i fakturami.</p>
         </div>
         <div id="auth-user-box" class="status"></div>
       </div>
       <div class="pricing" style="margin-bottom:1rem">
         <article class="plan featured">
-          <strong>Rejestracja</strong>
-          <form id="register-form" style="display:grid;gap:0.55rem;margin-top:0.7rem">
-            <input id="reg-name" placeholder="Imię" />
-            <input id="reg-email" type="email" placeholder="Email" required />
-            <input id="reg-password" type="password" placeholder="Hasło (min. 8)" required minlength="8" />
-            <button class="cta" type="submit">Załóż konto</button>
-          </form>
-        </article>
-        <article class="plan">
-          <strong>Logowanie</strong>
-          <form id="login-form" style="display:grid;gap:0.55rem;margin-top:0.7rem">
-            <input id="login-email" type="email" placeholder="Email" required />
-            <input id="login-password" type="password" placeholder="Hasło" required />
-            <button class="cta" type="submit">Zaloguj</button>
-          </form>
+          <strong>Sesja</strong>
+          <p class="muted" style="margin-top:0.5rem">Wejście i rejestracja są zawsze dostępne w prawym górnym rogu.</p>
           <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.8rem">
-            <a class="ghost" id="btn-google" href="/api/auth/google/start">Google</a>
-            <a class="ghost" id="btn-facebook" href="/api/auth/facebook/start">Facebook</a>
+            <button type="button" class="cta" id="btn-account-login">Zaloguj</button>
+            <button type="button" class="ghost" id="btn-account-register">Załóż konto</button>
           </div>
+          <p id="magic-note" class="muted" style="margin-top:0.8rem"></p>
         </article>
         <article class="plan">
           <strong>Płatności</strong>
@@ -722,19 +894,53 @@
           </div>
           <div id="invoices-box" class="muted" style="margin-top:0.8rem"></div>
         </article>
+        <article class="plan">
+          <strong>Hasło / magic link</strong>
+          <form id="magic-form" style="display:grid;gap:0.55rem;margin-top:0.7rem">
+            <input id="magic-email" type="email" placeholder="Magic link email" required />
+            <button class="cta" type="submit">Wyślij link</button>
+          </form>
+          <form id="reset-form" style="display:grid;gap:0.55rem;margin-top:0.8rem">
+            <input id="reset-email" type="email" placeholder="Reset hasła — email" required />
+            <button class="ghost" type="submit">Wyślij reset</button>
+            <p id="reset-note" class="muted"></p>
+          </form>
+        </article>
       </div>
-      <form id="magic-form" class="chat" style="padding:1rem;display:grid;gap:0.7rem">
-        <input id="magic-email" type="email" placeholder="Magic link email" required />
-        <button class="cta" type="submit">Wyślij link logowania</button>
-        <p id="magic-note" class="muted"></p>
-      </form>
-      <form id="reset-form" class="chat" style="padding:1rem;display:grid;gap:0.7rem;margin-top:0.8rem">
-        <input id="reset-email" type="email" placeholder="Reset hasła — email" required />
-        <button class="ghost" type="submit">Wyślij reset</button>
-        <p id="reset-note" class="muted"></p>
-      </form>
       <p class="muted" style="margin-top:0.8rem"><a href="/admin">Admin panel</a></p>
     </section>
+
+    <div class="modal-backdrop" id="auth-modal" aria-hidden="true">
+      <div class="modal auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+        <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem">
+          <div>
+            <h3 id="auth-modal-title">Wejdź do WniosekPL</h3>
+            <p class="muted">Email i hasło — albo Google / Facebook, gdy klucze są ustawione.</p>
+          </div>
+          <button type="button" class="ghost" id="auth-modal-close" aria-label="Zamknij">Zamknij</button>
+        </div>
+        <div class="auth-tabs" role="tablist">
+          <button type="button" class="active" data-auth-tab="login" role="tab" aria-selected="true">Zaloguj</button>
+          <button type="button" data-auth-tab="register" role="tab" aria-selected="false">Załóż konto</button>
+        </div>
+        <form id="login-form" style="display:grid;gap:0.65rem">
+          <input id="login-email" type="email" placeholder="Email" required autocomplete="email" />
+          <input id="login-password" type="password" placeholder="Hasło" required autocomplete="current-password" />
+          <button class="cta" type="submit">Zaloguj się</button>
+        </form>
+        <form id="register-form" style="display:none;gap:0.65rem">
+          <input id="reg-name" placeholder="Imię" autocomplete="name" />
+          <input id="reg-email" type="email" placeholder="Email" required autocomplete="email" />
+          <input id="reg-password" type="password" placeholder="Hasło (min. 8)" required minlength="8" autocomplete="new-password" />
+          <button class="cta" type="submit">Utwórz konto</button>
+        </form>
+        <div class="oauth-row">
+          <a class="ghost" id="btn-google" href="/api/auth/google/start">Google</a>
+          <a class="ghost" id="btn-facebook" href="/api/auth/facebook/start">Facebook</a>
+        </div>
+        <p id="auth-modal-note" class="muted"></p>
+      </div>
+    </div>
 
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.</span>
