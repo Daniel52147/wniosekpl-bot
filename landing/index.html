@@ -517,7 +517,7 @@
         <article class="plan featured">
           <strong id="ai-title">AI bez limitu</strong>
           <div class="price" id="ai-price">19 zł / mies.</div>
-          <p id="ai-desc">Plan w przygotowaniu: więcej pytań, analiza PDF/zdjęć, pisma do urzędu i przypomnienia.</p>
+          <p id="ai-desc">Bez limitu pytań, analiza PDF/zdjęć, pisma do urzędu i przypomnienia.</p>
           <a href="#" id="ai-link" data-pay="ai">Chcę subskrypcję</a>
         </article>
         <article class="plan">
@@ -547,8 +547,8 @@
     <section id="platform">
       <div class="section-head">
         <div>
-          <h2>Platforma v1.0</h2>
-          <p>Płatności, kabinet, karta pobytu, kalendarz, analiza pism i katalog usług.</p>
+          <h2>Platforma v2.0</h2>
+          <p>Płatności, sesje, kabinet, karta pobytu, kalendarz, OCR, marketplace i multi-country.</p>
         </div>
         <div id="billing-note" class="status"></div>
       </div>
@@ -641,9 +641,51 @@
       <div id="services-box" class="docs"></div>
     </section>
 
+    <section id="lawyers">
+      <div class="section-head">
+        <div>
+          <h2>Marketplace prawników</h2>
+          <p>Zostaw lead — specjalista skontaktuje się w sprawie karty, odmowy lub ZUS.</p>
+        </div>
+      </div>
+      <div id="lawyers-box" class="docs"></div>
+      <form id="lawyer-lead-form" class="chat" style="padding:1rem;display:grid;gap:0.7rem;margin-top:1rem">
+        <input id="lawyer-id" placeholder="ID specjalisty (np. migracja_warszawa)" required />
+        <input id="lawyer-contact" placeholder="Email / Telegram" />
+        <textarea id="lawyer-message" rows="3" placeholder="Krótko o sprawie" required></textarea>
+        <button class="cta" type="submit">Wyślij lead</button>
+        <p id="lawyer-lead-note" class="muted"></p>
+      </form>
+    </section>
+
+    <section id="countries">
+      <div class="section-head">
+        <div>
+          <h2>Kraje</h2>
+          <p>Polska działa teraz. Niemcy, Czechy i Litwa — w przygotowaniu.</p>
+        </div>
+      </div>
+      <div id="countries-box" class="docs"></div>
+    </section>
+
+    <section id="account">
+      <div class="section-head">
+        <div>
+          <h2>Konto web</h2>
+          <p>Sesja przeglądarki + opcjonalny magic link (email).</p>
+        </div>
+      </div>
+      <form id="magic-form" class="chat" style="padding:1rem;display:grid;gap:0.7rem">
+        <input id="magic-email" type="email" placeholder="email@example.com" required />
+        <button class="cta" type="submit">Wyślij link logowania</button>
+        <p id="magic-note" class="muted"></p>
+      </form>
+      <p class="muted" style="margin-top:0.8rem"><a href="/admin">Admin panel</a></p>
+    </section>
+
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.</span>
-      <span>WniosekPL · v1.0</span>
+      <span>WniosekPL · v2.0</span>
     </footer>
   </div>
 
@@ -690,7 +732,7 @@
         freeDesc: "PDF samodzielnie + 5 pytań dziennie do AI-pomocnika.",
         aiTitle: "AI bez limitu",
         aiPrice: "19 zł / mies.",
-        aiDesc: "Plan w przygotowaniu: więcej pytań, analiza PDF/zdjęć, pisma do urzędu i przypomnienia.",
+        aiDesc: "Bez limitu pytań, analiza PDF/zdjęć, pisma do urzędu i przypomnienia.",
         aiBtn: "Chcę subskrypcję",
         reviewTitle: "Sprawdzenie przez człowieka",
         reviewPrice: "29 zł",
@@ -740,7 +782,7 @@
         freeDesc: "PDF самостоятельно + 5 вопросов в день AI-помощнику.",
         aiTitle: "AI без лимита",
         aiPrice: "19 zł / мес",
-        aiDesc: "План в подготовке: больше вопросов, анализ PDF/фото, письма в ужонд и напоминания.",
+        aiDesc: "Без лимита вопросов, анализ PDF/фото, письма в ужонд и напоминания.",
         aiBtn: "Хочу подписку",
         reviewTitle: "Проверка человеком",
         reviewPrice: "29 zł",
@@ -790,7 +832,7 @@
         freeDesc: "Self-service PDFs + 5 AI assistant questions per day.",
         aiTitle: "Unlimited AI",
         aiPrice: "19 zł / mo",
-        aiDesc: "Plan in preparation: more questions, PDF/photo analysis, office letters, and reminders.",
+        aiDesc: "Unlimited questions, PDF/photo analysis, office letters, and reminders.",
         aiBtn: "I want subscription",
         reviewTitle: "Human review",
         reviewPrice: "29 zł",
@@ -840,7 +882,7 @@
         freeDesc: "PDF самостійно + 5 питань на день AI-помічнику.",
         aiTitle: "AI без ліміту",
         aiPrice: "19 zł / міс",
-        aiDesc: "План у підготовці: більше питань, аналіз PDF/фото, листи до urzędu і нагадування.",
+        aiDesc: "Без ліміту питань, аналіз PDF/фото, листи до urzędu і нагадування.",
         aiBtn: "Хочу підписку",
         reviewTitle: "Перевірка людиною",
         reviewPrice: "29 zł",

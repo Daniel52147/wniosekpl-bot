@@ -51,8 +51,13 @@ git push -u origin main
 | Key | Value |
 |-----|--------|
 | `DATABASE_PATH` | `/data/urzad.db` |
+| `DATABASE_URL` | *(опционально)* Postgres URL — схема в `scripts/postgres_schema.sql` |
 | `AI_FREE_DAILY_LIMIT` | `5` |
 | `WEB_CORS_ORIGINS` | `*` для MVP или домен сайта |
+| `PUBLIC_BASE_URL` | публичный URL web-сервиса |
+| `OPENAI_API_KEY` | для LLM |
+| `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` / price IDs | для живых платежей |
+| `ADMIN_API_KEY` | для `/admin` и `/api/admin/overview` |
 
 5. **Disk** (важно для базы пользователей и лидов):
    - Add disk → Mount path: `/data` → Size: 1 GB  

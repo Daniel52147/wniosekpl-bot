@@ -168,8 +168,54 @@ async def init_db() -> None:
             )
             """
         )
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS sessions (
+                token_hash TEXT PRIMARY KEY,
+                telegram_id INTEGER NOT NULL,
+                label TEXT DEFAULT 'web',
+                expires_at TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                last_seen_at TEXT NOT NULL
+            )
+            """
+        )
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS lawyer_leads (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                telegram_id INTEGER NOT NULL,
+                lawyer_id TEXT NOT NULL,
+                contact TEXT DEFAULT '',
+                message TEXT DEFAULT '',
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS magic_links (
+                token_hash TEXT PRIMARY KEY,
+                telegram_id INTEGER NOT NULL,
+                email TEXT NOT NULL,
+                expires_at TEXT NOT NULL,
+                used INTEGER DEFAULT 0,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        await db.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_sessions_user
+            ON sessions (telegram_id)
+            """
+        )
         try:
             await db.execute("ALTER TABLE users ADD COLUMN referral TEXT")
+        except aiosqlite.OperationalError:
+            pass
+        try:
+            await db.execute("ALTER TABLE users ADD COLUMN email TEXT")
         except aiosqlite.OperationalError:
             pass
         await db.commit()
@@ -287,6 +333,9 @@ async def delete_user_data(telegram_id: int) -> None:
             "calendar_events",
             "uploads",
             "karta_progress",
+            "lawyer_leads",
+            "sessions",
+            "magic_links",
         ):
             await db.execute(
                 f"DELETE FROM {table} WHERE telegram_id = ?",
@@ -738,6 +787,135 @@ async def admin_overview() -> dict:
             """
         )
         paid_by_product = {row[0]: row[1] for row in await cur.fetchall()}
+        cur = await db.execute("SELECT COUNT(*) FROM lawyer_leads")
+        lawyer_leads = (await cur.fetchone())[0]
+        cur = await db.execute("SELECT COUNT(*) FROM sessions")
+        sessions = (await cur.fetchone())[0]
     stats["waitlists"] = waitlists
     stats["paid_by_product"] = paid_by_product
+    stats["lawyer_leads"] = lawyer_leads
+    stats["sessions"] = sessions
     return stats
+
+
+async def create_session(
+    token_hash: str,
+    telegram_id: int,
+    expires_at: str,
+    label: str = "web",
+) -> None:
+    now = _now()
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            """
+            INSERT INTO sessions
+            (token_hash, telegram_id, label, expires_at, created_at, last_seen_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (token_hash, telegram_id, label, expires_at, now, now),
+        )
+        await db.commit()
+
+
+async def get_session(token_hash: str) -> dict | None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM sessions WHERE token_hash = ?",
+            (token_hash,),
+        )
+        row = await cur.fetchone()
+        return dict(row) if row else None
+
+
+async def touch_session(token_hash: str) -> None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            "UPDATE sessions SET last_seen_at = ? WHERE token_hash = ?",
+            (_now(), token_hash),
+        )
+        await db.commit()
+
+
+async def set_user_email(telegram_id: int, email: str) -> None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            "UPDATE users SET email = ? WHERE telegram_id = ?",
+            (email.strip()[:200], telegram_id),
+        )
+        await db.commit()
+
+
+async def create_magic_link(
+    token_hash: str,
+    telegram_id: int,
+    email: str,
+    expires_at: str,
+) -> None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            """
+            INSERT INTO magic_links
+            (token_hash, telegram_id, email, expires_at, created_at)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (token_hash, telegram_id, email.strip()[:200], expires_at, _now()),
+        )
+        await db.commit()
+
+
+async def consume_magic_link(token_hash: str) -> dict | None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM magic_links WHERE token_hash = ? AND used = 0",
+            (token_hash,),
+        )
+        row = await cur.fetchone()
+        if not row:
+            return None
+        data = dict(row)
+        if data.get("expires_at", "") < _now():
+            return None
+        await db.execute(
+            "UPDATE magic_links SET used = 1 WHERE token_hash = ?",
+            (token_hash,),
+        )
+        await db.commit()
+        return data
+
+
+async def save_lawyer_lead(
+    telegram_id: int,
+    lawyer_id: str,
+    contact: str = "",
+    message: str = "",
+) -> int:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cur = await db.execute(
+            """
+            INSERT INTO lawyer_leads
+            (telegram_id, lawyer_id, contact, message, created_at)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                telegram_id,
+                lawyer_id[:64],
+                contact[:200],
+                message[:2000],
+                _now(),
+            ),
+        )
+        await db.commit()
+        return cur.lastrowid or 0
+
+
+async def payment_by_external_id(external_id: str) -> dict | None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM payments WHERE external_id = ? LIMIT 1",
+            (external_id,),
+        )
+        row = await cur.fetchone()
+        return dict(row) if row else None

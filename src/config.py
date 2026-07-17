@@ -16,6 +16,7 @@ BOT_USERNAME = os.getenv("BOT_USERNAME", "wniosekpl_bot")
 FREE_MODE = os.getenv("FREE_MODE", "true").lower() in ("1", "true", "yes")
 RELAX_SSL = os.getenv("RELAX_SSL", "false").lower() in ("1", "true", "yes")
 DATABASE_PATH = Path(os.getenv("DATABASE_PATH", str(ROOT / "data" / "urzad.db")))
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
 AI_FREE_DAILY_LIMIT = int(os.getenv("AI_FREE_DAILY_LIMIT", "5"))
 WEB_CORS_ORIGINS = [
     origin.strip()
@@ -34,6 +35,17 @@ STRIPE_PRICE_AI_MONTHLY = os.getenv("STRIPE_PRICE_AI_MONTHLY", "")
 STRIPE_PRICE_HUMAN_REVIEW = os.getenv("STRIPE_PRICE_HUMAN_REVIEW", "")
 
 ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "")
+SESSION_DAYS = int(os.getenv("SESSION_DAYS", "30"))
+SMTP_HOST = os.getenv("SMTP_HOST", "")
+SMTP_FROM = os.getenv("SMTP_FROM", "")
+DEFAULT_COUNTRY = os.getenv("DEFAULT_COUNTRY", "pl").lower()
+
+
+def database_backend() -> str:
+    url = (DATABASE_URL or "").lower()
+    if url.startswith("postgres"):
+        return "postgres"
+    return "sqlite"
 
 _raw_admins = os.getenv("ADMIN_TELEGRAM_IDS", "")
 ADMIN_IDS: set[int] = {

@@ -1,5 +1,7 @@
 (() => {
   const API = "";
+  const TOKEN_KEY = "wniosekpl_session_token";
+
   const userId = () => {
     const key = "wniosekpl_web_user_id";
     let id = Number(localStorage.getItem(key));
@@ -11,11 +13,35 @@
   };
 
   const lang = () => localStorage.getItem("wniosekpl_lang") || "pl";
+  const token = () => localStorage.getItem(TOKEN_KEY) || "";
+
+  async function ensureSession() {
+    if (token()) return;
+    const res = await fetch(`${API}/api/auth/session`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: userId(), label: "web" }),
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.token) localStorage.setItem(TOKEN_KEY, data.token);
+    if (data.user_id) localStorage.setItem("wniosekpl_web_user_id", String(data.user_id));
+  }
+
+  function authHeaders(json = true) {
+    const headers = {};
+    if (json) headers["Content-Type"] = "application/json";
+    const t = token();
+    if (t) headers.Authorization = `Bearer ${t}`;
+    return headers;
+  }
 
   async function refreshCabinet() {
     const box = document.getElementById("cabinet-box");
     if (!box) return;
-    const res = await fetch(`${API}/api/cabinet/${userId()}`);
+    const res = await fetch(`${API}/api/cabinet/${userId()}`, {
+      headers: authHeaders(false),
+    });
     if (!res.ok) return;
     const data = await res.json();
     const plan = data.plan || {};
@@ -39,7 +65,7 @@
         row.querySelector("input").addEventListener("change", async (e) => {
           await fetch(`${API}/api/karta/step`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: authHeaders(),
             body: JSON.stringify({
               user_id: userId(),
               step_id: step.id,
@@ -67,7 +93,7 @@
   async function checkout(product) {
     const res = await fetch(`${API}/api/billing/checkout`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(),
       body: JSON.stringify({ user_id: userId(), product }),
     });
     const data = await res.json();
@@ -93,6 +119,44 @@
     });
   }
 
+  async function loadLawyers() {
+    const box = document.getElementById("lawyers-box");
+    if (!box) return;
+    const res = await fetch(`${API}/api/lawyers`);
+    const data = await res.json();
+    box.innerHTML = "";
+    data.forEach((item) => {
+      const el = document.createElement("article");
+      el.className = "doc";
+      el.innerHTML = `<strong></strong><p></p><button class="ghost" type="button"></button>`;
+      el.querySelector("strong").textContent = `${item.name} · od ${item.price_from_pln} zł`;
+      el.querySelector("p").textContent = `${item.city} · ${item.specialties.join(", ")} · ${item.bio}`;
+      const btn = el.querySelector("button");
+      btn.textContent = `Wybierz: ${item.id}`;
+      btn.addEventListener("click", () => {
+        const input = document.getElementById("lawyer-id");
+        if (input) input.value = item.id;
+      });
+      box.appendChild(el);
+    });
+  }
+
+  async function loadCountries() {
+    const box = document.getElementById("countries-box");
+    if (!box) return;
+    const res = await fetch(`${API}/api/countries`);
+    const data = await res.json();
+    box.innerHTML = "";
+    (data.items || []).forEach((item) => {
+      const el = document.createElement("article");
+      el.className = "doc";
+      el.innerHTML = `<strong></strong><p></p>`;
+      el.querySelector("strong").textContent = `${item.name} (${item.code}) · ${item.status}`;
+      el.querySelector("p").textContent = (item.focus || []).join(" · ");
+      box.appendChild(el);
+    });
+  }
+
   async function generateLetter(ev) {
     ev.preventDefault();
     const out = document.getElementById("letter-out");
@@ -108,7 +172,7 @@
     };
     const res = await fetch(`${API}/api/letters/generate`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(),
       body: JSON.stringify(payload),
     });
     const data = await res.json();
@@ -139,7 +203,7 @@
     if (!title || !due) return;
     await fetch(`${API}/api/calendar`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(),
       body: JSON.stringify({
         user_id: userId(),
         title,
@@ -148,6 +212,44 @@
       }),
     });
     refreshCabinet();
+  }
+
+  async function sendLawyerLead(ev) {
+    ev.preventDefault();
+    const note = document.getElementById("lawyer-lead-note");
+    const res = await fetch(`${API}/api/lawyers/leads`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({
+        user_id: userId(),
+        lawyer_id: document.getElementById("lawyer-id").value.trim(),
+        contact: document.getElementById("lawyer-contact").value.trim(),
+        message: document.getElementById("lawyer-message").value.trim(),
+      }),
+    });
+    const data = await res.json();
+    note.textContent = res.ok ? `Lead #${data.id} zapisany.` : (data.detail || "Błąd");
+  }
+
+  async function sendMagic(ev) {
+    ev.preventDefault();
+    const note = document.getElementById("magic-note");
+    const res = await fetch(`${API}/api/auth/magic-link`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({
+        user_id: userId(),
+        email: document.getElementById("magic-email").value.trim(),
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      note.textContent = data.detail || "Błąd";
+      return;
+    }
+    note.textContent = data.claim_url
+      ? `Demo link: ${data.claim_url}`
+      : "Link wysłany na email (SMTP).";
   }
 
   function wire() {
@@ -170,19 +272,36 @@
     document.getElementById("letter-form")?.addEventListener("submit", generateLetter);
     document.getElementById("upload-form")?.addEventListener("submit", analyzeUpload);
     document.getElementById("cal-form")?.addEventListener("submit", addCalendar);
+    document.getElementById("lawyer-lead-form")?.addEventListener("submit", sendLawyerLead);
+    document.getElementById("magic-form")?.addEventListener("submit", sendMagic);
     document.getElementById("seed-cal")?.addEventListener("click", async (e) => {
       e.preventDefault();
       await fetch(`${API}/api/demo/seed-calendar/${userId()}`);
       refreshCabinet();
     });
-    refreshCabinet();
-    loadServices();
+
     const params = new URLSearchParams(location.search);
+    if (params.get("token")) {
+      localStorage.setItem(TOKEN_KEY, params.get("token"));
+    }
+    if (params.get("user_id")) {
+      localStorage.setItem("wniosekpl_web_user_id", params.get("user_id"));
+    }
     if (params.get("billing") === "success") {
       const note = document.getElementById("billing-note");
       if (note) note.textContent = `Payment success: ${params.get("product") || ""}`;
-      refreshCabinet();
     }
+    if (params.get("auth") === "ok") {
+      const note = document.getElementById("magic-note");
+      if (note) note.textContent = "Zalogowano magic linkiem.";
+    }
+
+    ensureSession().then(() => {
+      refreshCabinet();
+      loadServices();
+      loadLawyers();
+      loadCountries();
+    });
   }
 
   if (document.readyState === "loading") {

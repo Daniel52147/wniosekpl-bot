@@ -49,7 +49,7 @@ def test_platform_billing_cabinet_karta_and_letter(tmp_path, monkeypatch):
     with TestClient(server.app) as client:
         meta = client.get("/api/meta", params={"user_id": 101})
         assert meta.status_code == 200
-        assert meta.json()["version"] == "1.0.0"
+        assert meta.json()["version"] == "2.0.0"
 
         checkout = client.post(
             "/api/billing/checkout",

@@ -306,8 +306,35 @@ async def cmd_premium(message: Message) -> None:
         f"Plan: <b>{plan['plan']}</b>\n"
         f"Web checkout: {PUBLIC_BASE_URL}\n"
         f"/review — human check 29 zł\n"
-        f"AI unlimited — 19 zł/mies (site checkout)",
+        f"AI unlimited — 19 zł/mies (site checkout)\n"
+        f"/lawyers — marketplace\n"
+        f"/countries — roadmap krajów",
     )
+
+
+@router.message(Command("lawyers"))
+async def cmd_lawyers(message: Message) -> None:
+    await _register_user(message)
+    from src.marketplace import list_lawyers
+
+    lines = ["<b>Marketplace prawników</b>", f"Lead online: {PUBLIC_BASE_URL}/#lawyers", ""]
+    for item in list_lawyers()[:6]:
+        lines.append(
+            f"• <b>{item['name']}</b> ({item['city']}) — od {item['price_from_pln']} zł\n"
+            f"  {', '.join(item['specialties'])}"
+        )
+    await message.answer("\n".join(lines))
+
+
+@router.message(Command("countries"))
+async def cmd_countries(message: Message) -> None:
+    await _register_user(message)
+    from src.countries import list_countries
+
+    lines = ["<b>Kraje WniosekPL</b>"]
+    for item in list_countries():
+        lines.append(f"• {item['name']} ({item['code']}) — {item['status']}")
+    await message.answer("\n".join(lines))
 
 
 @router.message(Command("karta"))

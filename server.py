@@ -4,43 +4,56 @@ from pathlib import Path
 from typing import Literal
 from uuid import uuid4
 
-from fastapi import FastAPI, File, Header, HTTPException, Query, UploadFile
+import json
+
+from fastapi import FastAPI, File, Header, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from src.ai_assistant import answer_question_smart
+from src.auth import hash_token, issue_session, new_token, resolve_session
 from src.checklists import checklist
 from src.config import (
     ADMIN_API_KEY,
     AI_FREE_DAILY_LIMIT,
     BOT_TOKEN,
     BOT_USERNAME,
+    DEFAULT_COUNTRY,
     OUTPUT_DIR,
     PLAN_PRICES,
     PUBLIC_BASE_URL,
     ROOT,
+    SESSION_DAYS,
     UPLOADS_DIR,
     WEB_CORS_ORIGINS,
+    database_backend,
 )
+from src.countries import get_country, list_countries
 from src.database import (
     add_calendar_event,
     admin_overview,
     complete_calendar_event,
+    consume_magic_link,
+    create_magic_link,
     get_karta_progress,
     init_db,
     join_waitlist,
     list_calendar_events,
     list_payments,
     list_uploads,
+    payment_by_external_id,
     recent_ai_questions,
     record_ai_question,
     record_completion,
     record_payment,
+    save_lawyer_lead,
     save_upload,
     set_karta_progress,
     set_subscription,
+    set_user_email,
     upsert_user,
 )
 from src.documents import load_all_documents
@@ -48,14 +61,23 @@ from src.entitlements import can_ask_ai, mark_human_review_purchased, user_plan
 from src.karta_wizard import default_progress, progress_view
 from src.letter_writer import write_official_letter
 from src.llm import complete_chat, llm_configured
-from src.ocr import extract_text
-from src.payments import create_checkout_session, stripe_configured
+from src.marketplace import get_lawyer, list_lawyers
+from src.notifications import email_configured, notify_user
+from src.ocr import extract_text, ocr_engine_status
+from src.payments import (
+    create_checkout_session,
+    parse_checkout_completed,
+    stripe_configured,
+    stripe_webhook_configured,
+    verify_stripe_signature,
+)
 from src.pdf_service import generate_document_pdf
+from src.rate_limit import assistant_limiter, billing_limiter, upload_limiter
 from src.services_directory import search_services
 from src.validators import is_required, validate_field
 
 LANDING_DIR = ROOT / "landing"
-PRODUCT_VERSION = "1.0.0"
+PRODUCT_VERSION = "2.0.0"
 
 
 def telegram_configured() -> bool:
@@ -65,10 +87,22 @@ def telegram_configured() -> bool:
 
 def require_admin(x_admin_key: str | None) -> None:
     if not ADMIN_API_KEY:
-        # Local/dev fallback: allow if unset, but mark insecure.
         return
     if x_admin_key != ADMIN_API_KEY:
         raise HTTPException(status_code=401, detail="admin_unauthorized")
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "DENY")
+        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        response.headers.setdefault(
+            "Permissions-Policy",
+            "geolocation=(), microphone=(), camera=()",
+        )
+        return response
 
 
 @asynccontextmanager
@@ -85,6 +119,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=WEB_CORS_ORIGINS,
@@ -150,6 +185,23 @@ class KartaUpdate(BaseModel):
     done: bool = True
 
 
+class SessionRequest(BaseModel):
+    user_id: int | None = None
+    label: str = "web"
+
+
+class MagicLinkRequest(BaseModel):
+    user_id: int
+    email: str = Field(..., min_length=3, max_length=200)
+
+
+class LawyerLeadRequest(BaseModel):
+    user_id: int
+    lawyer_id: str
+    contact: str = ""
+    message: str = ""
+
+
 def _docs() -> dict:
     return getattr(app.state, "documents", None) or load_all_documents()
 
@@ -160,12 +212,32 @@ def _mode_for(doc_id: str) -> str:
     return "official" if has_official_template(doc_id) else "helper"
 
 
+async def _resolve_user(
+    user_id: int | None,
+    authorization: str | None = None,
+) -> int:
+    session_user = await resolve_session(authorization)
+    if session_user:
+        return session_user
+    if user_id is not None:
+        return user_id
+    raise HTTPException(status_code=401, detail="auth_required")
+
+
 @app.get("/", include_in_schema=False)
 async def landing_page():
     landing = LANDING_DIR / "index.html"
     if landing.exists():
         return FileResponse(landing)
     return {"name": "WniosekPL", "version": PRODUCT_VERSION}
+
+
+@app.get("/admin", include_in_schema=False)
+async def admin_page():
+    page = LANDING_DIR / "admin.html"
+    if page.exists():
+        return FileResponse(page)
+    raise HTTPException(status_code=404, detail="admin_ui_missing")
 
 
 @app.get("/health")
@@ -176,13 +248,25 @@ async def health():
         "telegram_configured": telegram_configured(),
         "llm_configured": llm_configured(),
         "stripe_configured": stripe_configured(),
+        "stripe_webhook_configured": stripe_webhook_configured(),
+        "email_configured": email_configured(),
+        "database_backend": database_backend(),
+        "ocr": ocr_engine_status(),
+        "default_country": DEFAULT_COUNTRY,
         "documents_count": len(_docs()),
     }
 
 
 @app.get("/api/meta")
-async def product_meta(user_id: int | None = Query(default=None)):
-    plan = await user_plan(user_id) if user_id else {
+async def product_meta(
+    user_id: int | None = Query(default=None),
+    authorization: str | None = Header(default=None),
+):
+    resolved = user_id
+    session_user = await resolve_session(authorization)
+    if session_user:
+        resolved = session_user
+    plan = await user_plan(resolved) if resolved else {
         "plan": "free",
         "unlimited": False,
         "ai_used_today": 0,
@@ -201,10 +285,70 @@ async def product_meta(user_id: int | None = Query(default=None)):
         "telegram_username": BOT_USERNAME,
         "llm_configured": llm_configured(),
         "stripe_configured": stripe_configured(),
+        "stripe_webhook_configured": stripe_webhook_configured(),
+        "email_configured": email_configured(),
+        "database_backend": database_backend(),
+        "ocr": ocr_engine_status(),
+        "default_country": DEFAULT_COUNTRY,
+        "countries": list_countries(),
         "documents_count": len(_docs()),
         "prices": PLAN_PRICES,
         "public_base_url": PUBLIC_BASE_URL,
     }
+
+
+@app.post("/api/auth/session")
+async def auth_session(payload: SessionRequest):
+    user_id = payload.user_id or (10_000_000 + int(uuid4().int % 900_000_000))
+    await upsert_user(user_id, None, None, None)
+    session = await issue_session(user_id, days=SESSION_DAYS, label=payload.label)
+    return session
+
+
+@app.post("/api/auth/magic-link")
+async def auth_magic_link(payload: MagicLinkRequest):
+    await upsert_user(payload.user_id, None, None, None)
+    await set_user_email(payload.user_id, payload.email)
+    token = new_token()
+    expires = (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
+    await create_magic_link(hash_token(token), payload.user_id, payload.email, expires)
+    link = f"{PUBLIC_BASE_URL}/api/auth/claim?token={token}"
+    await notify_user(
+        user_id=payload.user_id,
+        email=payload.email,
+        subject="WniosekPL login link",
+        body=f"Open this link to sign in: {link}",
+    )
+    # In demo/dev return the link so the flow is testable without SMTP.
+    return {
+        "ok": True,
+        "email": payload.email,
+        "expires_at": expires,
+        "claim_url": link if not email_configured() else None,
+        "emailed": email_configured(),
+    }
+
+
+@app.get("/api/auth/claim")
+async def auth_claim(token: str):
+    row = await consume_magic_link(hash_token(token))
+    if not row:
+        raise HTTPException(status_code=400, detail="invalid_or_expired_link")
+    user_id = int(row["telegram_id"])
+    await set_user_email(user_id, row.get("email") or "")
+    session = await issue_session(user_id, days=SESSION_DAYS, label="magic")
+    return RedirectResponse(
+        f"/?auth=ok&user_id={user_id}&token={session['token']}",
+        status_code=302,
+    )
+
+
+@app.get("/api/auth/me")
+async def auth_me(authorization: str | None = Header(default=None)):
+    user_id = await resolve_session(authorization)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="invalid_session")
+    return {"user_id": user_id, "plan": await user_plan(user_id)}
 
 
 @app.get("/api/documents")
@@ -274,7 +418,10 @@ async def generate_document(doc_id: str, payload: GenerateRequest):
 
 
 @app.post("/api/assistant/ask")
-async def ask_assistant(payload: AssistantRequest):
+async def ask_assistant(payload: AssistantRequest, request: Request):
+    ip = request.client.host if request.client else "unknown"
+    if not assistant_limiter.allow(f"{ip}:{payload.user_id}"):
+        raise HTTPException(status_code=429, detail="rate_limited")
     await upsert_user(payload.user_id, None, None, payload.lang)
     allowed, plan = await can_ask_ai(payload.user_id)
     if not allowed:
@@ -308,7 +455,10 @@ async def create_lead(payload: LeadRequest):
 
 
 @app.post("/api/billing/checkout")
-async def billing_checkout(payload: CheckoutRequest):
+async def billing_checkout(payload: CheckoutRequest, request: Request):
+    ip = request.client.host if request.client else "unknown"
+    if not billing_limiter.allow(f"{ip}:{payload.user_id}"):
+        raise HTTPException(status_code=429, detail="rate_limited")
     await upsert_user(payload.user_id, None, None, None)
     session = await create_checkout_session(payload.user_id, payload.product)
     await record_payment(
@@ -339,21 +489,78 @@ async def billing_mock_complete(user_id: int, product: str):
         await set_subscription(user_id, "ai_subscription", source="mock", days=30)
     elif product == "human_review":
         await mark_human_review_purchased(user_id)
+    await notify_user(
+        user_id=user_id,
+        subject="WniosekPL payment (demo)",
+        body=f"Product {product} activated for user {user_id}.",
+    )
     return RedirectResponse(f"/?billing=success&product={product}&user_id={user_id}")
 
 
-@app.get("/api/cabinet/{user_id}")
-async def cabinet(user_id: int):
+@app.post("/api/billing/webhook")
+async def billing_webhook(
+    request: Request,
+    stripe_signature: str | None = Header(default=None, alias="Stripe-Signature"),
+):
+    payload = await request.body()
+    if stripe_webhook_configured():
+        if not verify_stripe_signature(payload, stripe_signature):
+            raise HTTPException(status_code=400, detail="invalid_signature")
+
+    try:
+        event = json.loads(payload.decode("utf-8"))
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail="invalid_json") from exc
+
+    parsed = parse_checkout_completed(event)
+    if not parsed:
+        return {"received": True, "handled": False}
+
+    external_id = parsed.get("session_id") or ""
+    if external_id:
+        existing = await payment_by_external_id(external_id)
+        if existing and existing.get("status") == "paid":
+            return {"received": True, "handled": True, "duplicate": True}
+
+    user_id = parsed["user_id"]
+    product = parsed["product"]
     await upsert_user(user_id, None, None, None)
-    plan = await user_plan(user_id)
+    await record_payment(
+        user_id,
+        product,
+        PLAN_PRICES[product]["amount_pln"],
+        "paid",
+        "stripe",
+        external_id or None,
+    )
+    if product == "ai_subscription":
+        await set_subscription(user_id, "ai_subscription", source="stripe", days=30)
+    elif product == "human_review":
+        await mark_human_review_purchased(user_id)
+    await notify_user(
+        user_id=user_id,
+        subject="WniosekPL payment confirmed",
+        body=f"Stripe checkout completed for {product}.",
+    )
+    return {"received": True, "handled": True, "user_id": user_id, "product": product}
+
+
+@app.get("/api/cabinet/{user_id}")
+async def cabinet(
+    user_id: int,
+    authorization: str | None = Header(default=None),
+):
+    resolved = await _resolve_user(user_id, authorization)
+    await upsert_user(resolved, None, None, None)
+    plan = await user_plan(resolved)
     return {
-        "user_id": user_id,
+        "user_id": resolved,
         "plan": plan,
-        "payments": await list_payments(user_id),
-        "calendar": await list_calendar_events(user_id),
-        "uploads": await list_uploads(user_id),
-        "ai_history": await recent_ai_questions(user_id),
-        "karta": progress_view(await get_karta_progress(user_id)),
+        "payments": await list_payments(resolved),
+        "calendar": await list_calendar_events(resolved),
+        "uploads": await list_uploads(resolved),
+        "ai_history": await recent_ai_questions(resolved),
+        "karta": progress_view(await get_karta_progress(resolved)),
     }
 
 
@@ -413,10 +620,14 @@ async def letters_generate(payload: LetterRequest):
 
 @app.post("/api/uploads/analyze")
 async def uploads_analyze(
+    request: Request,
     user_id: int = Query(...),
     lang: Literal["ru", "en", "ua", "pl"] = Query("ru"),
     file: UploadFile = File(...),
 ):
+    ip = request.client.host if request.client else "unknown"
+    if not upload_limiter.allow(f"{ip}:{user_id}"):
+        raise HTTPException(status_code=429, detail="rate_limited")
     await upsert_user(user_id, None, None, lang)
     plan = await user_plan(user_id)
     suffix = Path(file.filename or "upload.bin").suffix.lower() or ".bin"
@@ -435,9 +646,10 @@ async def uploads_analyze(
         explanation = (
             "Не удалось полностью распознать документ. "
             "Если это PDF с текстом — попробуйте ещё раз. "
-            "Если фото — опишите ключевые фразы в AI-чате (срок, wezwanie, odmowa)."
+            "Если фото — установите Tesseract или опишите ключевые фразы в AI-чате."
             if lang == "ru"
-            else "Could not fully parse the document. Paste key phrases into the AI chat."
+            else "Could not fully parse the document. Install Tesseract for image OCR "
+            "or paste key phrases into the AI chat."
         )
         if not plan.get("unlimited"):
             explanation += (
@@ -456,6 +668,7 @@ async def uploads_analyze(
         "extracted_text_preview": text[:1200],
         "explanation": explanation,
         "llm_configured": llm_configured(),
+        "ocr": ocr_engine_status(),
     }
 
 
@@ -468,10 +681,65 @@ async def services(
     return search_services(city=city, category=category, query=q)
 
 
+@app.get("/api/lawyers")
+async def lawyers(
+    city: str | None = None,
+    specialty: str | None = None,
+    language: str | None = None,
+):
+    return list_lawyers(city=city, specialty=specialty, language=language)
+
+
+@app.post("/api/lawyers/leads")
+async def lawyers_lead(payload: LawyerLeadRequest):
+    if not get_lawyer(payload.lawyer_id):
+        raise HTTPException(status_code=404, detail="lawyer_not_found")
+    await upsert_user(payload.user_id, None, None, None)
+    lead_id = await save_lawyer_lead(
+        payload.user_id,
+        payload.lawyer_id,
+        payload.contact,
+        payload.message,
+    )
+    await notify_user(
+        user_id=payload.user_id,
+        subject="WniosekPL lawyer lead",
+        body=f"Lead #{lead_id} for {payload.lawyer_id}: {payload.message[:200]}",
+    )
+    return {"id": lead_id, "ok": True}
+
+
+@app.get("/api/countries")
+async def countries(status: str | None = None):
+    return {
+        "default": DEFAULT_COUNTRY,
+        "items": list_countries(status=status),
+    }
+
+
+@app.get("/api/countries/{code}")
+async def country_detail(code: str):
+    item = get_country(code)
+    if not item:
+        raise HTTPException(status_code=404, detail="country_not_found")
+    return item
+
+
 @app.get("/api/admin/overview")
 async def admin(x_admin_key: str | None = Header(default=None)):
     require_admin(x_admin_key)
-    return await admin_overview()
+    data = await admin_overview()
+    data["version"] = PRODUCT_VERSION
+    data["database_backend"] = database_backend()
+    data["features"] = {
+        "llm": llm_configured(),
+        "stripe": stripe_configured(),
+        "stripe_webhook": stripe_webhook_configured(),
+        "email": email_configured(),
+        "ocr": ocr_engine_status(),
+        "telegram": telegram_configured(),
+    }
+    return data
 
 
 @app.get("/api/demo/seed-calendar/{user_id}")
