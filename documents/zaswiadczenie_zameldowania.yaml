@@ -1,0 +1,52 @@
+id: zaswiadczenie_zameldowania
+title_pl: "Wniosek o zaświadczenie o zameldowaniu (szablon)"
+title_ru: "Заявление на zaświadczenie o zameldowaniu (шаблон)"
+title_en: "Application for address registration certificate (template)"
+title_ua: "Заява на zaświadczenie o zameldowaniu (шаблон)"
+description_ru: "Шаблон заявления в gminę на выдачу справки о прописке. Уточните актуальный бланк в своём urzędzie."
+description_en: "Template request for a meldunek certificate. Confirm the current form at your commune office."
+description_pl: "Szablon wniosku o zaświadczenie o zameldowaniu. Sprawdź aktualny blankiet w urzędzie gminy."
+description_ua: "Шаблон заяви на довідку про meldunek. Уточніть бланк у своїй gminie."
+fields:
+  - key: imie
+    label_pl: Imię
+    question_ru: "Имя"
+    question_en: "First name"
+    question_ua: "Ім'я"
+    question_pl: "Podaj imię"
+  - key: nazwisko
+    label_pl: Nazwisko
+    question_ru: "Фамилия"
+    question_en: "Last name"
+    question_ua: "Прізвище"
+    question_pl: "Podaj nazwisko"
+  - key: data_urodzenia
+    label_pl: Data urodzenia
+    question_ru: "Дата рождения (дд.мм.гггг)"
+    question_en: "Date of birth"
+    question_ua: "Дата народження"
+    question_pl: "Podaj datę urodzenia"
+  - key: pesel
+    label_pl: PESEL (jeśli masz)
+    question_ru: "PESEL (если есть, иначе «brak»)"
+    question_en: "PESEL if you have one, else 'brak'"
+    question_ua: "PESEL (якщо є)"
+    question_pl: "Podaj PESEL lub «brak»"
+  - key: adres_zamieszkania
+    label_pl: Adres zameldowania
+    question_ru: "Адрес meldunku"
+    question_en: "Registered address"
+    question_ua: "Адреса meldunku"
+    question_pl: "Podaj adres zameldowania"
+  - key: cel_wydania
+    label_pl: Cel wydania zaświadczenia
+    question_ru: "Зачем нужна справка (банк, UW, работа…)"
+    question_en: "Purpose of the certificate"
+    question_ua: "Навіщо потрібна довідка"
+    question_pl: "Podaj cel wydania zaświadczenia"
+  - key: urzad_gminy
+    label_pl: Urząd gminy / dzielnicy
+    question_ru: "Какой urząd gminy / dzielnicy"
+    question_en: "Which commune / district office"
+    question_ua: "Який urząd gminy"
+    question_pl: "Podaj urząd gminy / dzielnicy"

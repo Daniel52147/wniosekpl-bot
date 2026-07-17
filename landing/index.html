@@ -14,6 +14,8 @@
   <meta name="twitter:description" content="PESEL, meldunek, karta pobytu i pisma do urzędu — w jednym miejscu." />
   <meta name="twitter:image" content="og.svg" />
   <title>WniosekPL — AI-pomocnik dla cudzoziemców w Polsce</title>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#1f6b57" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
@@ -544,11 +546,22 @@
     </div>
 
     
+    <section id="packages">
+      <div class="section-head">
+        <div>
+          <h2>Pakiet Przeprowadzka</h2>
+          <p>Jedne dane → 3 PDF (umowa + meldunek + PESEL) jako ZIP.</p>
+        </div>
+        <a class="ghost" href="#docs" id="pkg-open-docs">Wypełnij dokumenty</a>
+      </div>
+      <div id="packages-box" class="docs"></div>
+    </section>
+
     <section id="platform">
       <div class="section-head">
         <div>
-          <h2>Platforma v2.0</h2>
-          <p>Płatności, sesje, kabinet, OCR, marketplace + AI gateway OmniRoute (free providers / auto-fallback).</p>
+          <h2>Platforma v2.2</h2>
+          <p>Auth, Stripe, OCR, marketplace, pakiet Przeprowadzka, odwołanie + AI gateway OmniRoute.</p>
         </div>
         <div id="billing-note" class="status"></div>
       </div>
@@ -725,7 +738,7 @@
 
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.</span>
-      <span>WniosekPL · v2.1</span>
+      <span>WniosekPL · v2.2</span>
     </footer>
   </div>
 

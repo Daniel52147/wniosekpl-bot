@@ -1,0 +1,73 @@
+articles:
+  - id: kolejka_uw
+    tags: [kolejka, uw, wizyta, urzad]
+    title:
+      ru: "Очередь в urząd wojewódzki"
+      en: "Voivodeship office queue"
+      ua: "Черга в urząd wojewódzki"
+      pl: "Kolejka w urzędzie wojewódzkim"
+    body:
+      ru: |
+        Запись часто через интернет-календарь или infolinię вашего воеводства.
+        Приходите с копиями, оригиналами и заполненным wnioskiem. Фото и opłata — проверьте заранее.
+      en: |
+        Booking is often via your voivodeship online calendar or hotline.
+        Bring copies, originals and a completed form. Check photo/fee rules in advance.
+      ua: |
+        Запис часто через інтернет-календар воєводства. Візьміть копії, оригінали і wypełniony wniosek.
+      pl: |
+        Rezerwacja często przez kalendarz online UW. Weź kopie, oryginały i wypełniony wniosek.
+  - id: dzieci_szkola
+    tags: [dzieci, szkola, edukacja]
+    title:
+      ru: "Дети и школа"
+      en: "Children and school"
+      ua: "Діти і школа"
+      pl: "Dzieci i szkoła"
+    body:
+      ru: |
+        Для записи в школу обычно нужны: документ ребёнка, адрес, прививки/медосмотр по правилам школы,
+        иногда PESEL. Уточните в konkretной placówce oświatowej.
+      en: |
+        School enrollment usually needs the child's ID, address, and health docs per school rules,
+        sometimes PESEL. Confirm with the specific school.
+      ua: |
+        Для школи зазвичай потрібні документи дитини, адреса, медогляд; іноді PESEL.
+      pl: |
+        Do szkoły zwykle: dokumenty dziecka, adres, badania; czasem PESEL. Sprawdź w placówce.
+  - id: bank_konto
+    tags: [bank, konto, pesel]
+    title:
+      ru: "Счёт в банке"
+      en: "Bank account"
+      ua: "Рахунок у банку"
+      pl: "Konto bankowe"
+    body:
+      ru: |
+        Банки часто просят паспорт, PESEL или адрес, иногда umowę o pracę / kartę pobytu.
+        Требования отличаются — сверьте на сайте банка до визита.
+      en: |
+        Banks often ask for passport, PESEL or address, sometimes employment/residence docs.
+        Requirements vary — check the bank website before visiting.
+      ua: |
+        Банки часто просять паспорт, PESEL/адресу, інколи umowę або kartę pobytu.
+      pl: |
+        Banki zwykle proszą o paszport, PESEL/adres, czasem umowę lub kartę pobytu.
+  - id: podatki_pit
+    tags: [pit, podatki, us]
+    title:
+      ru: "PIT / налоги"
+      en: "PIT / taxes"
+      ua: "PIT / податки"
+      pl: "PIT / podatki"
+    body:
+      ru: |
+        При работе по umowie часто сдаёте PIT раз в год. NIP/PESEL и urząd skarbowy зависят от адреса.
+        Для сложных случаев — księgowy или marketplace консультант.
+      en: |
+        With employment you usually file PIT yearly. Tax office depends on your address.
+        For complex cases use an accountant or marketplace advisor.
+      ua: |
+        При роботі часто подаєте PIT раз на рік. Уточніть urząd skarbowy за адресою.
+      pl: |
+        Przy umowie zwykle składasz PIT raz w roku. US zależy od adresu.

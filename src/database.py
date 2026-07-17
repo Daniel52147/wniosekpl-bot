@@ -384,6 +384,8 @@ async def delete_user_data(telegram_id: int) -> None:
             "lawyer_leads",
             "sessions",
             "magic_links",
+            "email_tokens",
+            "feedback",
         ):
             await db.execute(
                 f"DELETE FROM {table} WHERE telegram_id = ?",
@@ -735,6 +737,69 @@ async def complete_calendar_event(event_id: int, telegram_id: int) -> bool:
         )
         await db.commit()
         return cur.rowcount > 0
+
+
+async def delete_calendar_event(event_id: int, telegram_id: int) -> bool:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cur = await db.execute(
+            """
+            DELETE FROM calendar_events
+            WHERE id = ? AND telegram_id = ?
+            """,
+            (event_id, telegram_id),
+        )
+        await db.commit()
+        return cur.rowcount > 0
+
+
+async def revoke_session(token_hash: str) -> bool:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cur = await db.execute(
+            "DELETE FROM sessions WHERE token_hash = ?",
+            (token_hash,),
+        )
+        await db.commit()
+        return cur.rowcount > 0
+
+
+async def revoke_all_sessions(telegram_id: int) -> int:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cur = await db.execute(
+            "DELETE FROM sessions WHERE telegram_id = ?",
+            (telegram_id,),
+        )
+        await db.commit()
+        return cur.rowcount
+
+
+async def export_user_bundle(telegram_id: int) -> dict:
+    """GDPR-oriented data export for one user."""
+    profile = await get_user_profile(telegram_id) or {}
+    safe_profile = {
+        k: profile.get(k)
+        for k in (
+            "telegram_id",
+            "email",
+            "display_name",
+            "first_name",
+            "username",
+            "language",
+            "auth_provider",
+            "email_verified",
+            "created_at",
+            "last_active_at",
+            "referral",
+        )
+    }
+    return {
+        "user": safe_profile,
+        "payments": await list_payments(telegram_id, limit=100),
+        "calendar": await list_calendar_events(telegram_id),
+        "uploads": await list_uploads(telegram_id, limit=100),
+        "ai_history": await recent_ai_questions(telegram_id, limit=100),
+        "subscription": await get_subscription(telegram_id),
+        "karta": await get_karta_progress(telegram_id),
+    }
 
 
 async def save_upload(

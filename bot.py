@@ -56,6 +56,8 @@ async def main() -> None:
                 BotCommand(command="premium", description="Plan / płatności"),
                 BotCommand(command="karta", description="Checklista karty pobytu"),
                 BotCommand(command="calendar", description="Kalendarz terminów"),
+                BotCommand(command="lawyers", description="Marketplace prawników"),
+                BotCommand(command="countries", description="Kraje / roadmap"),
                 BotCommand(command="feedback", description="Opinia / Feedback"),
             ]
         )

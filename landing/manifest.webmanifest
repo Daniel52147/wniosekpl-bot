@@ -1,0 +1,18 @@
+{
+  "name": "WniosekPL",
+  "short_name": "WniosekPL",
+  "description": "AI helper for foreigners in Poland — PESEL, meldunek, karta pobytu, letters.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4efe4",
+  "theme_color": "#1f6b57",
+  "lang": "pl",
+  "icons": [
+    {
+      "src": "/static/og.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

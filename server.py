@@ -23,7 +23,7 @@ from src.accounts import (
     verify_email_token,
 )
 from src.ai_assistant import answer_question_smart
-from src.auth import hash_token, issue_session, new_token, resolve_session
+from src.auth import hash_token, issue_session, logout_session, new_token, resolve_session
 from src.checklists import checklist
 from src.config import (
     ADMIN_API_KEY,
@@ -47,6 +47,9 @@ from src.database import (
     complete_calendar_event,
     consume_magic_link,
     create_magic_link,
+    delete_calendar_event,
+    delete_user_data,
+    export_user_bundle,
     get_karta_progress,
     get_subscription,
     init_db,
@@ -58,9 +61,11 @@ from src.database import (
     record_ai_question,
     record_completion,
     record_payment,
+    revoke_all_sessions,
     save_lawyer_lead,
     save_upload,
     set_karta_progress,
+    set_referral,
     set_user_email,
     set_user_profile_fields,
     upsert_user,
@@ -101,7 +106,7 @@ from src.services_directory import search_services
 from src.validators import is_required, validate_field
 
 LANDING_DIR = ROOT / "landing"
-PRODUCT_VERSION = "2.1.0"
+PRODUCT_VERSION = "2.2.0"
 
 
 def telegram_configured() -> bool:
@@ -988,6 +993,151 @@ async def seed_calendar(user_id: int):
         due = (now + timedelta(days=days)).date().isoformat()
         ids.append(await add_calendar_event(user_id, title, due, kind))
     return {"created": ids}
+
+
+
+@app.get("/robots.txt", include_in_schema=False)
+async def robots_txt():
+    path = LANDING_DIR / "robots.txt"
+    if path.exists():
+        return FileResponse(path, media_type="text/plain")
+    return RedirectResponse("/")
+
+
+@app.get("/manifest.webmanifest", include_in_schema=False)
+async def web_manifest():
+    path = LANDING_DIR / "manifest.webmanifest"
+    if path.exists():
+        return FileResponse(path, media_type="application/manifest+json")
+    raise HTTPException(status_code=404, detail="manifest_missing")
+
+
+@app.get("/sitemap.xml", include_in_schema=False)
+async def sitemap_xml():
+    path = LANDING_DIR / "sitemap.xml"
+    if path.exists():
+        return FileResponse(path, media_type="application/xml")
+    raise HTTPException(status_code=404, detail="sitemap_missing")
+
+
+@app.post("/api/auth/logout")
+async def auth_logout(authorization: str | None = Header(default=None)):
+    ok = await logout_session(authorization)
+    return {"ok": ok}
+
+
+@app.get("/api/account/export")
+async def account_export(authorization: str | None = Header(default=None)):
+    user_id = await resolve_session(authorization)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="invalid_session")
+    return await export_user_bundle(user_id)
+
+
+@app.delete("/api/account")
+async def account_delete(authorization: str | None = Header(default=None)):
+    user_id = await resolve_session(authorization)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="invalid_session")
+    await revoke_all_sessions(user_id)
+    await delete_user_data(user_id)
+    return {"ok": True, "deleted_user_id": user_id}
+
+
+class ReferralRequest(BaseModel):
+    user_id: int
+    code: str = Field(..., min_length=2, max_length=64)
+
+
+@app.post("/api/account/referral")
+async def account_referral(
+    payload: ReferralRequest,
+    authorization: str | None = Header(default=None),
+):
+    user_id = await _resolve_user(payload.user_id, authorization)
+    await set_referral(user_id, payload.code)
+    return {"ok": True}
+
+
+@app.get("/api/calendar/{user_id}")
+async def calendar_list(user_id: int, authorization: str | None = Header(default=None)):
+    resolved = await _resolve_user(user_id, authorization)
+    return {"items": await list_calendar_events(resolved)}
+
+
+@app.delete("/api/calendar/{event_id}")
+async def calendar_delete(event_id: int, user_id: int, authorization: str | None = Header(default=None)):
+    resolved = await _resolve_user(user_id, authorization)
+    ok = await delete_calendar_event(event_id, resolved)
+    if not ok:
+        raise HTTPException(status_code=404, detail="event_not_found")
+    return {"ok": True}
+
+
+@app.get("/api/packages")
+async def packages_list(lang: Literal["ru", "en", "ua", "pl"] = "ru"):
+    from src.packages import PACKAGES
+
+    return [
+        {
+            "id": pkg.id,
+            "title": pkg.title(lang),
+            "intro": pkg.intro(lang),
+            "documents": pkg.doc_order,
+        }
+        for pkg in PACKAGES.values()
+    ]
+
+
+class PackageGenerateRequest(BaseModel):
+    user_id: int
+    lang: Literal["ru", "en", "ua", "pl"] = "ru"
+    answers: dict[str, str]
+
+
+@app.post("/api/packages/{package_id}/generate")
+async def packages_generate(package_id: str, payload: PackageGenerateRequest):
+    from src.packages import PACKAGES, build_answers_for_doc
+    from zipfile import ZipFile
+    import io
+
+    pkg = PACKAGES.get(package_id)
+    if not pkg:
+        raise HTTPException(status_code=404, detail="package_not_found")
+    docs = _docs()
+    await upsert_user(payload.user_id, None, None, payload.lang)
+    buf = io.BytesIO()
+    with ZipFile(buf, "w") as zf:
+        for doc_id in pkg.doc_order:
+            doc = docs.get(doc_id)
+            if not doc:
+                continue
+            answers = build_answers_for_doc(doc, payload.answers)
+            errors = {}
+            for field in doc.fields:
+                value = (answers.get(field.key) or "").strip()
+                err = validate_field(field.key, value, payload.lang)
+                if err and is_required(field.key):
+                    errors[field.key] = err
+                answers[field.key] = value
+            if errors:
+                raise HTTPException(
+                    status_code=400,
+                    detail={"document_id": doc_id, "errors": errors},
+                )
+            out = OUTPUT_DIR / f"pkg_{package_id}_{doc_id}_{payload.user_id}_{uuid4().hex[:6]}.pdf"
+            path, _mode = generate_document_pdf(doc, answers, out)
+            await record_completion(payload.user_id, doc_id)
+            zf.write(path, arcname=f"{doc_id}.pdf")
+    buf.seek(0)
+    from fastapi.responses import StreamingResponse
+
+    return StreamingResponse(
+        buf,
+        media_type="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="wniosekpl_{package_id}.zip"'},
+    )
+
 
 
 if __name__ == "__main__":

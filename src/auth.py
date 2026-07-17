@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, timezone
 from src.database import (
     create_session,
     get_session,
+    revoke_session,
     touch_session,
 )
 
@@ -37,12 +38,17 @@ async def issue_session(user_id: int, *, days: int = 30, label: str = "web") -> 
     }
 
 
-async def resolve_session(token: str | None) -> int | None:
+def extract_bearer(token: str | None) -> str | None:
     if not token:
         return None
     raw = token.strip()
     if raw.lower().startswith("bearer "):
         raw = raw[7:].strip()
+    return raw or None
+
+
+async def resolve_session(token: str | None) -> int | None:
+    raw = extract_bearer(token)
     if not raw:
         return None
     row = await get_session(hash_token(raw))
@@ -53,3 +59,10 @@ async def resolve_session(token: str | None) -> int | None:
         return None
     await touch_session(row["token_hash"])
     return int(row["telegram_id"])
+
+
+async def logout_session(token: str | None) -> bool:
+    raw = extract_bearer(token)
+    if not raw:
+        return False
+    return await revoke_session(hash_token(raw))

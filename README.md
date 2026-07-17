@@ -1,70 +1,51 @@
-# WniosekPL Platform v1.0
+# WniosekPL Platform v2.2
 
-AI-помощник для иностранцев в Польше: **web + Telegram + billing + cabinet**.
+AI-помощник для иностранцев в Польше: **web + Telegram + auth + Stripe + OmniRoute**.
 
 **Pomocnik, nie urząd** — не юридическая консультация.
 
-## Что умеет v1.0
+## Что умеет v2.2
 
-- AI-чат (rule-based + knowledge base; LLM если есть `OPENAI_API_KEY`)
-- Генерация PDF: PESEL, meldunek, umowa, pismo, upoważnienie, oświadczenie, karta prep
-- Анализ загруженных PDF/писем
-- Генератор официальных писем
-- Чеклист karty pobytu
-- Календарь сроков
-- Каталог urzędów / услуг
-- Оплата: Stripe или demo mock-checkout (`19 zł` AI / `29 zł` review)
-- Личный кабинет пользователя
-- Telegram-бот как канал (`/ask`, `/karta`, `/calendar`, `/premium`)
+- Регистрация: email/пароль, Google/Facebook OAuth, magic link, RODO export/delete
+- AI-чат: rules + knowledge + OmniRoute/LLM cascade
+- PDF: PESEL, meldunek, umowa, pismo, upoważnienie, oświadczenie, odwołanie, zaświadczenie, karta prep
+- Пакет «Przeprowadzka» → ZIP из 3 PDF
+- OCR PDF/фото (Tesseract), письма, checklist karty, календарь
+- Marketplace юристов, каталог urzędów (Warszawa/Kraków/Wrocław/Gdańsk/Poznań)
+- Оплата: Stripe checkout/portal/invoices/webhooks или mock
+- Setup wizard `/setup` для ключей без правки кода
+- Telegram-бот как канал
 
 ## Быстрый старт
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
-# BOT_TOKEN + опционально OPENAI_API_KEY / STRIPE_SECRET_KEY
-python -m uvicorn server:app --reload
+# BOT_TOKEN обязателен для бота
+python -m uvicorn server:app --reload --host 0.0.0.0 --port 8000
 # отдельно:
 python bot.py
+# опционально AI gateway:
+bash scripts/start_omniroute.sh
 ```
 
-Сайт: `http://127.0.0.1:8000`
+Сайт: `http://127.0.0.1:8000` · Setup: `/setup` · Admin: `/admin`
 
-## API
+## Docker
 
-| Endpoint | Описание |
-|----------|----------|
-| `GET /health` | статус платформы |
-| `GET /api/meta` | план, лимиты, флаги LLM/Stripe/Telegram |
-| `GET /api/documents` | список документов |
-| `GET /api/documents/{id}` | поля + checklist |
-| `POST /api/documents/{id}/generate` | PDF |
-| `POST /api/assistant/ask` | AI |
-| `POST /api/billing/checkout` | Stripe/mock оплата |
-| `GET /api/cabinet/{user_id}` | личный кабинет |
-| `POST /api/letters/generate` | письмо |
-| `POST /api/uploads/analyze` | разбор PDF/фото |
-| `GET /api/karta/{user_id}` | checklist karty |
-| `GET/POST /api/calendar` | календарь |
-| `GET /api/services` | urzędy / услуги |
-| `GET /api/admin/overview` | админка |
+```bash
+docker compose up -d
+docker compose --profile bot up -d
+```
 
-## Оплата
+## Документация
 
-Без Stripe ключей работает **mock checkout**:
-1. `POST /api/billing/checkout`
-2. открывается `/api/billing/mock-complete`
-3. активируется подписка на 30 дней
-
-С ключами Stripe — создаётся настоящий Checkout Session.
-
-## Telegram
-
-Нужен `BOT_TOKEN` в `.env` и запущенный `python bot.py`.
-
-Команды: `/start` `/ask` `/docs` `/karta` `/calendar` `/premium` `/review`
+- `docs/AUTH_BILLING.md` — auth + Stripe
+- `docs/OMNIROUTE.md` — AI gateway
+- `DEPLOY_RENDER.md` — Render Blueprint (`render.yaml`)
+- `THIRD_PARTY.md` — OmniRoute attribution
 
 ## Тесты
 
@@ -72,7 +53,6 @@ python bot.py
 python -m pytest tests/ -q
 ```
 
-## Деплой
+## Версия
 
-См. `DEPLOY_RENDER.md`. Для production задайте:
-`PUBLIC_BASE_URL`, `OPENAI_API_KEY`, `STRIPE_*`, `ADMIN_API_KEY`.
+`GET /health` → `"version": "2.2.0"`

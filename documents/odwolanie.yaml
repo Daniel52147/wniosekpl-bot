@@ -1,0 +1,70 @@
+id: odwolanie
+title_pl: "Odwołanie od decyzji (szablon)"
+title_ru: "Обжалование решения / odwołanie (шаблон)"
+title_en: "Appeal against a decision (template)"
+title_ua: "Оскарження рішення / odwołanie (шаблон)"
+description_ru: "Черновик odwołania на польском. Проверьте срок в решении (часто 14 дней) и орган, куда подавать. Не юридическая консультация."
+description_en: "Draft appeal in Polish. Check the deadline in the decision (often 14 days) and the authority. Not legal advice."
+description_pl: "Szablon odwołania. Sprawdź termin w decyzji i organ odwoławczy. To nie porada prawna."
+description_ua: "Чернетка odwołania польською. Перевірте строк у рішенні та орган. Не юридична консультація."
+fields:
+  - key: nadawca_imie_nazwisko
+    label_pl: Imię i nazwisko
+    question_ru: "Ваше имя и фамилия"
+    question_en: "Your full name"
+    question_ua: "Ваше ім'я та прізвище"
+    question_pl: "Podaj imię i nazwisko"
+  - key: nadawca_adres
+    label_pl: Adres
+    question_ru: "Адрес для корреспонденции"
+    question_en: "Correspondence address"
+    question_ua: "Адреса для листування"
+    question_pl: "Podaj adres korespondencyjny"
+  - key: nadawca_telefon
+    label_pl: Telefon / e-mail
+    question_ru: "Телефон или email"
+    question_en: "Phone or email"
+    question_ua: "Телефон або email"
+    question_pl: "Podaj telefon lub e-mail"
+  - key: organ_nazwa
+    label_pl: Organ odwoławczy
+    question_ru: "Орган, куда подаёте odwołanie"
+    question_en: "Appeal authority"
+    question_ua: "Орган для odwołania"
+    question_pl: "Podaj organ odwoławczy"
+  - key: organ_adres
+    label_pl: Adres organu
+    question_ru: "Адрес органа"
+    question_en: "Authority address"
+    question_ua: "Адреса органу"
+    question_pl: "Podaj adres organu"
+  - key: znak_sprawy
+    label_pl: Znak sprawy / numer decyzji
+    question_ru: "Номер дела / решения"
+    question_en: "Case / decision number"
+    question_ua: "Номер справи / рішення"
+    question_pl: "Podaj znak sprawy lub numer decyzji"
+  - key: data_decyzji
+    label_pl: Data decyzji
+    question_ru: "Дата решения (дд.мм.гггг)"
+    question_en: "Decision date (dd.mm.yyyy)"
+    question_ua: "Дата рішення"
+    question_pl: "Podaj datę decyzji"
+  - key: data_otrzymania
+    label_pl: Data doręczenia
+    question_ru: "Когда получили решение"
+    question_en: "When you received the decision"
+    question_ua: "Коли отримали рішення"
+    question_pl: "Podaj datę doręczenia decyzji"
+  - key: zarzuty
+    label_pl: Zarzuty / uzasadnienie
+    question_ru: "Почему обжалуете (своими словами)"
+    question_en: "Why you appeal (in your words)"
+    question_ua: "Чому оскаржуєте"
+    question_pl: "Opisz zarzuty i uzasadnienie"
+  - key: zadanie
+    label_pl: Żądanie
+    question_ru: "Что просите (uchylić / zmienić decyzję)"
+    question_en: "What you request (annul / change)"
+    question_ua: "Що просите"
+    question_pl: "Czego żądasz (uchylenie / zmiana decyzji)"

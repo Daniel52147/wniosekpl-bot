@@ -18,16 +18,27 @@ def _load_articles() -> list[dict]:
 
 def search_knowledge(query: str, lang: str = "ru", limit: int = 3) -> list[dict]:
     q = (query or "").casefold()
+    tokens = [t for t in q.replace(",", " ").split() if len(t) > 2]
     scored: list[tuple[int, dict]] = []
     for article in _load_articles():
         tags = " ".join(article.get("tags", [])).casefold()
         title = (article.get("title", {}) or {}).get(lang, "")
         body = (article.get("body", {}) or {}).get(lang, "")
+        article_id = (article.get("id") or "").casefold()
         blob = f"{tags} {title} {body}".casefold()
-        score = sum(1 for token in q.split() if token and token in blob)
+        score = 0
+        for token in tokens:
+            if token == article_id or token in tags.split():
+                score += 5
+            elif token in title.casefold():
+                score += 3
+            elif token in blob:
+                score += 1
         for tag in article.get("tags", []):
             if tag.casefold() in q:
-                score += 2
+                score += 3
+        if article_id and article_id in q:
+            score += 6
         if score:
             scored.append((score, article))
     scored.sort(key=lambda item: item[0], reverse=True)

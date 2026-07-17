@@ -73,6 +73,42 @@ SERVICES = [
         "url": "https://www.gov.pl/",
         "notes": "Szukaj tłumacza przysięgłego języka dokumentu.",
     },
+    {
+        "id": "uw_wroclaw",
+        "category": "urzad",
+        "city": "Wrocław",
+        "name": "Dolnośląski Urząd Wojewódzki we Wrocławiu",
+        "address": "pl. Powstańców Warszawy 1, 50-153 Wrocław",
+        "url": "https://www.duw.pl/",
+        "notes": "Sprawy cudzoziemców / karta pobytu — Dolny Śląsk.",
+    },
+    {
+        "id": "uw_gdansk",
+        "category": "urzad",
+        "city": "Gdańsk",
+        "name": "Pomorski Urząd Wojewódzki w Gdańsku",
+        "address": "ul. Okopowa 21/27, 80-810 Gdańsk",
+        "url": "https://www.gdansk.uw.gov.pl/",
+        "notes": "Sprawy cudzoziemców — województwo pomorskie.",
+    },
+    {
+        "id": "uw_poznan",
+        "category": "urzad",
+        "city": "Poznań",
+        "name": "Wielkopolski Urząd Wojewódzki w Poznaniu",
+        "address": "al. Niepodległości 16/18, 61-713 Poznań",
+        "url": "https://www.poznan.uw.gov.pl/",
+        "notes": "Sprawy cudzoziemców — Wielkopolska.",
+    },
+    {
+        "id": "pue_zus",
+        "category": "zus",
+        "city": "Polska",
+        "name": "PUE ZUS — profil online",
+        "address": "Online",
+        "url": "https://www.zus.pl/pue",
+        "notes": "Status składek / ubezpieczenia bez wizyty w oddziale.",
+    },
 ]
 
 

@@ -35,7 +35,24 @@
     const data = await me.json();
     const u = data.user || {};
     if (box) {
-      box.textContent = `${u.email || u.name || u.user_id} · plan: ${(data.plan || {}).plan || "free"}`;
+      box.innerHTML = `${u.email || u.name || u.user_id} · plan: ${(data.plan || {}).plan || "free"}
+        · <a href="#" id="btn-logout">Wyloguj</a>
+        · <a href="#" id="btn-export">RODO export</a>`;
+      document.getElementById("btn-logout")?.addEventListener("click", async (e) => {
+        e.preventDefault();
+        await fetch(`${API}/api/auth/logout`, { method: "POST", headers: headers(false) });
+        localStorage.removeItem(TOKEN_KEY);
+        box.textContent = "Wylogowano";
+      });
+      document.getElementById("btn-export")?.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const res = await fetch(`${API}/api/account/export`, { headers: headers(false) });
+        const blob = await res.blob();
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "wniosekpl-export.json";
+        a.click();
+      });
     }
     if (billingLine) {
       const b = data.billing || {};

@@ -296,11 +296,30 @@
       if (note) note.textContent = "Zalogowano magic linkiem.";
     }
 
+    async function loadPackages() {
+      const box = document.getElementById("packages-box");
+      if (!box) return;
+      const res = await fetch(`${API}/api/packages?lang=${lang()}`);
+      if (!res.ok) return;
+      const items = await res.json();
+      box.innerHTML = "";
+      items.forEach((pkg) => {
+        const el = document.createElement("article");
+        el.className = "doc";
+        el.innerHTML = `<strong></strong><p></p><span class="muted"></span>`;
+        el.querySelector("strong").textContent = pkg.title;
+        el.querySelector("p").textContent = pkg.intro.replace(/<[^>]+>/g, " ");
+        el.querySelector("span").textContent = (pkg.documents || []).join(" → ");
+        box.appendChild(el);
+      });
+    }
+
     ensureSession().then(() => {
       refreshCabinet();
       loadServices();
       loadLawyers();
       loadCountries();
+      loadPackages();
     });
   }
 

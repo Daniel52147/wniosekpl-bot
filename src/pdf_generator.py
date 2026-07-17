@@ -60,6 +60,8 @@ def generate_pdf(
 
     if doc_def.id == "pismo_do_urzedu":
         story.extend(_letter_body(answers, styles))
+    elif doc_def.id == "odwolanie":
+        story.extend(_odwolanie_body(answers, styles))
     elif doc_def.id == "upowaznienie":
         story.extend(_upowaznienie_body(answers, styles))
     elif doc_def.id == "oswiadczenie_dochodow":
@@ -140,6 +142,42 @@ def _letter_body(answers: dict[str, str], styles) -> list:
         Paragraph("Z poważaniem,", body),
         Spacer(1, 1.2 * cm),
         Paragraph(f"…………………………………<br/>{nadawca}", body),
+    ]
+
+
+def _odwolanie_body(answers: dict[str, str], styles) -> list:
+    body = styles["Normal"]
+    right = ParagraphStyle("RightMetaOd", parent=body, alignment=2)
+    name = answers.get("nadawca_imie_nazwisko", "—")
+    text = f"""
+    Na podstawie przepisów postępowania administracyjnego wnoszę odwołanie
+    od decyzji znak <b>{answers.get('znak_sprawy', '—')}</b>
+    z dnia {answers.get('data_decyzji', '—')}
+    (doręczonej dnia {answers.get('data_otrzymania', '—')}).<br/><br/>
+    <b>Zarzuty / uzasadnienie:</b><br/>
+    {answers.get('zarzuty', '—').replace(chr(10), '<br/>')}<br/><br/>
+    <b>Żądanie:</b><br/>
+    {answers.get('zadanie', '—')}<br/><br/>
+    Proszę o uwzględnienie odwołania.
+    """
+    return [
+        Paragraph(
+            f"{name}<br/>{answers.get('nadawca_adres', '—')}<br/>{answers.get('nadawca_telefon', '—')}",
+            right,
+        ),
+        Spacer(1, 0.6 * cm),
+        Paragraph(
+            f"<b>{answers.get('organ_nazwa', '—')}</b><br/>{answers.get('organ_adres', '—')}",
+            body,
+        ),
+        Spacer(1, 0.5 * cm),
+        Paragraph("<b>ODWOŁANIE</b>", body),
+        Spacer(1, 0.3 * cm),
+        Paragraph(text, body),
+        Spacer(1, 0.6 * cm),
+        Paragraph("Z poważaniem,", body),
+        Spacer(1, 1.2 * cm),
+        Paragraph(f"…………………………………<br/>{name}", body),
     ]
 
 

@@ -43,6 +43,26 @@ LAWYERS = [
         "remote": True,
         "bio": "Analiza decyzji i przygotowanie odpowiedzi / odwołania.",
     },
+    {
+        "id": "student_help_poznan",
+        "name": "Student Stay Poznań",
+        "city": "Poznań",
+        "languages": ["pl", "en", "ua"],
+        "specialties": ["studia", "karta pobytu", "ubezpieczenie"],
+        "price_from_pln": 250,
+        "remote": True,
+        "bio": "Pakiet dokumentów dla studentów i umów najmu.",
+    },
+    {
+        "id": "trojmiasto_migracja",
+        "name": "Trójmiasto Migracja",
+        "city": "Gdańsk",
+        "languages": ["pl", "ru", "ua", "en"],
+        "specialties": ["karta pobytu", "praca", "rodzina"],
+        "price_from_pln": 320,
+        "remote": True,
+        "bio": "Pomoc w Gdańsku / Gdyni / Sopocie + zdalnie.",
+    },
 ]
 
 

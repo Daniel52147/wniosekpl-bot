@@ -102,10 +102,9 @@ _TOPICS: dict[str, dict[str, list[str] | dict[str, str]]] = {
             "ужонд",
             "urząd",
             "wezwanie",
-            "decyzja",
-            "odmowa",
-            "отказ",
+            "pismo",
             "letter",
+            "summons",
         ],
         "answers": {
             "ru": (
@@ -223,8 +222,84 @@ _TOPICS: dict[str, dict[str, list[str] | dict[str, str]]] = {
             ),
         },
     },
+    "praca": {
+        "keywords": [
+            "работа",
+            "праця",
+            "praca",
+            "umowa",
+            "work",
+            "job",
+            "zezwolenie",
+            "oświadczenie",
+        ],
+        "answers": {
+            "ru": (
+                "<b>Работа в Польше: база</b>\n\n"
+                "1. Храните umowę и расчётные листки.\n"
+                "2. Проверьте zgłoszenie do ZUS.\n"
+                "3. Для karty pobytu часто нужны копии договора и доходы.\n"
+                "4. Если работодатель обещает «потом сделаем документы» — зафиксируйте сроки письменно."
+            ),
+            "en": (
+                "<b>Work in Poland: basics</b>\n\n"
+                "1. Keep your contract and payslips.\n"
+                "2. Confirm ZUS registration.\n"
+                "3. Residence card applications often need contract copies and income proof.\n"
+                "4. Get written timelines if the employer promises paperwork later."
+            ),
+            "ua": (
+                "<b>Робота в Польщі</b>\n\n"
+                "Зберігайте umowę і розрахунки, перевірте ZUS. Для karty pobytu часто потрібні копії договору."
+            ),
+            "pl": (
+                "<b>Praca w Polsce: podstawy</b>\n\n"
+                "1. Przechowuj umowę i paski.\n"
+                "2. Sprawdź zgłoszenie do ZUS.\n"
+                "3. Do karty pobytu zwykle potrzebne są kopie umowy i dochody."
+            ),
+        },
+    },
+    "odwolanie": {
+        "keywords": [
+            "odwołanie",
+            "odwolanie",
+            "odmowa",
+            "отказ",
+            "відмова",
+            "appeal",
+            "refusal",
+            "обжалован",
+        ],
+        "answers": {
+            "ru": (
+                "<b>Отказ / odwołanie</b>\n\n"
+                "1. Найдите срок обжалования в решении (часто 14 дней).\n"
+                "2. Не пропускайте срок.\n"
+                "3. Подготовьте черновик в документах → Odwołanie.\n"
+                "4. При сложных делах — lead в marketplace юристов."
+            ),
+            "en": (
+                "<b>Refusal / appeal</b>\n\n"
+                "1. Find the appeal deadline in the decision (often 14 days).\n"
+                "2. Do not miss it.\n"
+                "3. Draft via Documents → Appeal.\n"
+                "4. For complex cases use the lawyer marketplace."
+            ),
+            "ua": (
+                "<b>Відмова / odwołanie</b>\n\n"
+                "Перевірте строк у рішенні, підготуйте чернетку Odwołanie, за потреби — юрист з marketplace."
+            ),
+            "pl": (
+                "<b>Odmowa / odwołanie</b>\n\n"
+                "1. Sprawdź termin w decyzji (często 14 dni).\n"
+                "2. Nie przegap terminu.\n"
+                "3. Szablon: Dokumenty → Odwołanie.\n"
+                "4. Trudne sprawy — marketplace prawników."
+            ),
+        },
+    },
 }
-
 
 _FALLBACK = {
     "ru": (
