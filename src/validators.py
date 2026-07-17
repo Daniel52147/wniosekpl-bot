@@ -15,8 +15,11 @@ DATE_FIELDS = {
     "data_umowy",
     "data_od",
     "data_do",
+    "data_pisma",
+    "data_upowaznienia",
+    "data_oswiadczenia",
 }
-MONEY_FIELDS = {"czynsz", "kaucja"}
+MONEY_FIELDS = {"czynsz", "kaucja", "dochod_miesieczny"}
 PESEL_SKIP = {"brak", "nie", "\u043d\u0435\u0442", "no", "n/a", "-"}
 OPTIONAL_FIELDS = {
     "imie_ojca",
@@ -25,6 +28,9 @@ OPTIONAL_FIELDS = {
     "kaucja",
     "pesel",
     "data_do",
+    "znak_sprawy",
+    "pracodawca_nazwa",
+    "nadawca_telefon",
 }
 
 

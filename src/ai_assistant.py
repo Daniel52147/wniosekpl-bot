@@ -114,29 +114,84 @@ _TOPICS: dict[str, dict[str, list[str] | dict[str, str]]] = {
                 "2. Проверьте, что именно требуют: документ, подпись, оплату или объяснение.\n"
                 "3. Не игнорируйте письмо, даже если это не отказ.\n"
                 "4. Если нужен ответ, можно подготовить официальное письмо на польском.\n\n"
-                "MVP пока не читает фото. Пришлите ключевые фразы текстом — я помогу понять смысл."
+                "Можно сразу создать ответ: документ <b>Pismo do urzędu</b> на сайте или в Telegram.\n"
+                "MVP пока не читает фото — пришлите ключевые фразы текстом."
             ),
             "en": (
                 "<b>Office letter: what to do</b>\n\n"
                 "1. Find the deadline, often 7 or 14 days.\n"
                 "2. Check what is requested: document, signature, payment, or explanation.\n"
                 "3. Do not ignore it, even if it is not a refusal.\n"
-                "4. If needed, prepare an official Polish response.\n\n"
+                "4. Create a reply with the <b>Pismo do urzędu</b> template on the website or in Telegram.\n\n"
                 "This MVP does not read photos yet. Send the key phrases as text."
             ),
             "ua": (
                 "<b>Лист з urzędu: що зробити</b>\n\n"
                 "1. Знайдіть строк: часто 7 або 14 днів.\n"
-                "2. Перевірте, що саме вимагають: документ, підпис, оплату чи пояснення.\n"
-                "3. Не ігноруйте лист, навіть якщо це не відмова.\n\n"
-                "MVP поки не читає фото. Надішліть ключові фрази текстом."
+                "2. Перевірте, що саме вимагають.\n"
+                "3. Можна створити відповідь шаблоном <b>Pismo do urzędu</b>."
             ),
             "pl": (
                 "<b>Pismo z urzędu: co zrobić</b>\n\n"
                 "1. Znajdź termin — często 7 albo 14 dni.\n"
-                "2. Sprawdź, czego urząd żąda: dokumentu, podpisu, opłaty albo wyjaśnienia.\n"
-                "3. Nie ignoruj pisma, nawet jeśli to nie odmowa.\n\n"
-                "MVP nie czyta jeszcze zdjęć. Wyślij kluczowe zdania tekstem."
+                "2. Sprawdź, czego urząd żąda.\n"
+                "3. Odpowiedź możesz przygotować szablonem <b>Pismo do urzędu</b>.\n\n"
+                "MVP nie czyta jeszcze zdjęć — wyślij kluczowe zdania tekstem."
+            ),
+        },
+    },
+    "upowaznienie": {
+        "keywords": [
+            "upoważn",
+            "pełnomoc",
+            "доверен",
+            "довірен",
+            "power of attorney",
+            "authorization",
+        ],
+        "answers": {
+            "ru": (
+                "<b>Upoważnienie</b>\n\n"
+                "Шаблон доверенности доступен в разделе документов.\n"
+                "Если urząd требует pełnomocnictwo notarialne — простой PDF может не подойти."
+            ),
+            "en": (
+                "<b>Authorization</b>\n\n"
+                "A simple authorization template is available in Documents.\n"
+                "Some offices require a notarial power of attorney."
+            ),
+            "ua": "<b>Upoważnienie</b>\n\nШаблон є в розділі документів. Нотаріальне може вимагати urząd.",
+            "pl": (
+                "<b>Upoważnienie</b>\n\n"
+                "Szablon jest w Dokumentach. Jeśli urząd wymaga formy notarialnej — ten szablon nie wystarczy."
+            ),
+        },
+    },
+    "dochody": {
+        "keywords": [
+            "dochód",
+            "доход",
+            "дохід",
+            "income",
+            "zarob",
+            "pensja",
+            "зарплат",
+        ],
+        "answers": {
+            "ru": (
+                "<b>Oświadczenie o dochodach</b>\n\n"
+                "Часто нужно к karcie pobytu. На сайте есть шаблон заявления о доходах.\n"
+                "Обычно просят: источник дохода, сумму netto и период."
+            ),
+            "en": (
+                "<b>Income declaration</b>\n\n"
+                "Often required for a residence card. Use the income declaration template.\n"
+                "Usually: income source, net amount, and period."
+            ),
+            "ua": "<b>Заява про доходи</b>\n\nЧасто потрібна до karty pobytu. Шаблон є в Документах.",
+            "pl": (
+                "<b>Oświadczenie o dochodach</b>\n\n"
+                "Często wymagane do karty pobytu. Szablon jest w Dokumentach."
             ),
         },
     },

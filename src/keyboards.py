@@ -20,7 +20,15 @@ def language_keyboard() -> InlineKeyboardMarkup:
     )
 
 
-DOC_ORDER = ("pesel", "meldunek", "meldunek_staly", "umowa_najmu")
+DOC_ORDER = (
+    "pesel",
+    "meldunek",
+    "meldunek_staly",
+    "umowa_najmu",
+    "pismo_do_urzedu",
+    "upowaznienie",
+    "oswiadczenie_dochodow",
+)
 
 
 def quick_keyboard(lang: str) -> InlineKeyboardMarkup:

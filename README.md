@@ -21,6 +21,9 @@ AI-помощник для иностранцев в Польше: web + Telegra
 | **Meldunek czasowy** | `meldunek` | EL/ZC/1 overlay |
 | **Meldunek stały** | `meldunek_staly` | EL/ZPS/1 overlay |
 | **Umowa najmu** | `umowa_najmu` | Szablon pomocniczy |
+| **Pismo do urzędu** | `pismo_do_urzedu` | Szablon pomocniczy |
+| **Upoważnienie** | `upowaznienie` | Szablon pomocniczy |
+| **Oświadczenie o dochodach** | `oswiadczenie_dochodow` | Szablon pomocniczy |
 | **Pakiet Przeprowadzka** | package | umowa + meldunek + PESEL |
 
 ## Быстрый старт
@@ -44,10 +47,22 @@ python -m uvicorn server:app --reload
 |----------|----------|
 | `GET /` | Продуктовый web UI |
 | `GET /health` | Проверка сервера |
-| `GET /api/meta?user_id=` | Версия, лимит AI, остаток вопросов |
+| `GET /api/meta?user_id=` | Версия, лимит AI, остаток вопросов, статус Telegram |
 | `GET /api/documents?lang=ru` | Список доступных документов |
+| `GET /api/documents/{id}` | Детали документа + поля + чеклист |
+| `POST /api/documents/{id}/generate` | Сгенерировать PDF |
 | `POST /api/assistant/ask` | AI-помощник с лимитом бесплатных вопросов |
 | `POST /api/leads` | Заявки на подписку, human review или waitlist |
+
+## Почему Telegram может молчать
+
+Бот отвечает только если:
+
+1. В `.env` задан реальный `BOT_TOKEN` от @BotFather
+2. Запущен процесс `python bot.py`
+3. Нет второго polling-инстанса на Render/ПК одновременно
+
+Сайт и API работают без Telegram.
 
 ## Telegram-команды
 

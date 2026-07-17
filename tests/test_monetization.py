@@ -43,4 +43,6 @@ def test_landing_exposes_paid_review_plan():
     assert "19 zł" in html
     assert "AI-asystent" in html
     assert "/api/assistant/ask" in html
+    assert "/api/documents/" in html
     assert "Sprawdzenie przez człowieka" in html
+    assert "tg-status" in html

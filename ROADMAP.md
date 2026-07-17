@@ -22,6 +22,7 @@
 - [ ] 19 zł / dokument, pakiet 79 zł
 - [x] AI-pomocnik MVP — 5 darmowych pytań dziennie + lead capture subskrypcji
 - [x] Web product UI + FastAPI server (v0.2)
+- [x] Web document wizard + new helper docs (pismo, upoważnienie, oświadczenie) (v0.3)
 - [ ] B2B white-label
 - [x] Human review +29 zł — lead capture / waitlist
 - [ ] Partnerstwo kancelaria

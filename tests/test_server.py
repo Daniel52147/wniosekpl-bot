@@ -15,11 +15,45 @@ def test_server_health_and_documents(tmp_path, monkeypatch):
     assert health.status_code == 200
     assert health.json()["status"] == "ok"
     assert health.json()["version"] == server.PRODUCT_VERSION
+    assert health.json()["documents_count"] >= 7
     assert docs.status_code == 200
-    assert any(doc["id"] == "pesel" for doc in docs.json())
+    ids = {doc["id"] for doc in docs.json()}
+    assert "pesel" in ids
+    assert "pismo_do_urzedu" in ids
     assert meta.status_code == 200
-    assert meta.json()["ai_free_daily_limit"] == server.AI_FREE_DAILY_LIMIT
+    assert meta.json()["telegram_configured"] is False
     assert "web" in meta.json()["channels"]
+
+
+def test_server_document_detail_and_generate(tmp_path, monkeypatch):
+    monkeypatch.setattr(database, "DATABASE_PATH", tmp_path / "api.db")
+
+    answers = {
+        "nadawca_imie_nazwisko": "Olena Kowalska",
+        "nadawca_adres": "ul. Testowa 1, 00-001 Warszawa",
+        "nadawca_telefon": "+48123123123",
+        "urzad_nazwa": "Urzad Wojewodzki",
+        "urzad_adres": "ul. Urzedowa 2, Warszawa",
+        "znak_sprawy": "WU/1/2026",
+        "temat_pisma": "Uzupełnienie dokumentów",
+        "tresc_pisma": "Przesylam brakujace dokumenty.",
+        "data_pisma": "17.07.2026",
+        "miejscowosc_pisma": "Warszawa",
+    }
+
+    with TestClient(server.app) as client:
+        detail = client.get("/api/documents/pismo_do_urzedu", params={"lang": "ru"})
+        pdf = client.post(
+            "/api/documents/pismo_do_urzedu/generate",
+            json={"user_id": 55, "lang": "ru", "answers": answers},
+        )
+
+    assert detail.status_code == 200
+    assert detail.json()["id"] == "pismo_do_urzedu"
+    assert len(detail.json()["fields"]) >= 8
+    assert pdf.status_code == 200
+    assert pdf.headers["content-type"].startswith("application/pdf")
+    assert len(pdf.content) > 500
 
 
 def test_server_assistant_ask_records_usage_and_enforces_limit(tmp_path, monkeypatch):
@@ -69,4 +103,5 @@ def test_landing_page_serves_product_ui(tmp_path, monkeypatch):
 
     assert page.status_code == 200
     assert "AI-asystent" in page.text
-    assert "/api/assistant/ask" in page.text
+    assert "/api/documents/" in page.text
+    assert "generate" in page.text

@@ -403,6 +403,39 @@
       .hero-visual { min-height: 320px; }
       .section-head { flex-direction: column; align-items: start; }
     }
+
+    .doc { cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease; }
+    .doc:hover { transform: translateY(-2px); border-color: rgba(31, 107, 87, 0.35); }
+    .doc-meta { margin-top: 0.7rem; display: flex; justify-content: space-between; gap: 0.5rem; align-items: center; font-size: 0.85rem; color: var(--muted); }
+    .badge-mode { background: rgba(31, 107, 87, 0.12); color: var(--moss-deep); border-radius: 999px; padding: 0.2rem 0.55rem; font-weight: 600; }
+    .tg-status { font-size: 0.9rem; color: var(--muted); }
+    .tg-status.ok { color: var(--moss-deep); }
+    .tg-status.bad { color: #9a3412; }
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(16, 35, 31, 0.45);
+      display: none; align-items: center; justify-content: center; padding: 1rem; z-index: 40;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      width: min(640px, 100%); max-height: min(88vh, 820px); overflow: auto;
+      background: var(--white); border-radius: 22px; border: 1px solid var(--line);
+      box-shadow: var(--shadow); padding: 1.2rem;
+    }
+    .modal h3 { font-family: Syne, sans-serif; margin: 0 0 0.4rem; letter-spacing: -0.03em; }
+    .modal .muted { color: var(--muted); margin: 0 0 1rem; line-height: 1.45; }
+    .field { margin-bottom: 0.8rem; }
+    .field label { display: block; font-weight: 600; margin-bottom: 0.3rem; }
+    .field input, .field textarea {
+      width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 0.75rem 0.85rem;
+      font: inherit; background: #fff; color: var(--ink);
+    }
+    .field .err { color: #9a3412; font-size: 0.85rem; margin-top: 0.25rem; }
+    .modal-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1rem; }
+    .checklist-box {
+      white-space: pre-wrap; background: rgba(31, 107, 87, 0.06);
+      border: 1px solid rgba(31, 107, 87, 0.15); border-radius: 14px; padding: 0.85rem; margin: 0.8rem 0;
+      font-size: 0.92rem; line-height: 1.45;
+    }
   </style>
 </head>
 <body>
@@ -425,6 +458,7 @@
           <a class="cta" id="cta-chat" href="#assistant">Zapytaj AI</a>
           <a class="ghost" id="cta-tg" href="https://t.me/wniosekpl_bot">Otwórz w Telegram</a>
         </div>
+        <p class="tg-status" id="tg-status"></p>
       </div>
       <div class="hero-visual" aria-hidden="true">
         <div class="visual-panel">
@@ -495,9 +529,23 @@
       </div>
     </section>
 
+    
+    <div class="modal-backdrop" id="doc-modal" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true">
+        <h3 id="modal-title">Dokument</h3>
+        <p class="muted" id="modal-desc"></p>
+        <div class="checklist-box" id="modal-checklist" hidden></div>
+        <form id="doc-form"></form>
+        <div class="modal-actions">
+          <button type="button" class="cta" id="modal-generate">Pobierz PDF</button>
+          <button type="button" class="ghost" id="modal-close">Zamknij</button>
+        </div>
+      </div>
+    </div>
+
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.</span>
-      <span>WniosekPL · v0.2</span>
+      <span>WniosekPL · v0.3</span>
     </footer>
   </div>
 
@@ -513,21 +561,30 @@
         ctaChat: "Zapytaj AI",
         ctaTg: "Otwórz w Telegram",
         visualKicker: "Pomocnik, nie urząd",
-        visualTitle: "PESEL, meldunek, karta pobytu",
+        visualTitle: "PESEL, meldunek, pisma, upoważnienia",
         visualNote: "Jedno miejsce na dokumenty, pisma i szybkie odpowiedzi przed wizytą w urzędzie.",
         assistantTitle: "AI-asystent",
         assistantSub: "5 darmowych pytań dziennie. Napisz sytuację — dostaniesz konkretny plan.",
         usage: (left, limit) => `Darmowe pytania dziś: ${left}/${limit}`,
         placeholder: "Np. Jestem z Ukrainy, pracuję legalnie i chcę kartę pobytu",
         send: "Wyślij",
-        welcome: "Cześć. Napisz, czego potrzebujesz w Polsce — PESEL, meldunek, karta pobytu, ZUS/NFZ albo pismo z urzędu.",
+        welcome: "Cześć. Napisz, czego potrzebujesz — PESEL, meldunek, karta pobytu, pismo do urzędu, upoważnienie albo oświadczenie o dochodach.",
         thinking: "Myślę…",
         limit: "Dzisiejszy limit darmowych pytań został wykorzystany. Zostaw zainteresowanie subskrypcją 19 zł/mies.",
         leadOk: "Zapisane. Dziękujemy — to pomaga uruchomić plan szybciej.",
         leadDup: "Już zapisaliśmy Twoje zainteresowanie.",
         error: "Nie udało się połączyć z API. Odśwież stronę i spróbuj ponownie.",
         docsTitle: "Dokumenty",
-        docsSub: "Oficjalne formularze i pakiet przeprowadzki — dostępne też w Telegram.",
+        docsSub: "Kliknij dokument, wypełnij pola i pobierz PDF. Oficjalne blanki i nowe szablony pomocnicze.",
+        fill: "Wypełnij",
+        official: "oficjalny",
+        helper: "szablon",
+        generate: "Pobierz PDF",
+        close: "Zamknij",
+        generating: "Generuję PDF…",
+        genError: "Nie udało się wygenerować PDF. Sprawdź pola.",
+        tgOk: "Telegram bot skonfigurowany — możesz też otworzyć czat.",
+        tgBad: "Telegram bot nie odpowiada: brak BOT_TOKEN w środowisku. Web działa niezależnie.",
         pricingTitle: "Taryfy",
         pricingSub: "Zaczynasz za darmo. Płacisz tylko za więcej AI albo sprawdzenie przez człowieka.",
         freeTitle: "Start",
@@ -545,8 +602,8 @@
         chips: [
           "Chcę kartę pobytu",
           "Jak dostać PESEL?",
-          "Dostałem pismo z urzędu",
-          "Co z ZUS i NFZ?",
+          "Napisz pismo do urzędu",
+          "Potrzebuję oświadczenie o dochodach",
         ],
       },
       ru: {
@@ -554,21 +611,30 @@
         ctaChat: "Спросить AI",
         ctaTg: "Открыть в Telegram",
         visualKicker: "Помощник, не urząd",
-        visualTitle: "PESEL, meldunek, karta pobytu",
+        visualTitle: "PESEL, meldunek, письма, доверенности",
         visualNote: "Одно место для документов, писем и быстрых ответов перед визитом в ужонд.",
         assistantTitle: "AI-ассистент",
         assistantSub: "5 бесплатных вопросов в день. Опишите ситуацию — получите конкретный план.",
         usage: (left, limit) => `Бесплатных вопросов сегодня: ${left}/${limit}`,
         placeholder: "Напр. Я из Украины, работаю официально и хочу карту побыту",
         send: "Отправить",
-        welcome: "Привет. Напишите, что нужно в Польше — PESEL, meldunek, karta pobytu, ZUS/NFZ или письмо из urzędu.",
+        welcome: "Привет. Напишите, что нужно — PESEL, meldunek, karta pobytu, письмо в urząd, upoważnienie или заявление о доходах.",
         thinking: "Думаю…",
         limit: "Лимит бесплатных вопросов на сегодня закончился. Оставьте интерес к подписке 19 zł/мес.",
         leadOk: "Сохранено. Спасибо — это помогает быстрее запустить тариф.",
         leadDup: "Интерес уже сохранён.",
         error: "Не удалось связаться с API. Обновите страницу и попробуйте снова.",
         docsTitle: "Документы",
-        docsSub: "Официальные бланки и пакет переезда — также в Telegram.",
+        docsSub: "Нажмите документ, заполните поля и скачайте PDF. Официальные бланки и новые шаблоны.",
+        fill: "Заполнить",
+        official: "официальный",
+        helper: "шаблон",
+        generate: "Скачать PDF",
+        close: "Закрыть",
+        generating: "Генерирую PDF…",
+        genError: "Не удалось создать PDF. Проверьте поля.",
+        tgOk: "Telegram-бот настроен — можно открыть чат.",
+        tgBad: "Telegram-бот не отвечает: нет BOT_TOKEN в окружении. Сайт работает отдельно.",
         pricingTitle: "Тарифы",
         pricingSub: "Старт бесплатный. Платите только за больше AI или проверку человеком.",
         freeTitle: "Старт",
@@ -586,8 +652,8 @@
         chips: [
           "Хочу карту побыту",
           "Как получить PESEL?",
-          "Пришло письмо из urzędu",
-          "Что с ZUS и NFZ?",
+          "Нужно письмо в urząd",
+          "Нужно заявление о доходах",
         ],
       },
       en: {
@@ -595,21 +661,30 @@
         ctaChat: "Ask AI",
         ctaTg: "Open in Telegram",
         visualKicker: "Helper, not a government office",
-        visualTitle: "PESEL, meldunek, residence card",
+        visualTitle: "PESEL, meldunek, letters, authorizations",
         visualNote: "One place for documents, office letters, and quick answers before your visit.",
         assistantTitle: "AI assistant",
         assistantSub: "5 free questions per day. Describe your case — get a concrete plan.",
         usage: (left, limit) => `Free questions today: ${left}/${limit}`,
         placeholder: "e.g. I am Ukrainian, legally employed, and need a residence card",
         send: "Send",
-        welcome: "Hi. Ask about PESEL, meldunek, residence card, ZUS/NFZ, or an office letter in Poland.",
+        welcome: "Hi. Ask about PESEL, meldunek, residence card, office letters, authorization, or income declaration.",
         thinking: "Thinking…",
         limit: "You reached today's free question limit. Leave interest in the 19 zł/mo plan.",
         leadOk: "Saved. Thanks — this helps launch the plan faster.",
         leadDup: "Interest already saved.",
         error: "Could not reach the API. Refresh and try again.",
         docsTitle: "Documents",
-        docsSub: "Official forms and the relocation package — also available in Telegram.",
+        docsSub: "Click a document, fill the fields, and download a PDF. Official blanks and new helper templates.",
+        fill: "Fill",
+        official: "official",
+        helper: "template",
+        generate: "Download PDF",
+        close: "Close",
+        generating: "Generating PDF…",
+        genError: "Could not generate PDF. Check the fields.",
+        tgOk: "Telegram bot is configured — you can open the chat.",
+        tgBad: "Telegram bot is silent: BOT_TOKEN is missing. The website works independently.",
         pricingTitle: "Pricing",
         pricingSub: "Start free. Pay only for more AI or human review.",
         freeTitle: "Starter",
@@ -627,8 +702,8 @@
         chips: [
           "I need a residence card",
           "How do I get PESEL?",
-          "I got an office letter",
-          "What about ZUS and NFZ?",
+          "Write a letter to the office",
+          "I need an income declaration",
         ],
       },
       ua: {
@@ -636,21 +711,30 @@
         ctaChat: "Запитати AI",
         ctaTg: "Відкрити в Telegram",
         visualKicker: "Помічник, не urząd",
-        visualTitle: "PESEL, meldunek, karta pobytu",
+        visualTitle: "PESEL, meldunek, листи, довіреності",
         visualNote: "Одне місце для документів, листів і швидких відповідей перед візитом до urzędu.",
         assistantTitle: "AI-асистент",
         assistantSub: "5 безкоштовних питань на день. Опишіть ситуацію — отримаєте конкретний план.",
         usage: (left, limit) => `Безкоштовних питань сьогодні: ${left}/${limit}`,
         placeholder: "Напр. Я з України, працюю офіційно і хочу карту побиту",
         send: "Надіслати",
-        welcome: "Привіт. Запитайте про PESEL, meldunek, karta pobytu, ZUS/NFZ або лист з urzędu.",
+        welcome: "Привіт. Запитайте про PESEL, meldunek, karta pobytu, лист до urzędu, upoważnienie або заяву про доходи.",
         thinking: "Думаю…",
         limit: "Ліміт безкоштовних питань на сьогодні закінчився. Залиште інтерес до підписки 19 zł/міс.",
         leadOk: "Збережено. Дякуємо — це допомагає швидше запустити план.",
         leadDup: "Інтерес уже збережено.",
         error: "Не вдалося з'єднатися з API. Оновіть сторінку і спробуйте ще раз.",
         docsTitle: "Документи",
-        docsSub: "Офіційні бланки і пакет переїзду — також у Telegram.",
+        docsSub: "Натисніть документ, заповніть поля і завантажте PDF. Офіційні бланки та нові шаблони.",
+        fill: "Заповнити",
+        official: "офіційний",
+        helper: "шаблон",
+        generate: "Завантажити PDF",
+        close: "Закрити",
+        generating: "Генерую PDF…",
+        genError: "Не вдалося створити PDF. Перевірте поля.",
+        tgOk: "Telegram-бот налаштований — можна відкрити чат.",
+        tgBad: "Telegram-бот мовчить: немає BOT_TOKEN. Сайт працює окремо.",
         pricingTitle: "Тарифи",
         pricingSub: "Старт безкоштовний. Платите лише за більше AI або перевірку людиною.",
         freeTitle: "Старт",
@@ -668,8 +752,8 @@
         chips: [
           "Хочу карту побиту",
           "Як отримати PESEL?",
-          "Прийшов лист з urzędu",
-          "Що з ZUS і NFZ?",
+          "Потрібен лист до urzędu",
+          "Потрібна заява про доходи",
         ],
       },
     };
@@ -677,6 +761,7 @@
     let lang = localStorage.getItem(LANG_KEY) || "pl";
     let limit = 5;
     let left = 5;
+    let currentDocId = null;
 
     function getUserId() {
       let id = Number(localStorage.getItem(STORAGE_KEY));
@@ -699,6 +784,10 @@
         }
       });
       return template.innerHTML;
+    }
+
+    function stripTags(html) {
+      return (html || "").replace(/<[^>]+>/g, "");
     }
 
     function addBubble(text, role, asHtml = false) {
@@ -741,6 +830,8 @@
       document.getElementById("review-desc").textContent = c.reviewDesc;
       document.getElementById("review-link").textContent = c.reviewBtn;
       document.getElementById("foot").textContent = c.foot;
+      document.getElementById("modal-generate").textContent = c.generate;
+      document.getElementById("modal-close").textContent = c.close;
 
       document.querySelectorAll(".langs button").forEach((btn) => {
         btn.classList.toggle("active", btn.dataset.lang === lang);
@@ -767,6 +858,15 @@
       limit = data.ai_free_daily_limit || 5;
       left = data.free_questions_left ?? Math.max(limit - (data.used_today || 0), 0);
       document.getElementById("usage").textContent = copy[lang].usage(left, limit);
+      const tg = document.getElementById("tg-status");
+      if (data.telegram_configured) {
+        tg.textContent = copy[lang].tgOk;
+        tg.className = "tg-status ok";
+        document.getElementById("cta-tg").href = `https://t.me/${data.telegram_username || BOT}`;
+      } else {
+        tg.textContent = copy[lang].tgBad;
+        tg.className = "tg-status bad";
+      }
     }
 
     async function loadDocs() {
@@ -777,11 +877,106 @@
       data.forEach((doc) => {
         const item = document.createElement("article");
         item.className = "doc";
-        item.innerHTML = `<strong></strong><p></p>`;
+        item.tabIndex = 0;
+        item.innerHTML = `<strong></strong><p></p><div class="doc-meta"><span class="badge-mode"></span><span></span></div>`;
         item.querySelector("strong").textContent = doc.title;
-        item.querySelector("p").textContent = doc.description || `${doc.fields_count} fields`;
+        item.querySelector("p").textContent = doc.description || "";
+        item.querySelector(".badge-mode").textContent = doc.mode === "official" ? copy[lang].official : copy[lang].helper;
+        item.querySelector(".doc-meta span:last-child").textContent = `${copy[lang].fill} · ${doc.fields_count}`;
+        item.addEventListener("click", () => openDoc(doc.id));
+        item.addEventListener("keydown", (e) => { if (e.key === "Enter") openDoc(doc.id); });
         docs.appendChild(item);
       });
+    }
+
+    async function openDoc(docId) {
+      const res = await fetch(`${API}/api/documents/${docId}?lang=${lang}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      currentDocId = docId;
+      document.getElementById("modal-title").textContent = data.title;
+      document.getElementById("modal-desc").textContent = data.description || "";
+      const checklist = document.getElementById("modal-checklist");
+      if (data.checklist) {
+        checklist.hidden = false;
+        checklist.textContent = stripTags(data.checklist);
+      } else {
+        checklist.hidden = true;
+        checklist.textContent = "";
+      }
+      const form = document.getElementById("doc-form");
+      form.innerHTML = "";
+      data.fields.forEach((field) => {
+        const wrap = document.createElement("div");
+        wrap.className = "field";
+        const label = document.createElement("label");
+        label.textContent = field.question + (field.required ? " *" : "");
+        label.setAttribute("for", `f_${field.key}`);
+        const input = field.key.includes("tresc") || field.key.includes("zakres")
+          ? document.createElement("textarea")
+          : document.createElement("input");
+        input.id = `f_${field.key}`;
+        input.name = field.key;
+        input.required = field.required;
+        if (input.tagName === "TEXTAREA") input.rows = 4;
+        wrap.appendChild(label);
+        wrap.appendChild(input);
+        const err = document.createElement("div");
+        err.className = "err";
+        err.dataset.errorFor = field.key;
+        wrap.appendChild(err);
+        form.appendChild(wrap);
+      });
+      document.getElementById("doc-modal").classList.add("open");
+      document.getElementById("doc-modal").setAttribute("aria-hidden", "false");
+    }
+
+    function closeDoc() {
+      document.getElementById("doc-modal").classList.remove("open");
+      document.getElementById("doc-modal").setAttribute("aria-hidden", "true");
+      currentDocId = null;
+    }
+
+    async function generateDoc() {
+      if (!currentDocId) return;
+      const form = document.getElementById("doc-form");
+      const answers = {};
+      [...form.elements].forEach((el) => {
+        if (el.name) answers[el.name] = el.value.trim();
+      });
+      form.querySelectorAll(".err").forEach((el) => { el.textContent = ""; });
+      const btn = document.getElementById("modal-generate");
+      btn.disabled = true;
+      btn.textContent = copy[lang].generating;
+      try {
+        const res = await fetch(`${API}/api/documents/${currentDocId}/generate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: getUserId(), lang, answers }),
+        });
+        if (res.status === 400) {
+          const data = await res.json();
+          const errors = data.detail?.errors || {};
+          Object.entries(errors).forEach(([key, msg]) => {
+            const box = form.querySelector(`[data-error-for="${key}"]`);
+            if (box) box.textContent = msg;
+          });
+          throw new Error("validation");
+        }
+        if (!res.ok) throw new Error("generate");
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `wniosekpl_${currentDocId}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        if (err.message !== "validation") alert(copy[lang].genError);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = copy[lang].generate;
+      }
     }
 
     async function createLead(product) {
@@ -802,11 +997,7 @@
         const res = await fetch(`${API}/api/assistant/ask`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            user_id: getUserId(),
-            question: text,
-            lang,
-          }),
+          body: JSON.stringify({ user_id: getUserId(), question: text, lang }),
         });
         const data = await res.json();
         if (res.status === 429) {
@@ -846,6 +1037,11 @@
       event.preventDefault();
       createLead("human_review");
     });
+    document.getElementById("modal-close").addEventListener("click", closeDoc);
+    document.getElementById("modal-generate").addEventListener("click", generateDoc);
+    document.getElementById("doc-modal").addEventListener("click", (event) => {
+      if (event.target.id === "doc-modal") closeDoc();
+    });
 
     document.querySelectorAll(".langs button").forEach((btn) => {
       btn.addEventListener("click", async () => {
@@ -854,7 +1050,7 @@
         applyLang();
         messages.innerHTML = "";
         addBubble(copy[lang].welcome, "bot");
-        await loadDocs();
+        await Promise.all([loadDocs(), loadMeta().catch(() => {})]);
       });
     });
 
