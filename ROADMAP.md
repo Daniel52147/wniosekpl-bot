@@ -21,7 +21,7 @@
 
 - [ ] 19 zł / dokument, pakiet 79 zł
 - [ ] B2B white-label
-- [ ] Human review +29 zł
+- [x] Human review +29 zł — lead capture / waitlist
 - [ ] Partnerstwo kancelaria
 
 ## Faza 3+ (częściowo w bocie)

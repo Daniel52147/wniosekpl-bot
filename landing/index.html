@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="WniosekPL — darmowy bot Telegram: PESEL, Meldunek EL/ZC/1, pakiet Przeprowadzka. Pomocnik, nie urząd." />
+  <meta name="description" content="WniosekPL — bot Telegram: PESEL, Meldunek EL/ZC/1, pakiet Przeprowadzka oraz opcjonalne sprawdzenie dokumentów za 29 zł. Pomocnik, nie urząd." />
   <meta property="og:title" content="WniosekPL — formularze urzędowe w Telegram" />
-  <meta property="og:description" content="Darmowy bot: PESEL gov.pl, Meldunek EL/ZC/1, pakiet Przeprowadzka (3 PDF). Pomocnik — nie urząd." />
+  <meta property="og:description" content="Darmowe PDF: PESEL, Meldunek, pakiet Przeprowadzka. Opcjonalnie sprawdzenie przez człowieka za 29 zł." />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="pl_PL" />
   <meta property="og:image" content="og.svg" />
   <meta property="og:image:type" content="image/svg+xml" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="WniosekPL — formularze urzędowe w Telegram" />
-  <meta name="twitter:description" content="PESEL, Meldunek, pakiet Przeprowadzka — 100% bezpłatnie w Telegram." />
+  <meta name="twitter:description" content="PESEL, Meldunek, pakiet Przeprowadzka — darmowe PDF plus opcjonalna płatna weryfikacja." />
   <meta name="twitter:image" content="og.svg" />
   <title>WniosekPL — formularze urzędowe w Telegram</title>
   <style>
@@ -31,6 +31,12 @@
       display: block; text-align: center; margin: 1.5rem auto 0; padding: 14px 28px;
       background: #2563eb; color: #fff; text-decoration: none; border-radius: 10px; font-weight: 600; max-width: 280px;
     }
+    .btn.secondary { background: #0f172a; border: 1px solid #38bdf8; color: #e0f2fe; }
+    .pricing { display: grid; gap: 12px; margin-top: 1rem; }
+    .plan { border: 1px solid #334155; border-radius: 12px; padding: 1rem; background: #111827; }
+    .plan strong { color: #fff; display: block; font-size: 1.05rem; }
+    .price { color: #38bdf8; font-size: 1.4rem; font-weight: 700; margin: 0.35rem 0; }
+    .muted { color: #94a3b8; font-size: 0.9rem; line-height: 1.5; }
     .badge { text-align: center; font-size: 0.9rem; color: #fbbf24; margin-top: 1rem; }
     .foot { text-align: center; font-size: 0.75rem; color: #64748b; margin-top: 2rem; }
   </style>
@@ -54,7 +60,23 @@
       </ul>
     </div>
     <a class="btn" id="tg-link" href="https://t.me/wniosekpl_bot">Otwórz w Telegram</a>
-    <p class="badge" id="free">🎁 100% bezpłatnie — bez płatności</p>
+    <p class="badge" id="free">🎁 PDF bezpłatnie — płatna tylko opcjonalna weryfikacja</p>
+    <div class="card">
+      <strong id="pricing-title">Taryfy</strong>
+      <div class="pricing">
+        <div class="plan">
+          <strong id="free-title">PDF samodzielnie</strong>
+          <div class="price" id="free-price">0 zł</div>
+          <div class="muted" id="free-desc">Wypełnij formularz w Telegram i pobierz gotowy PDF.</div>
+        </div>
+        <div class="plan">
+          <strong id="review-title">Sprawdzenie przez człowieka</strong>
+          <div class="price" id="review-price">29 zł</div>
+          <div class="muted" id="review-desc">Dodatkowa kontrola danych, typowych błędów i checklisty przed urzędem.</div>
+          <a class="btn secondary" id="review-link" href="https://t.me/wniosekpl_bot?start=review">Chcę sprawdzenie</a>
+        </div>
+      </div>
+    </div>
     <p class="foot">Nie jesteśmy urzędem. Sprawdź dane przed złożeniem.</p>
   </div>
   <script>
@@ -62,12 +84,61 @@
     const ref = new URLSearchParams(location.search).get("ref");
     const start = ref ? `?start=ref_${encodeURIComponent(ref)}` : "";
     document.getElementById("tg-link").href = `https://t.me/${BOT}${start}`;
+    document.getElementById("review-link").href = `https://t.me/${BOT}?start=review`;
 
     const copy = {
-      pl: { tagline: "Pomocnik — <strong>nie urząd</strong>. PDF na polskich blankach.", btn: "Otwórz w Telegram", free: "🎁 100% za darmo" },
-      ru: { tagline: "Помощник — <strong>не urząd</strong>. PDF на польских бланках.", btn: "Открыть в Telegram", free: "🎁 100% бесплатно" },
-      en: { tagline: "Helper — <strong>not a government office</strong>. Official PDFs.", btn: "Open in Telegram", free: "🎁 100% free" },
-      ua: { tagline: "Помічник — <strong>не urząd</strong>. PDF на польських бланках.", btn: "Відкрити в Telegram", free: "🎁 100% безкоштовно" },
+      pl: {
+        tagline: "Pomocnik — <strong>nie urząd</strong>. PDF na polskich blankach.",
+        btn: "Otwórz w Telegram",
+        free: "🎁 PDF bezpłatnie — płatna tylko opcjonalna weryfikacja",
+        pricingTitle: "Taryfy",
+        freeTitle: "PDF samodzielnie",
+        freePrice: "0 zł",
+        freeDesc: "Wypełnij formularz w Telegram i pobierz gotowy PDF.",
+        reviewTitle: "Sprawdzenie przez człowieka",
+        reviewPrice: "29 zł",
+        reviewDesc: "Dodatkowa kontrola danych, typowych błędów i checklisty przed urzędem.",
+        reviewBtn: "Chcę sprawdzenie",
+      },
+      ru: {
+        tagline: "Помощник — <strong>не urząd</strong>. PDF на польских бланках.",
+        btn: "Открыть в Telegram",
+        free: "🎁 PDF бесплатно — платная только дополнительная проверка",
+        pricingTitle: "Тарифы",
+        freeTitle: "PDF самостоятельно",
+        freePrice: "0 zł",
+        freeDesc: "Заполните форму в Telegram и скачайте готовый PDF.",
+        reviewTitle: "Проверка человеком",
+        reviewPrice: "29 zł",
+        reviewDesc: "Проверка данных, типичных ошибок и чеклиста перед походом в urząd.",
+        reviewBtn: "Хочу проверку",
+      },
+      en: {
+        tagline: "Helper — <strong>not a government office</strong>. Official PDFs.",
+        btn: "Open in Telegram",
+        free: "🎁 PDFs are free — only optional review is paid",
+        pricingTitle: "Pricing",
+        freeTitle: "Self-service PDF",
+        freePrice: "0 zł",
+        freeDesc: "Fill the form in Telegram and download a ready PDF.",
+        reviewTitle: "Human review",
+        reviewPrice: "29 zł",
+        reviewDesc: "Extra check of data, common mistakes, and office checklist before submission.",
+        reviewBtn: "I want review",
+      },
+      ua: {
+        tagline: "Помічник — <strong>не urząd</strong>. PDF на польських бланках.",
+        btn: "Відкрити в Telegram",
+        free: "🎁 PDF безкоштовно — платна лише додаткова перевірка",
+        pricingTitle: "Тарифи",
+        freeTitle: "PDF самостійно",
+        freePrice: "0 zł",
+        freeDesc: "Заповніть форму в Telegram і завантажте готовий PDF.",
+        reviewTitle: "Перевірка людиною",
+        reviewPrice: "29 zł",
+        reviewDesc: "Додаткова перевірка даних, типових помилок і чекліста перед urzędem.",
+        reviewBtn: "Хочу перевірку",
+      },
     };
     document.querySelectorAll(".langs button").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -77,6 +148,14 @@
         document.getElementById("tagline").innerHTML = c.tagline;
         document.getElementById("tg-link").textContent = c.btn;
         document.getElementById("free").textContent = c.free;
+        document.getElementById("pricing-title").textContent = c.pricingTitle;
+        document.getElementById("free-title").textContent = c.freeTitle;
+        document.getElementById("free-price").textContent = c.freePrice;
+        document.getElementById("free-desc").textContent = c.freeDesc;
+        document.getElementById("review-title").textContent = c.reviewTitle;
+        document.getElementById("review-price").textContent = c.reviewPrice;
+        document.getElementById("review-desc").textContent = c.reviewDesc;
+        document.getElementById("review-link").textContent = c.reviewBtn;
       });
     });
   </script>

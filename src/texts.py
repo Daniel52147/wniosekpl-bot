@@ -242,12 +242,13 @@ TEXTS = {
             "/ostatni — повторить последний PDF\n"
             "/profil — ваши сохранённые данные\n"
             "/guide — что мне нужно?\n"
+            "/review — проверка человеком за 29 zł\n"
             "/feedback — отзыв или проблема\n\n"
             "📦 Пакет «Переезд» · EL/ZC/1 · EL/ZPS/1"
         ),
         "en": (
             f"<b>{BRAND}</b>\n"
-            "/start /docs /lang /cancel /usun /privacy\n"
+            "/start /docs /lang /cancel /usun /privacy /review\n"
             "📦 Relocation package · EL/ZC/1 · EL/ZPS/1"
         ),
         "ua": f"<b>{BRAND}</b>\n/start /docs /lang /cancel /usun",
@@ -262,6 +263,7 @@ TEXTS = {
             "/ostatni — ostatni formularz\n"
             "/profil — zapisane dane\n"
             "/guide — przewodnik\n"
+            "/review — sprawdzenie przez człowieka za 29 zł\n"
             "/feedback — opinia\n\n"
             "📦 Pakiet Przeprowadzka · meldunek czasowy/stały · PESEL"
         ),
@@ -445,6 +447,62 @@ TEXTS = {
         "en": "❓ What do I need?",
         "ua": "❓ Що мені потрібно?",
         "pl": "❓ Czego potrzebuję?",
+    },
+    "review_btn": {
+        "ru": "🔎 Проверка человеком — 29 zł",
+        "en": "🔎 Human review — 29 zł",
+        "ua": "🔎 Перевірка людиною — 29 zł",
+        "pl": "🔎 Sprawdzenie przez człowieka — 29 zł",
+    },
+    "review_waitlist_btn": {
+        "ru": "✅ Хочу проверку за 29 zł",
+        "en": "✅ I want review for 29 zł",
+        "ua": "✅ Хочу перевірку за 29 zł",
+        "pl": "✅ Chcę sprawdzenie za 29 zł",
+    },
+    "review_offer": {
+        "ru": (
+            "<b>Платная проверка документов</b>\n\n"
+            "Бот бесплатно генерирует PDF. За <b>29 zł</b> можно запросить "
+            "проверку человеком перед подачей: данные, типичные ошибки, "
+            "чеклист и что взять в urząd.\n\n"
+            "Это не юридическая консультация и не гарантия решения urzędu. "
+            "Сейчас собираем первые заявки — нажмите кнопку, если вам это нужно."
+        ),
+        "en": (
+            "<b>Paid document review</b>\n\n"
+            "The bot generates PDFs for free. For <b>29 zł</b>, you can request "
+            "a human check before submission: data, common mistakes, checklist, "
+            "and what to take to the office.\n\n"
+            "Not legal advice and not a government decision guarantee. "
+            "We are collecting early requests now."
+        ),
+        "ua": (
+            "<b>Платна перевірка документів</b>\n\n"
+            "Бот безкоштовно генерує PDF. За <b>29 zł</b> можна замовити "
+            "перевірку людиною перед подачею: дані, типові помилки, чекліст.\n\n"
+            "Це не юридична консультація. Зараз збираємо перші заявки."
+        ),
+        "pl": (
+            "<b>Płatne sprawdzenie dokumentów</b>\n\n"
+            "Bot generuje PDF za darmo. Za <b>29 zł</b> możesz poprosić "
+            "o sprawdzenie przez człowieka przed złożeniem: dane, typowe błędy, "
+            "checklista i co zabrać do urzędu.\n\n"
+            "To nie porada prawna ani gwarancja decyzji urzędu. "
+            "Teraz zbieramy pierwsze zgłoszenia."
+        ),
+    },
+    "review_waitlist_ok": {
+        "ru": "✅ Заявка сохранена. Админ увидит её в статистике и сможет связаться с вами в Telegram.",
+        "en": "✅ Request saved. The admin will see it in stats and can contact you on Telegram.",
+        "ua": "✅ Заявку збережено. Адмін побачить її в статистиці.",
+        "pl": "✅ Zgłoszenie zapisane. Admin zobaczy je w statystykach i może odezwać się na Telegramie.",
+    },
+    "review_waitlist_dup": {
+        "ru": "Вы уже оставили заявку на проверку.",
+        "en": "You already requested a review.",
+        "ua": "Ви вже залишили заявку.",
+        "pl": "Masz już zgłoszenie na sprawdzenie.",
     },
     "guide_text": {
         "ru": (

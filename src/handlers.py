@@ -68,6 +68,7 @@ from src.keyboards import (
     profile_keyboard,
     quick_keyboard,
     reminder_keyboard,
+    review_keyboard,
 )
 from src.pdf_preview import add_preview_watermark
 from src.packages import (
@@ -114,10 +115,17 @@ async def _show_profile(message: Message, lang: str) -> None:
     await message.answer("\n".join(lines), reply_markup=profile_keyboard(profile, lang))
 
 
-async def _open_main_menu(message: Message, state: FSMContext, pending_ref: str | None = None) -> None:
+async def _open_main_menu(
+    message: Message,
+    state: FSMContext,
+    pending_ref: str | None = None,
+    pending_action: str | None = None,
+) -> None:
     await state.clear()
     if pending_ref:
         await state.update_data(pending_ref=pending_ref)
+    if pending_action:
+        await state.update_data(pending_action=pending_action)
 
     user = message.from_user
     assert user
@@ -131,6 +139,9 @@ async def _open_main_menu(message: Message, state: FSMContext, pending_ref: str 
 
     lang = await _register_user(message)
     await message.answer(t("welcome", lang), reply_markup=main_reply_keyboard(lang))
+    if pending_action == "review":
+        await message.answer(t("review_offer", lang), reply_markup=review_keyboard(lang))
+        return
     await message.answer(t("choose_doc", lang), reply_markup=quick_keyboard(lang))
     draft = await load_draft(user.id)
     if draft:
@@ -142,9 +153,12 @@ async def _open_main_menu(message: Message, state: FSMContext, pending_ref: str 
 @router.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext, command: CommandObject) -> None:
     pending_ref = None
+    pending_action = None
     if command.args and command.args.startswith("ref_"):
         pending_ref = command.args[4:]
-    await _open_main_menu(message, state, pending_ref)
+    elif command.args == "review":
+        pending_action = "review"
+    await _open_main_menu(message, state, pending_ref, pending_action)
 
 
 @router.callback_query(F.data.startswith("lang:"))
@@ -152,6 +166,7 @@ async def on_language(callback: CallbackQuery, state: FSMContext) -> None:
     lang = callback.data.split(":")[1]
     data = await state.get_data()
     pending_ref = data.get("pending_ref")
+    pending_action = data.get("pending_action")
     await state.clear()
     await set_language(callback.from_user.id, lang)
     await upsert_user(
@@ -167,6 +182,10 @@ async def on_language(callback: CallbackQuery, state: FSMContext) -> None:
     except Exception:
         pass
     await callback.message.answer(t("welcome", lang), reply_markup=main_reply_keyboard(lang))
+    if pending_action == "review":
+        await callback.message.answer(t("review_offer", lang), reply_markup=review_keyboard(lang))
+        await callback.answer()
+        return
     await callback.message.answer(t("choose_doc", lang), reply_markup=quick_keyboard(lang))
     await callback.message.answer(t("all_docs", lang), reply_markup=documents_keyboard(DOCUMENTS, lang))
     await callback.answer()
@@ -189,6 +208,12 @@ async def cmd_help(message: Message) -> None:
 async def cmd_guide(message: Message) -> None:
     lang = await _register_user(message)
     await message.answer(t("guide_text", lang))
+
+
+@router.message(Command("review"))
+async def cmd_review(message: Message) -> None:
+    lang = await _register_user(message)
+    await message.answer(t("review_offer", lang), reply_markup=review_keyboard(lang))
 
 
 @router.message(Command("feedback"))
@@ -347,6 +372,13 @@ async def action_guide(callback: CallbackQuery) -> None:
     await callback.answer()
 
 
+@router.callback_query(F.data == "action:review")
+async def action_review(callback: CallbackQuery) -> None:
+    lang = await get_language(callback.from_user.id)
+    await callback.message.answer(t("review_offer", lang), reply_markup=review_keyboard(lang))
+    await callback.answer()
+
+
 @router.callback_query(F.data == "action:resume_draft")
 async def action_resume_draft(callback: CallbackQuery, state: FSMContext) -> None:
     lang = await get_language(callback.from_user.id)
@@ -425,6 +457,10 @@ async def on_waitlist(callback: CallbackQuery) -> None:
     product = callback.data.split(":")[1]
     lang = await get_language(callback.from_user.id)
     ok = await join_waitlist(callback.from_user.id, product)
+    if product == "human_review":
+        await callback.message.answer(t("review_waitlist_ok" if ok else "review_waitlist_dup", lang))
+        await callback.answer()
+        return
     await callback.message.answer(t("waitlist_ok" if ok else "waitlist_dup", lang))
     cl = checklist("karta_pobytu", lang)
     if cl:
@@ -878,6 +914,8 @@ async def cmd_stats(message: Message) -> None:
         lines.append(f"  - {doc_id}: {count}")
     karta = await waitlist_count("karta_pobytu")
     lines.append(f"Waitlist karta pobytu: {karta}")
+    human_review = await waitlist_count("human_review")
+    lines.append(f"Paid review leads: {human_review}")
     if stats.get("by_referral"):
         lines.append("Referrals:")
         for ref, count in stats["by_referral"]:

@@ -51,6 +51,7 @@ async def main() -> None:
                 BotCommand(command="ostatni", description="Powtórz ostatni formularz"),
                 BotCommand(command="profil", description="Zapisane dane / Profile"),
                 BotCommand(command="guide", description="Co mi potrzebne? / Guide"),
+                BotCommand(command="review", description="Sprawdzenie dokumentów / Human review"),
                 BotCommand(command="feedback", description="Opinia / Feedback"),
             ]
         )
