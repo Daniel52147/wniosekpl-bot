@@ -55,7 +55,9 @@ git push -u origin main
 | `AI_FREE_DAILY_LIMIT` | `5` |
 | `WEB_CORS_ORIGINS` | `*` для MVP или домен сайта |
 | `PUBLIC_BASE_URL` | публичный URL web-сервиса |
-| `OPENAI_API_KEY` | для LLM |
+| `OPENAI_API_KEY` | прямой OpenAI (fallback) |
+| `OMNIROUTE_ENABLED` / `OMNIROUTE_BASE_URL` / `OMNIROUTE_API_KEY` | AI gateway ([OmniRoute](https://github.com/diegosouzapw/OmniRoute)) |
+| `GROQ_API_KEY` / `OPENROUTER_API_KEY` | бесплатные fallback LLM |
 | `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` / price IDs | для живых платежей |
 | `ADMIN_API_KEY` | для `/admin` и `/api/admin/overview` |
 

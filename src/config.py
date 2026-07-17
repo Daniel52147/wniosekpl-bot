@@ -25,9 +25,33 @@ WEB_CORS_ORIGINS = [
 ]
 
 PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
+
+# OmniRoute gateway (https://github.com/diegosouzapw/OmniRoute)
+# Default: OpenAI-compatible /v1 on local OmniRoute.
+OMNIROUTE_ENABLED = os.getenv("OMNIROUTE_ENABLED", "true").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+OMNIROUTE_BASE_URL = os.getenv(
+    "OMNIROUTE_BASE_URL",
+    "http://127.0.0.1:20128/v1",
+).rstrip("/")
+OMNIROUTE_API_KEY = os.getenv("OMNIROUTE_API_KEY", "")
+OMNIROUTE_MODEL = os.getenv("OMNIROUTE_MODEL", "auto")
+
+# Direct OpenAI / OpenAI-compatible (used if OmniRoute off or as fallback)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+
+# Extra free/cheap provider keys (OmniRoute-style cascade without the gateway)
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+LLM_FALLBACK_MODELS = {
+    "groq": os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
+    "openrouter": os.getenv("OPENROUTER_MODEL", "openrouter/free"),
+}
 
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")

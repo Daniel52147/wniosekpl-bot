@@ -60,7 +60,7 @@ from src.documents import load_all_documents
 from src.entitlements import can_ask_ai, mark_human_review_purchased, user_plan
 from src.karta_wizard import default_progress, progress_view
 from src.letter_writer import write_official_letter
-from src.llm import complete_chat, llm_configured
+from src.llm import complete_chat, llm_configured, llm_status, omniroute_reachable
 from src.marketplace import get_lawyer, list_lawyers
 from src.notifications import email_configured, notify_user
 from src.ocr import extract_text, ocr_engine_status
@@ -247,6 +247,8 @@ async def health():
         "version": PRODUCT_VERSION,
         "telegram_configured": telegram_configured(),
         "llm_configured": llm_configured(),
+        "llm": llm_status(),
+        "omniroute_reachable": await omniroute_reachable(),
         "stripe_configured": stripe_configured(),
         "stripe_webhook_configured": stripe_webhook_configured(),
         "email_configured": email_configured(),
@@ -284,6 +286,8 @@ async def product_meta(
         "telegram_configured": telegram_configured(),
         "telegram_username": BOT_USERNAME,
         "llm_configured": llm_configured(),
+        "llm": llm_status(),
+        "omniroute_reachable": await omniroute_reachable(),
         "stripe_configured": stripe_configured(),
         "stripe_webhook_configured": stripe_webhook_configured(),
         "email_configured": email_configured(),
@@ -294,6 +298,7 @@ async def product_meta(
         "documents_count": len(_docs()),
         "prices": PLAN_PRICES,
         "public_base_url": PUBLIC_BASE_URL,
+        "ai_gateway": "omniroute",
     }
 
 
