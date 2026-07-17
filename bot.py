@@ -53,6 +53,9 @@ async def main() -> None:
                 BotCommand(command="profil", description="Zapisane dane / Profile"),
                 BotCommand(command="guide", description="Co mi potrzebne? / Guide"),
                 BotCommand(command="review", description="Sprawdzenie dokumentów / Human review"),
+                BotCommand(command="premium", description="Plan / płatności"),
+                BotCommand(command="karta", description="Checklista karty pobytu"),
+                BotCommand(command="calendar", description="Kalendarz terminów"),
                 BotCommand(command="feedback", description="Opinia / Feedback"),
             ]
         )

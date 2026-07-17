@@ -1,0 +1,97 @@
+articles:
+  - id: pesel
+    tags: [pesel, gmina, documents]
+    title:
+      ru: "PESEL для иностранцев"
+      en: "PESEL for foreigners"
+      ua: "PESEL для іноземців"
+      pl: "PESEL dla cudzoziemców"
+    body:
+      ru: |
+        PESEL обычно получают в urzędzie gminy. Нужны документ личности, адрес в Польше,
+        основание (meldunek / работа / учёба) и заполненный wniosek. После meldunku процесс проще.
+      en: |
+        PESEL is usually obtained at the commune office. You need ID, a Polish address,
+        a legal basis, and a completed application. It is easier after meldunek.
+      ua: |
+        PESEL зазвичай отримують в urzędzie gminy. Потрібні документ особи, адреса в Польщі,
+        підстава та заповнений wniosek.
+      pl: |
+        PESEL zwykle nadaje urząd gminy. Potrzebujesz dokumentu tożsamości, adresu w Polsce,
+        podstawy prawnej i wniosku.
+  - id: meldunek
+    tags: [meldunek, address, gmina]
+    title:
+      ru: "Meldunek"
+      en: "Address registration"
+      ua: "Meldunek"
+      pl: "Meldunek"
+    body:
+      ru: |
+        Для временного пребывания используют EL/ZC/1, для постоянного EL/ZPS/1.
+        Нужна подпись właściciela lokalu и обычно umowa najmu. Срок: часто 30 дней с приезда.
+      en: |
+        Temporary stay uses EL/ZC/1, permanent EL/ZPS/1. Landlord signature and a rental
+        contract are usually required. Deadline is often 30 days after arrival.
+      ua: |
+        Тимчасовий pobyt — EL/ZC/1, постійний — EL/ZPS/1. Потрібен підпис власника і часто umowa najmu.
+      pl: |
+        Pobyt czasowy: EL/ZC/1, stały: EL/ZPS/1. Potrzebny podpis właściciela i zwykle umowa najmu.
+  - id: karta_pobytu
+    tags: [karta, pobytu, residence, wojewoda]
+    title:
+      ru: "Karta pobytu"
+      en: "Residence card"
+      ua: "Karta pobytu"
+      pl: "Karta pobytu"
+    body:
+      ru: |
+        Подаётся в urząd wojewódzki до окончания легального пребывания. Обычно нужны:
+        wniosek, паспорт и копии, фото, страховка, адрес, доходы/работа/учёба, opłata skarbowa.
+        Список зависит от цели пребывания — сверьте на сайте своего воеводства.
+      en: |
+        File at the voivodeship office before your legal stay ends. Usually required:
+        application, passport copies, photos, insurance, address, income/work/studies, stamp duty.
+        Exact list depends on purpose of stay.
+      ua: |
+        Подається в urząd wojewódzki до кінця легального перебування. Потрібні wniosek, паспорт,
+        фото, страхування, адреса, доходи і opłata.
+      pl: |
+        Składasz w urzędzie wojewódzkim przed końcem legalnego pobytu. Zwykle: wniosek, paszport,
+        zdjęcia, ubezpieczenie, adres, dochody i opłata skarbowa.
+  - id: office_letter
+    tags: [pismo, wezwanie, urząd, letter]
+    title:
+      ru: "Письмо / wezwanie из urzędu"
+      en: "Office letter / summons"
+      ua: "Лист / wezwanie з urzędu"
+      pl: "Pismo / wezwanie z urzędu"
+    body:
+      ru: |
+        Найдите срок (часто 7 или 14 дней), что именно требуют, и ответьте письменно.
+        Можно использовать шаблон Pismo do urzędu. Не игнорируйте письмо даже если это не отказ.
+      en: |
+        Find the deadline (often 7 or 14 days), check what is requested, and reply in writing.
+        Use the Pismo do urzędu template. Do not ignore the letter.
+      ua: |
+        Знайдіть строк, що вимагають, і дайте письмову відповідь шаблоном Pismo do urzędu.
+      pl: |
+        Znajdź termin, sprawdź żądanie urzędu i odpowiedz pismem. Szablon: Pismo do urzędu.
+  - id: zus_nfz
+    tags: [zus, nfz, insurance]
+    title:
+      ru: "ZUS / NFZ"
+      en: "ZUS / NFZ"
+      ua: "ZUS / NFZ"
+      pl: "ZUS / NFZ"
+    body:
+      ru: |
+        При официальной работе работодатель обычно регистрирует в ZUS. Доступ к NFZ зависит
+        от активной страховки. Проверьте umowę и status w IKP.
+      en: |
+        With legal employment the employer usually registers you in ZUS. NFZ access depends
+        on active insurance. Check your contract and IKP status.
+      ua: |
+        При офіційній роботі роботодавець зазвичай реєструє в ZUS. NFZ залежить від страховки.
+      pl: |
+        Przy legalnej pracy pracodawca zwykle zgłasza do ZUS. Dostęp do NFZ zależy od ubezpieczenia.

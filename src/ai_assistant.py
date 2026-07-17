@@ -266,3 +266,41 @@ def answer_question(question: str, lang: str) -> AssistantAnswer:
         topic="fallback",
         text=f"{_FALLBACK[safe_lang]}\n\n{_DISCLAIMER[safe_lang]}",
     )
+
+
+async def answer_question_smart(question: str, lang: str) -> AssistantAnswer:
+    """Rule-based answer first; enrich with knowledge + optional LLM."""
+    from src.knowledge import knowledge_context, search_knowledge
+    from src.llm import complete_chat
+
+    base = answer_question(question, lang)
+    context = knowledge_context(question, lang)
+    hits = search_knowledge(question, lang=lang, limit=1)
+
+    system = (
+        "You are WniosekPL, a helper for foreigners in Poland. "
+        "Give practical next steps. Not legal advice. Use the knowledge context. "
+        "Answer in the user's language. Keep under 220 words. Use short bullets."
+    )
+    user = (
+        f"Language: {lang}\nQuestion: {question}\n\n"
+        f"Knowledge:\n{context or 'n/a'}\n\n"
+        f"Fallback topic: {base.topic}"
+    )
+    llm_text = await complete_chat(system, user)
+    if llm_text:
+        topic = hits[0]["id"] if hits else base.topic
+        safe_lang = lang if lang in _DISCLAIMER else "ru"
+        return AssistantAnswer(
+            topic=topic,
+            text=f"{llm_text}\n\n{_DISCLAIMER[safe_lang]}",
+        )
+
+    if context and base.topic == "fallback" and hits:
+        safe_lang = lang if lang in _DISCLAIMER else "ru"
+        body = f"<b>{hits[0]['title']}</b>\n\n{hits[0]['body'].strip()}"
+        return AssistantAnswer(
+            topic=hits[0]["id"],
+            text=f"{body}\n\n{_DISCLAIMER[safe_lang]}",
+        )
+    return base

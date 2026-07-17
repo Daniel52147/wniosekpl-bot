@@ -42,6 +42,12 @@ def version_line(doc_id: str, lang: str) -> str:
                 "ua": "📅 Шаблон заяви про доходи — WniosekPL",
                 "pl": "📅 Szablon oświadczenia o dochodach — WniosekPL",
             },
+            "karta_pobytu_przygotowanie": {
+                "ru": "📅 Подготовка к karcie pobytu — WniosekPL",
+                "en": "📅 Residence card prep — WniosekPL",
+                "ua": "📅 Підготовка до karty pobytu — WniosekPL",
+                "pl": "📅 Przygotowanie do karty pobytu — WniosekPL",
+            },
         }
         if doc_id in helper_docs:
             return helper_docs[doc_id].get(lang, helper_docs[doc_id]["ru"])

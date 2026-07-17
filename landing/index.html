@@ -518,13 +518,13 @@
           <strong id="ai-title">AI bez limitu</strong>
           <div class="price" id="ai-price">19 zł / mies.</div>
           <p id="ai-desc">Plan w przygotowaniu: więcej pytań, analiza PDF/zdjęć, pisma do urzędu i przypomnienia.</p>
-          <a href="#" id="ai-link">Chcę subskrypcję</a>
+          <a href="#" id="ai-link" data-pay="ai">Chcę subskrypcję</a>
         </article>
         <article class="plan">
           <strong id="review-title">Sprawdzenie przez człowieka</strong>
           <div class="price" id="review-price">29 zł</div>
           <p id="review-desc">Dodatkowa kontrola danych, typowych błędów i checklisty przed urzędem.</p>
-          <a href="#" id="review-link">Chcę sprawdzenie</a>
+          <a href="#" id="review-link" data-pay="review">Chcę sprawdzenie</a>
         </article>
       </div>
     </section>
@@ -543,9 +543,107 @@
       </div>
     </div>
 
+    
+    <section id="platform">
+      <div class="section-head">
+        <div>
+          <h2>Platforma v1.0</h2>
+          <p>Płatności, kabinet, karta pobytu, kalendarz, analiza pism i katalog usług.</p>
+        </div>
+        <div id="billing-note" class="status"></div>
+      </div>
+      <div class="pricing" style="margin-bottom:1rem">
+        <article class="plan featured">
+          <strong>AI unlimited</strong>
+          <div class="price">19 zł</div>
+          <p>Checkout Stripe albo tryb demo (mock), jeśli nie ma kluczy.</p>
+          <a href="#" id="pay-ai">Kup / aktywuj</a>
+        </article>
+        <article class="plan">
+          <strong>Human review</strong>
+          <div class="price">29 zł</div>
+          <p>Jednorazowa weryfikacja dokumentów przez człowieka.</p>
+          <a href="#" id="pay-review">Kup review</a>
+        </article>
+        <article class="plan">
+          <strong>Twój kabinet</strong>
+          <div id="cabinet-box" class="muted">Ładowanie…</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="karta">
+      <div class="section-head">
+        <div>
+          <h2>Karta pobytu — checklist</h2>
+          <p>Odznaczaj kroki. Dane możesz też zebrać w dokumencie „przygotowanie”.</p>
+        </div>
+      </div>
+      <div id="karta-steps" class="chat" style="padding:1rem;min-height:auto"></div>
+    </section>
+
+    <section id="letters">
+      <div class="section-head">
+        <div>
+          <h2>Generator pism</h2>
+          <p>Opisz sprawę — dostaniesz oficjalny tekst po polsku (LLM lub szablon).</p>
+        </div>
+      </div>
+      <form id="letter-form" class="chat" style="padding:1rem;gap:0.7rem;display:grid">
+        <input id="letter-name" placeholder="Imię i nazwisko" required />
+        <input id="letter-city" placeholder="Miasto" value="Warszawa" />
+        <input id="letter-office" placeholder="Urząd" required />
+        <input id="letter-case" placeholder="Znak sprawy" />
+        <input id="letter-topic" placeholder="Temat" required />
+        <textarea id="letter-content" rows="4" placeholder="Treść swoimi słowami" required></textarea>
+        <button class="cta" type="submit">Wygeneruj pismo</button>
+        <pre id="letter-out" class="checklist-box" style="white-space:pre-wrap"></pre>
+      </form>
+    </section>
+
+    <section id="upload">
+      <div class="section-head">
+        <div>
+          <h2>Analiza PDF / zdjęcia</h2>
+          <p>Wrzuć pismo z urzędu. PDF z tekstem działa od razu; pełne OCR obrazów wymaga Tesseract/LLM.</p>
+        </div>
+      </div>
+      <form id="upload-form" class="chat" style="padding:1rem;display:grid;gap:0.7rem">
+        <input id="upload-file" type="file" accept=".pdf,image/*" required />
+        <button class="cta" type="submit">Analizuj dokument</button>
+        <pre id="upload-out" class="checklist-box" style="white-space:pre-wrap"></pre>
+      </form>
+    </section>
+
+    <section id="calendar">
+      <div class="section-head">
+        <div>
+          <h2>Kalendarz terminów</h2>
+          <p>Przypomnienia: ubezpieczenie, karta, wizyta w urzędzie.</p>
+        </div>
+        <a class="ghost" href="#" id="seed-cal">Dodaj przykładowe</a>
+      </div>
+      <form id="cal-form" style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.8rem">
+        <input id="cal-title" placeholder="Tytuł" required />
+        <input id="cal-due" type="date" required />
+        <button class="cta" type="submit">Dodaj</button>
+      </form>
+      <div id="calendar-list" class="docs"></div>
+    </section>
+
+    <section id="services">
+      <div class="section-head">
+        <div>
+          <h2>Usługi i urzędy</h2>
+          <p>Startowa baza: Warszawa / Kraków + notariusz / tłumacz.</p>
+        </div>
+      </div>
+      <div id="services-box" class="docs"></div>
+    </section>
+
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.</span>
-      <span>WniosekPL · v0.3</span>
+      <span>WniosekPL · v1.0</span>
     </footer>
   </div>
 
@@ -1072,5 +1170,6 @@
       }
     })();
   </script>
+  <script src="/static/platform.js"></script>
 </body>
 </html>

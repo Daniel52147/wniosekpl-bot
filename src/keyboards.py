@@ -28,6 +28,7 @@ DOC_ORDER = (
     "pismo_do_urzedu",
     "upowaznienie",
     "oswiadczenie_dochodow",
+    "karta_pobytu_przygotowanie",
 )
 
 

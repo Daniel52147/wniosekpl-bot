@@ -1,96 +1,70 @@
-# WniosekPL
+# WniosekPL Platform v1.0
 
-AI-помощник для иностранцев в Польше: web + Telegram.
-
-Спрашиваете на RU/EN/UA/PL — получаете чеклист, объяснение и PDF на польских бланках.
+AI-помощник для иностранцев в Польше: **web + Telegram + billing + cabinet**.
 
 **Pomocnik, nie urząd** — не юридическая консультация.
 
-## Что это
+## Что умеет v1.0
 
-| Канал | Как запускать |
-|-------|----------------|
-| **Web / API** | `python -m uvicorn server:app --reload` |
-| **Telegram** | `python bot.py` |
-
-## Документы
-
-| Документ | ID | Источник |
-|----------|-----|----------|
-| **PESEL** | `pesel` | gov.pl AcroForm |
-| **Meldunek czasowy** | `meldunek` | EL/ZC/1 overlay |
-| **Meldunek stały** | `meldunek_staly` | EL/ZPS/1 overlay |
-| **Umowa najmu** | `umowa_najmu` | Szablon pomocniczy |
-| **Pismo do urzędu** | `pismo_do_urzedu` | Szablon pomocniczy |
-| **Upoważnienie** | `upowaznienie` | Szablon pomocniczy |
-| **Oświadczenie o dochodach** | `oswiadczenie_dochodow` | Szablon pomocniczy |
-| **Pakiet Przeprowadzka** | package | umowa + meldunek + PESEL |
+- AI-чат (rule-based + knowledge base; LLM если есть `OPENAI_API_KEY`)
+- Генерация PDF: PESEL, meldunek, umowa, pismo, upoważnienie, oświadczenie, karta prep
+- Анализ загруженных PDF/писем
+- Генератор официальных писем
+- Чеклист karty pobytu
+- Календарь сроков
+- Каталог urzędów / услуг
+- Оплата: Stripe или demo mock-checkout (`19 zł` AI / `29 zł` review)
+- Личный кабинет пользователя
+- Telegram-бот как канал (`/ask`, `/karta`, `/calendar`, `/premium`)
 
 ## Быстрый старт
 
 ```bash
 python -m venv .venv
-.venv\Scripts\activate
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-copy .env.example .env
-# BOT_TOKEN от @BotFather — только если нужен Telegram
+cp .env.example .env
+# BOT_TOKEN + опционально OPENAI_API_KEY / STRIPE_SECRET_KEY
 python -m uvicorn server:app --reload
+# отдельно:
+python bot.py
 ```
 
-На Windows при SSL-ошибках: `RELAX_SSL=true` в `.env` (только локально).
+Сайт: `http://127.0.0.1:8000`
 
-Откройте `http://127.0.0.1:8000` — сайт с AI-чатом.
-
-## Web API
+## API
 
 | Endpoint | Описание |
 |----------|----------|
-| `GET /` | Продуктовый web UI |
-| `GET /health` | Проверка сервера |
-| `GET /api/meta?user_id=` | Версия, лимит AI, остаток вопросов, статус Telegram |
-| `GET /api/documents?lang=ru` | Список доступных документов |
-| `GET /api/documents/{id}` | Детали документа + поля + чеклист |
-| `POST /api/documents/{id}/generate` | Сгенерировать PDF |
-| `POST /api/assistant/ask` | AI-помощник с лимитом бесплатных вопросов |
-| `POST /api/leads` | Заявки на подписку, human review или waitlist |
+| `GET /health` | статус платформы |
+| `GET /api/meta` | план, лимиты, флаги LLM/Stripe/Telegram |
+| `GET /api/documents` | список документов |
+| `GET /api/documents/{id}` | поля + checklist |
+| `POST /api/documents/{id}/generate` | PDF |
+| `POST /api/assistant/ask` | AI |
+| `POST /api/billing/checkout` | Stripe/mock оплата |
+| `GET /api/cabinet/{user_id}` | личный кабинет |
+| `POST /api/letters/generate` | письмо |
+| `POST /api/uploads/analyze` | разбор PDF/фото |
+| `GET /api/karta/{user_id}` | checklist karty |
+| `GET/POST /api/calendar` | календарь |
+| `GET /api/services` | urzędy / услуги |
+| `GET /api/admin/overview` | админка |
 
-## Почему Telegram может молчать
+## Оплата
 
-Бот отвечает только если:
+Без Stripe ключей работает **mock checkout**:
+1. `POST /api/billing/checkout`
+2. открывается `/api/billing/mock-complete`
+3. активируется подписка на 30 дней
 
-1. В `.env` задан реальный `BOT_TOKEN` от @BotFather
-2. Запущен процесс `python bot.py`
-3. Нет второго polling-инстанса на Render/ПК одновременно
+С ключами Stripe — создаётся настоящий Checkout Session.
 
-Сайт и API работают без Telegram.
+## Telegram
 
-## Telegram-команды
+Нужен `BOT_TOKEN` в `.env` и запущенный `python bot.py`.
 
-| Команда | Описание |
-|---------|----------|
-| `/start` | Главное меню |
-| `/ask` | AI-помощник по документам в Польше |
-| `/docs` | Выбор документа |
-| `/profil` | Сохранённые данные |
-| `/ostatni` | Повторить последний PDF |
-| `/lang` | Смена языка |
-| `/help` | Справка |
-| `/review` | Заявка на проверку документов человеком |
-| `/cancel` | Отмена + сброс черновика |
-| `/usun` | Удалить данные (RODO) |
-| `/privacy` | Политика |
-| `/stats` | Статистика (admin) |
-
-## Функции
-
-- Web UI с живым AI-чатом
-- AI-помощник MVP: 5 бесплатных вопросов в день (PESEL, karta pobytu, ZUS/NFZ, письма)
-- Официальные PDF PESEL / Meldunek
-- Пакет «Переезд» — 3 документа за один раз
-- Профиль и автозаполнение, черновик формы
-- Чеклисты, podgląd PDF, напоминания meldunek
-- Lead capture: подписка AI 19 zł/мес и human review 29 zł
-- Telegram как дополнительный канал
+Команды: `/start` `/ask` `/docs` `/karta` `/calendar` `/premium` `/review`
 
 ## Тесты
 
@@ -100,8 +74,5 @@ python -m pytest tests/ -q
 
 ## Деплой
 
-См. `DEPLOY_RENDER.md`. Основной сервис — Web API; Telegram worker опционален.
-
-## База
-
-SQLite: `data/urzad.db` (или `DATABASE_PATH`)
+См. `DEPLOY_RENDER.md`. Для production задайте:
+`PUBLIC_BASE_URL`, `OPENAI_API_KEY`, `STRIPE_*`, `ADMIN_API_KEY`.

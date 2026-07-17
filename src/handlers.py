@@ -6,26 +6,32 @@ from aiogram.filters.command import CommandObject
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, FSInputFile, Message
 
-from src.ai_assistant import answer_question
+from src.ai_assistant import answer_question_smart
 from src.checklists import checklist
-from src.config import ADMIN_IDS, AI_FREE_DAILY_LIMIT, OUTPUT_DIR
+from src.config import ADMIN_IDS, AI_FREE_DAILY_LIMIT, OUTPUT_DIR, PUBLIC_BASE_URL
 from src.database import (
+    add_calendar_event,
     add_reminder,
     ai_questions_today,
     delete_user_data,
     feedback_count,
+    get_karta_progress,
     get_language,
     get_stats,
     join_waitlist,
+    list_calendar_events,
     record_ai_question,
     record_completion,
     save_feedback,
+    set_karta_progress,
     set_language,
     set_referral,
     upsert_user,
     user_exists,
     waitlist_count,
 )
+from src.entitlements import can_ask_ai, user_plan
+from src.karta_wizard import default_progress, progress_view
 from src.field_explainer import explain_field
 from src.profile import (
     clear_profile,
@@ -274,20 +280,73 @@ async def on_ai_question(message: Message, state: FSMContext) -> None:
     if not message.text:
         return
     lang = await get_language(message.from_user.id)
-    used = await ai_questions_today(message.from_user.id)
-    if used >= AI_FREE_DAILY_LIMIT:
+    allowed, plan = await can_ask_ai(message.from_user.id)
+    if not allowed:
         await state.clear()
         await message.answer(t("ai_limit_reached", lang), reply_markup=ai_upgrade_keyboard(lang))
         return
 
-    answer = answer_question(message.text.strip(), lang)
+    answer = await answer_question_smart(message.text.strip(), lang)
     await record_ai_question(message.from_user.id, message.text.strip(), answer.topic)
-    left = max(AI_FREE_DAILY_LIMIT - used - 1, 0)
+    plan_after = await user_plan(message.from_user.id)
+    left = plan_after.get("ai_left")
+    left_txt = "∞" if plan_after.get("unlimited") else str(left)
     await message.answer(
-        f"{answer.text}\n\n{t('ai_usage_left', lang).format(left=left)}",
-        reply_markup=ai_upgrade_keyboard(lang) if left == 0 else None,
+        f"{answer.text}\n\n{t('ai_usage_left', lang).format(left=left_txt)}",
+        reply_markup=ai_upgrade_keyboard(lang) if (left == 0 and not plan_after.get("unlimited")) else None,
     )
     await state.clear()
+
+
+@router.message(Command("premium"))
+async def cmd_premium(message: Message) -> None:
+    lang = await _register_user(message)
+    plan = await user_plan(message.from_user.id)
+    await message.answer(
+        f"Plan: <b>{plan['plan']}</b>\n"
+        f"Web checkout: {PUBLIC_BASE_URL}\n"
+        f"/review — human check 29 zł\n"
+        f"AI unlimited — 19 zł/mies (site checkout)",
+    )
+
+
+@router.message(Command("karta"))
+async def cmd_karta(message: Message) -> None:
+    lang = await _register_user(message)
+    steps = await get_karta_progress(message.from_user.id)
+    if not steps:
+        steps = default_progress()
+        await set_karta_progress(message.from_user.id, steps)
+    lines = ["<b>Karta pobytu checklist</b>"]
+    for step in progress_view(steps, lang):
+        mark = "✅" if step["done"] else "☐"
+        lines.append(f"{mark} {step['title']}")
+    cl = checklist("karta_pobytu", lang)
+    if cl:
+        lines.append("")
+        lines.append(cl)
+    await message.answer("\n".join(lines))
+
+
+@router.message(Command("calendar"))
+async def cmd_calendar(message: Message) -> None:
+    lang = await _register_user(message)
+    events = await list_calendar_events(message.from_user.id)
+    if not events:
+        from datetime import datetime, timedelta, timezone
+
+        due = (datetime.now(timezone.utc) + timedelta(days=30)).date().isoformat()
+        await add_calendar_event(
+            message.from_user.id,
+            "Przygotuj dokumenty do karty pobytu",
+            due,
+            "karta",
+        )
+        events = await list_calendar_events(message.from_user.id)
+    lines = ["<b>Kalendarz</b>"]
+    for ev in events[:15]:
+        lines.append(f"• {ev['due_at']}: {ev['title']}")
+    await message.answer("\n".join(lines))
 
 
 @router.message(Command("profil"))

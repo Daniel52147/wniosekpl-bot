@@ -106,6 +106,68 @@ async def init_db() -> None:
             ON ai_questions (telegram_id, created_at)
             """
         )
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS subscriptions (
+                telegram_id INTEGER PRIMARY KEY,
+                plan TEXT NOT NULL,
+                status TEXT NOT NULL,
+                source TEXT DEFAULT 'mock',
+                expires_at TEXT,
+                updated_at TEXT NOT NULL
+            )
+            """
+        )
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS payments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                telegram_id INTEGER NOT NULL,
+                product TEXT NOT NULL,
+                amount_pln INTEGER NOT NULL,
+                status TEXT NOT NULL,
+                provider TEXT NOT NULL,
+                external_id TEXT,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS calendar_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                telegram_id INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                due_at TEXT NOT NULL,
+                kind TEXT DEFAULT 'custom',
+                notes TEXT DEFAULT '',
+                done INTEGER DEFAULT 0,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS uploads (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                telegram_id INTEGER NOT NULL,
+                filename TEXT NOT NULL,
+                path TEXT NOT NULL,
+                extracted_text TEXT,
+                explanation TEXT,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS karta_progress (
+                telegram_id INTEGER PRIMARY KEY,
+                steps_json TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+            """
+        )
         try:
             await db.execute("ALTER TABLE users ADD COLUMN referral TEXT")
         except aiosqlite.OperationalError:
@@ -214,7 +276,18 @@ async def record_completion(telegram_id: int, document_id: str) -> None:
 
 async def delete_user_data(telegram_id: int) -> None:
     async with aiosqlite.connect(DATABASE_PATH) as db:
-        for table in ("completions", "profiles", "reminders", "waitlist", "ai_questions"):
+        for table in (
+            "completions",
+            "profiles",
+            "reminders",
+            "waitlist",
+            "ai_questions",
+            "subscriptions",
+            "payments",
+            "calendar_events",
+            "uploads",
+            "karta_progress",
+        ):
             await db.execute(
                 f"DELETE FROM {table} WHERE telegram_id = ?",
                 (telegram_id,),
@@ -406,6 +479,14 @@ async def get_stats() -> dict:
             (week_ago,),
         )
         ai_questions_7d = (await cur.fetchone())[0]
+        cur = await db.execute(
+            "SELECT COUNT(*) FROM subscriptions WHERE status = 'active'"
+        )
+        active_subs = (await cur.fetchone())[0]
+        cur = await db.execute(
+            "SELECT COUNT(*) FROM payments WHERE status = 'paid'"
+        )
+        paid = (await cur.fetchone())[0]
     return {
         "users": users,
         "users_1d": users_1d,
@@ -413,6 +494,250 @@ async def get_stats() -> dict:
         "completions": completions,
         "ai_questions": ai_questions,
         "ai_questions_7d": ai_questions_7d,
+        "active_subscriptions": active_subs,
+        "paid_payments": paid,
         "by_document": by_doc,
         "by_referral": by_ref,
     }
+
+
+async def set_subscription(
+    telegram_id: int,
+    plan: str,
+    status: str = "active",
+    source: str = "mock",
+    days: int = 30,
+) -> None:
+    expires = (datetime.now(timezone.utc) + timedelta(days=days)).isoformat()
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            """
+            INSERT INTO subscriptions (telegram_id, plan, status, source, expires_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(telegram_id) DO UPDATE SET
+                plan = excluded.plan,
+                status = excluded.status,
+                source = excluded.source,
+                expires_at = excluded.expires_at,
+                updated_at = excluded.updated_at
+            """,
+            (telegram_id, plan, status, source, expires, _now()),
+        )
+        await db.commit()
+
+
+async def get_subscription(telegram_id: int) -> dict | None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM subscriptions WHERE telegram_id = ?",
+            (telegram_id,),
+        )
+        row = await cur.fetchone()
+        return dict(row) if row else None
+
+
+async def has_active_subscription(telegram_id: int, plan: str | None = None) -> bool:
+    sub = await get_subscription(telegram_id)
+    if not sub or sub.get("status") != "active":
+        return False
+    expires = sub.get("expires_at")
+    if expires and expires < _now():
+        return False
+    if plan and sub.get("plan") != plan:
+        return False
+    return True
+
+
+async def record_payment(
+    telegram_id: int,
+    product: str,
+    amount_pln: int,
+    status: str,
+    provider: str,
+    external_id: str | None = None,
+) -> int:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cur = await db.execute(
+            """
+            INSERT INTO payments
+            (telegram_id, product, amount_pln, status, provider, external_id, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                telegram_id,
+                product,
+                amount_pln,
+                status,
+                provider,
+                external_id,
+                _now(),
+            ),
+        )
+        await db.commit()
+        return cur.lastrowid or 0
+
+
+async def list_payments(telegram_id: int, limit: int = 20) -> list[dict]:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            """
+            SELECT * FROM payments
+            WHERE telegram_id = ?
+            ORDER BY id DESC LIMIT ?
+            """,
+            (telegram_id, limit),
+        )
+        return [dict(row) for row in await cur.fetchall()]
+
+
+async def add_calendar_event(
+    telegram_id: int,
+    title: str,
+    due_at: str,
+    kind: str = "custom",
+    notes: str = "",
+) -> int:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cur = await db.execute(
+            """
+            INSERT INTO calendar_events
+            (telegram_id, title, due_at, kind, notes, created_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (telegram_id, title[:200], due_at, kind[:64], notes[:1000], _now()),
+        )
+        await db.commit()
+        return cur.lastrowid or 0
+
+
+async def list_calendar_events(telegram_id: int) -> list[dict]:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            """
+            SELECT * FROM calendar_events
+            WHERE telegram_id = ? AND done = 0
+            ORDER BY due_at ASC
+            """,
+            (telegram_id,),
+        )
+        return [dict(row) for row in await cur.fetchall()]
+
+
+async def complete_calendar_event(event_id: int, telegram_id: int) -> bool:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cur = await db.execute(
+            """
+            UPDATE calendar_events
+            SET done = 1
+            WHERE id = ? AND telegram_id = ?
+            """,
+            (event_id, telegram_id),
+        )
+        await db.commit()
+        return cur.rowcount > 0
+
+
+async def save_upload(
+    telegram_id: int,
+    filename: str,
+    path: str,
+    extracted_text: str = "",
+    explanation: str = "",
+) -> int:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cur = await db.execute(
+            """
+            INSERT INTO uploads
+            (telegram_id, filename, path, extracted_text, explanation, created_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                telegram_id,
+                filename[:255],
+                path,
+                extracted_text[:20000],
+                explanation[:20000],
+                _now(),
+            ),
+        )
+        await db.commit()
+        return cur.lastrowid or 0
+
+
+async def list_uploads(telegram_id: int, limit: int = 20) -> list[dict]:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            """
+            SELECT id, filename, explanation, created_at
+            FROM uploads
+            WHERE telegram_id = ?
+            ORDER BY id DESC LIMIT ?
+            """,
+            (telegram_id, limit),
+        )
+        return [dict(row) for row in await cur.fetchall()]
+
+
+async def get_karta_progress(telegram_id: int) -> dict[str, bool]:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cur = await db.execute(
+            "SELECT steps_json FROM karta_progress WHERE telegram_id = ?",
+            (telegram_id,),
+        )
+        row = await cur.fetchone()
+        if not row:
+            return {}
+        return json.loads(row[0])
+
+
+async def set_karta_progress(telegram_id: int, steps: dict[str, bool]) -> None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            """
+            INSERT INTO karta_progress (telegram_id, steps_json, updated_at)
+            VALUES (?, ?, ?)
+            ON CONFLICT(telegram_id) DO UPDATE SET
+                steps_json = excluded.steps_json,
+                updated_at = excluded.updated_at
+            """,
+            (telegram_id, json.dumps(steps, ensure_ascii=False), _now()),
+        )
+        await db.commit()
+
+
+async def recent_ai_questions(telegram_id: int, limit: int = 10) -> list[dict]:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            """
+            SELECT question, topic, created_at
+            FROM ai_questions
+            WHERE telegram_id = ?
+            ORDER BY id DESC LIMIT ?
+            """,
+            (telegram_id, limit),
+        )
+        return [dict(row) for row in await cur.fetchall()]
+
+
+async def admin_overview() -> dict:
+    stats = await get_stats()
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cur = await db.execute(
+            "SELECT product, COUNT(*) FROM waitlist GROUP BY product"
+        )
+        waitlists = {row[0]: row[1] for row in await cur.fetchall()}
+        cur = await db.execute(
+            """
+            SELECT product, COUNT(*) FROM payments
+            WHERE status = 'paid' GROUP BY product
+            """
+        )
+        paid_by_product = {row[0]: row[1] for row in await cur.fetchall()}
+    stats["waitlists"] = waitlists
+    stats["paid_by_product"] = paid_by_product
+    return stats

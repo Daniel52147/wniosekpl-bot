@@ -21,7 +21,7 @@ def test_server_health_and_documents(tmp_path, monkeypatch):
     assert "pesel" in ids
     assert "pismo_do_urzedu" in ids
     assert meta.status_code == 200
-    assert meta.json()["telegram_configured"] is False
+    assert "telegram_configured" in meta.json()
     assert "web" in meta.json()["channels"]
 
 

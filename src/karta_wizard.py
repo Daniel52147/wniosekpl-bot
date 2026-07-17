@@ -1,0 +1,29 @@
+KARTA_STEPS = [
+    {"id": "passport_copies", "ru": "Паспорт + копии всех страниц", "en": "Passport + copies", "ua": "Паспорт + копії", "pl": "Paszport + kopie"},
+    {"id": "photos", "ru": "4 фото 35×45 мм", "en": "4 photos 35×45 mm", "ua": "4 фото 35×45", "pl": "4 zdjęcia 35×45"},
+    {"id": "application", "ru": "Заполнить wniosek o kartę pobytu", "en": "Fill residence card application", "ua": "Заповнити wniosek", "pl": "Wypełnij wniosek"},
+    {"id": "insurance", "ru": "Страховка ZUS / NFZ / prywatная", "en": "Insurance proof", "ua": "Страхування", "pl": "Ubezpieczenie"},
+    {"id": "address", "ru": "Адрес / meldunek / umowa najmu", "en": "Address / meldunek / rental", "ua": "Адреса / meldunek", "pl": "Adres / meldunek / umowa"},
+    {"id": "income", "ru": "Доходы / umowa o pracę / oświadczenie", "en": "Income / employment proof", "ua": "Доходи", "pl": "Dochody / umowa"},
+    {"id": "fee", "ru": "Оплатить opłatę skarbową", "en": "Pay stamp duty", "ua": "Сплатити opłatę", "pl": "Opłata skarbowa"},
+    {"id": "submit", "ru": "Подать в urząd wojewódzki до конца pobytu", "en": "Submit before stay expires", "ua": "Подати до кінця pobytu", "pl": "Złóż przed końcem pobytu"},
+]
+
+
+def default_progress() -> dict[str, bool]:
+    return {step["id"]: False for step in KARTA_STEPS}
+
+
+def progress_view(steps: dict[str, bool], lang: str = "ru") -> list[dict]:
+    merged = default_progress()
+    merged.update(steps or {})
+    view = []
+    for step in KARTA_STEPS:
+        view.append(
+            {
+                "id": step["id"],
+                "title": step.get(lang, step["ru"]),
+                "done": bool(merged.get(step["id"])),
+            }
+        )
+    return view

@@ -18,6 +18,7 @@ DATE_FIELDS = {
     "data_pisma",
     "data_upowaznienia",
     "data_oswiadczenia",
+    "data_wniosku",
 }
 MONEY_FIELDS = {"czynsz", "kaucja", "dochod_miesieczny"}
 PESEL_SKIP = {"brak", "nie", "\u043d\u0435\u0442", "no", "n/a", "-"}
@@ -31,6 +32,7 @@ OPTIONAL_FIELDS = {
     "znak_sprawy",
     "pracodawca_nazwa",
     "nadawca_telefon",
+    "ubezpieczenie",
 }
 
 
