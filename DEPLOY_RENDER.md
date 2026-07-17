@@ -1,6 +1,7 @@
 # Деплой WniosekPL на Render
 
-Telegram-бот работает через **polling** (`python bot.py`), поэтому на Render нужен **Background Worker**, не Web Service.
+Основной продукт теперь можно запускать как **Web Service** (`server.py`) с REST API.
+Telegram-бот остаётся дополнительным каналом и работает через **Background Worker** (`python bot.py`).
 
 ## 1. Подготовка репозитория
 
@@ -24,47 +25,52 @@ git push -u origin main
 1. [dashboard.render.com](https://dashboard.render.com) → **New** → **Blueprint**.
 2. Подключите GitHub-репозиторий.
 3. Render подхватит `render.yaml` из корня репозитория.
-4. При создании введите секреты:
+4. При создании введите секреты для Telegram worker:
    - `BOT_TOKEN` — от [@BotFather](https://t.me/BotFather)
    - `BOT_USERNAME` — без `@`, например `wniosekpl_bot`
    - `ADMIN_TELEGRAM_IDS` — ваш ID от [@userinfobot](https://t.me/userinfobot)
 
 ### Вариант B — вручную
 
-1. **New** → **Background Worker**.
+1. **New** → **Web Service** для API.
 2. Подключите репозиторий.
 3. Настройки:
 
 | Поле | Значение |
 |------|----------|
-| **Name** | `wniosekpl-bot` |
+| **Name** | `wniosekpl-api` |
 | **Region** | Frankfurt (ближе к Польше) |
 | **Branch** | `main` |
 | **Root Directory** | `urzad-ai` *(если репо = весь Project)* |
 | **Runtime** | Python 3 |
 | **Build Command** | `pip install -r requirements.txt` |
-| **Start Command** | `python bot.py` |
+| **Start Command** | `python -m uvicorn server:app --host 0.0.0.0 --port $PORT` |
 
 4. **Environment Variables** (Environment):
 
 | Key | Value |
 |-----|--------|
-| `BOT_TOKEN` | токен бота |
-| `BOT_USERNAME` | username без @ |
-| `ADMIN_TELEGRAM_IDS` | ваш Telegram ID |
 | `DATABASE_PATH` | `/data/urzad.db` |
+| `AI_FREE_DAILY_LIMIT` | `5` |
+| `WEB_CORS_ORIGINS` | `*` для MVP или домен сайта |
 
-5. **Disk** (важно для базы пользователей):
+5. **Disk** (важно для базы пользователей и лидов):
    - Add disk → Mount path: `/data` → Size: 1 GB  
    Без диска SQLite **сбрасывается** при каждом redeploy.
 
-6. **Create Worker** → дождитесь зелёного статуса **Live**.
+6. **Create Web Service** → дождитесь зелёного статуса **Live**.
+
+7. Если нужен Telegram-бот, создайте отдельный **Background Worker**:
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `python bot.py`
+   - Env: `BOT_TOKEN`, `BOT_USERNAME`, `ADMIN_TELEGRAM_IDS`, `DATABASE_PATH=/data/urzad.db`
 
 ## 3. Проверка
 
-1. В логах Render должно быть: `WniosekPL bot started`.
-2. В Telegram: `/start` у вашего бота.
-3. От вашего аккаунта: `/stats` (если ID в `ADMIN_TELEGRAM_IDS`).
+1. Web API: откройте `/health`, должно быть `{"status":"ok"}`.
+2. Документы: `/api/documents?lang=ru`.
+3. Telegram, если включён: `/start` у вашего бота.
+4. От вашего аккаунта: `/stats` (если ID в `ADMIN_TELEGRAM_IDS`).
 
 ## 4. Обновление бота
 
@@ -74,9 +80,11 @@ git push -u origin main
 
 | Проблема | Решение |
 |----------|---------|
+| API не отвечает | Проверьте `/health`, логи Web Service и `startCommand` |
 | Бот не отвечает | Проверьте `BOT_TOKEN`, логи Worker, статус Live |
 | Два инстанса | Остановите `python bot.py` на своём ПК — только один polling |
 | База обнулилась | Подключите Persistent Disk на `/data` |
+| API и бот видят разные данные | Для масштабирования переведите SQLite на общий Postgres |
 | SSL при скачивании PDF | Бот сам повторяет с fallback; смотрите логи |
 | Free tier засыпает | Worker на free **не спит** как Web; polling держит процесс активным |
 

@@ -15,6 +15,11 @@ FREE_MODE = os.getenv("FREE_MODE", "true").lower() in ("1", "true", "yes")
 RELAX_SSL = os.getenv("RELAX_SSL", "false").lower() in ("1", "true", "yes")
 DATABASE_PATH = Path(os.getenv("DATABASE_PATH", str(ROOT / "data" / "urzad.db")))
 AI_FREE_DAILY_LIMIT = int(os.getenv("AI_FREE_DAILY_LIMIT", "5"))
+WEB_CORS_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("WEB_CORS_ORIGINS", "*").split(",")
+    if origin.strip()
+]
 
 _raw_admins = os.getenv("ADMIN_TELEGRAM_IDS", "")
 ADMIN_IDS: set[int] = {

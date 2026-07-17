@@ -27,6 +27,23 @@ python bot.py
 
 На Windows при SSL-ошибках: `RELAX_SSL=true` в `.env` (только локально).
 
+## Web API
+
+Проект можно запускать как сервер, а Telegram оставить дополнительным каналом:
+
+```bash
+python -m uvicorn server:app --reload
+```
+
+Основные endpoints:
+
+| Endpoint | Описание |
+|----------|----------|
+| `GET /health` | Проверка сервера |
+| `GET /api/documents?lang=ru` | Список доступных документов |
+| `POST /api/assistant/ask` | AI-помощник с лимитом бесплатных вопросов |
+| `POST /api/leads` | Заявки на подписку, human review или waitlist |
+
 ## Команды
 
 | Команда | Описание |
