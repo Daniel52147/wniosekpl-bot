@@ -129,6 +129,7 @@ async def complete_chat(
     payload_base = {
         "temperature": temperature,
         "max_tokens": max_tokens,
+        "stream": False,
         "messages": [
             {"role": "system", "content": system},
             {"role": "user", "content": user},
