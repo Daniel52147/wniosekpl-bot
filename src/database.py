@@ -79,6 +79,17 @@ async def init_db() -> None:
         )
         await db.execute(
             """
+            CREATE TABLE IF NOT EXISTS ai_questions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                telegram_id INTEGER NOT NULL,
+                question TEXT NOT NULL,
+                topic TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        await db.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_reminders_due
             ON reminders (sent, remind_at)
             """
@@ -87,6 +98,12 @@ async def init_db() -> None:
             """
             CREATE INDEX IF NOT EXISTS idx_completions_doc
             ON completions (document_id, created_at)
+            """
+        )
+        await db.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_ai_questions_user_created
+            ON ai_questions (telegram_id, created_at)
             """
         )
         try:
@@ -197,7 +214,7 @@ async def record_completion(telegram_id: int, document_id: str) -> None:
 
 async def delete_user_data(telegram_id: int) -> None:
     async with aiosqlite.connect(DATABASE_PATH) as db:
-        for table in ("completions", "profiles", "reminders", "waitlist"):
+        for table in ("completions", "profiles", "reminders", "waitlist", "ai_questions"):
             await db.execute(
                 f"DELETE FROM {table} WHERE telegram_id = ?",
                 (telegram_id,),
@@ -314,6 +331,42 @@ async def feedback_count() -> int:
         return (await cur.fetchone())[0]
 
 
+async def ai_questions_today(telegram_id: int) -> int:
+    day_start = datetime.now(timezone.utc).replace(
+        hour=0,
+        minute=0,
+        second=0,
+        microsecond=0,
+    ).isoformat()
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cur = await db.execute(
+            """
+            SELECT COUNT(*)
+            FROM ai_questions
+            WHERE telegram_id = ? AND created_at >= ?
+            """,
+            (telegram_id, day_start),
+        )
+        return (await cur.fetchone())[0]
+
+
+async def record_ai_question(telegram_id: int, question: str, topic: str) -> None:
+    now = _now()
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            """
+            INSERT INTO ai_questions (telegram_id, question, topic, created_at)
+            VALUES (?, ?, ?, ?)
+            """,
+            (telegram_id, question[:2000], topic[:64], now),
+        )
+        await db.execute(
+            "UPDATE users SET last_active_at = ? WHERE telegram_id = ?",
+            (now, telegram_id),
+        )
+        await db.commit()
+
+
 async def get_stats() -> dict:
     week_ago = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
     async with aiosqlite.connect(DATABASE_PATH) as db:
@@ -346,11 +399,20 @@ async def get_stats() -> dict:
             ((datetime.now(timezone.utc) - timedelta(days=1)).isoformat(),),
         )
         users_1d = (await cur.fetchone())[0]
+        cur = await db.execute("SELECT COUNT(*) FROM ai_questions")
+        ai_questions = (await cur.fetchone())[0]
+        cur = await db.execute(
+            "SELECT COUNT(*) FROM ai_questions WHERE created_at >= ?",
+            (week_ago,),
+        )
+        ai_questions_7d = (await cur.fetchone())[0]
     return {
         "users": users,
         "users_1d": users_1d,
         "users_7d": users_7d,
         "completions": completions,
+        "ai_questions": ai_questions,
+        "ai_questions_7d": ai_questions_7d,
         "by_document": by_doc,
         "by_referral": by_ref,
     }

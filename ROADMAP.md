@@ -20,6 +20,7 @@
 ## Faza 3 — biznes (6–12 mies.)
 
 - [ ] 19 zł / dokument, pakiet 79 zł
+- [x] AI-pomocnik MVP — 5 darmowych pytań dziennie + lead capture subskrypcji
 - [ ] B2B white-label
 - [x] Human review +29 zł — lead capture / waitlist
 - [ ] Partnerstwo kancelaria

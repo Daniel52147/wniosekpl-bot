@@ -6,15 +6,18 @@ from aiogram.filters.command import CommandObject
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, FSInputFile, Message
 
+from src.ai_assistant import answer_question
 from src.checklists import checklist
-from src.config import ADMIN_IDS, OUTPUT_DIR
+from src.config import ADMIN_IDS, AI_FREE_DAILY_LIMIT, OUTPUT_DIR
 from src.database import (
     add_reminder,
+    ai_questions_today,
     delete_user_data,
     feedback_count,
     get_language,
     get_stats,
     join_waitlist,
+    record_ai_question,
     record_completion,
     save_feedback,
     set_language,
@@ -55,6 +58,7 @@ from src.documents import DocumentDef, load_all_documents
 from src.form_versions import version_line
 from src.keyboards import (
     after_pdf_keyboard,
+    ai_upgrade_keyboard,
     confirm_keyboard,
     documents_keyboard,
     edit_fields_keyboard,
@@ -142,6 +146,14 @@ async def _open_main_menu(
     if pending_action == "review":
         await message.answer(t("review_offer", lang), reply_markup=review_keyboard(lang))
         return
+    if pending_action == "ai":
+        await state.set_state(FormStates.waiting_ai_question)
+        used = await ai_questions_today(user.id)
+        left = max(AI_FREE_DAILY_LIMIT - used, 0)
+        await message.answer(
+            f"{t('ai_prompt', lang)}\n\n{t('ai_usage_left', lang).format(left=left)}"
+        )
+        return
     await message.answer(t("choose_doc", lang), reply_markup=quick_keyboard(lang))
     draft = await load_draft(user.id)
     if draft:
@@ -158,6 +170,8 @@ async def cmd_start(message: Message, state: FSMContext, command: CommandObject)
         pending_ref = command.args[4:]
     elif command.args == "review":
         pending_action = "review"
+    elif command.args == "ai":
+        pending_action = "ai"
     await _open_main_menu(message, state, pending_ref, pending_action)
 
 
@@ -186,6 +200,15 @@ async def on_language(callback: CallbackQuery, state: FSMContext) -> None:
         await callback.message.answer(t("review_offer", lang), reply_markup=review_keyboard(lang))
         await callback.answer()
         return
+    if pending_action == "ai":
+        await state.set_state(FormStates.waiting_ai_question)
+        used = await ai_questions_today(callback.from_user.id)
+        left = max(AI_FREE_DAILY_LIMIT - used, 0)
+        await callback.message.answer(
+            f"{t('ai_prompt', lang)}\n\n{t('ai_usage_left', lang).format(left=left)}"
+        )
+        await callback.answer()
+        return
     await callback.message.answer(t("choose_doc", lang), reply_markup=quick_keyboard(lang))
     await callback.message.answer(t("all_docs", lang), reply_markup=documents_keyboard(DOCUMENTS, lang))
     await callback.answer()
@@ -210,6 +233,19 @@ async def cmd_guide(message: Message) -> None:
     await message.answer(t("guide_text", lang))
 
 
+@router.message(Command("ask"))
+@router.message(Command("ai"))
+async def cmd_ai_assistant(message: Message, state: FSMContext) -> None:
+    await state.clear()
+    await state.set_state(FormStates.waiting_ai_question)
+    lang = await _register_user(message)
+    used = await ai_questions_today(message.from_user.id)
+    left = max(AI_FREE_DAILY_LIMIT - used, 0)
+    await message.answer(
+        f"{t('ai_prompt', lang)}\n\n{t('ai_usage_left', lang).format(left=left)}"
+    )
+
+
 @router.message(Command("review"))
 async def cmd_review(message: Message) -> None:
     lang = await _register_user(message)
@@ -231,6 +267,27 @@ async def on_feedback(message: Message, state: FSMContext) -> None:
     await save_feedback(message.from_user.id, message.text.strip())
     await state.clear()
     await message.answer(t("feedback_ok", lang))
+
+
+@router.message(FormStates.waiting_ai_question)
+async def on_ai_question(message: Message, state: FSMContext) -> None:
+    if not message.text:
+        return
+    lang = await get_language(message.from_user.id)
+    used = await ai_questions_today(message.from_user.id)
+    if used >= AI_FREE_DAILY_LIMIT:
+        await state.clear()
+        await message.answer(t("ai_limit_reached", lang), reply_markup=ai_upgrade_keyboard(lang))
+        return
+
+    answer = answer_question(message.text.strip(), lang)
+    await record_ai_question(message.from_user.id, message.text.strip(), answer.topic)
+    left = max(AI_FREE_DAILY_LIMIT - used - 1, 0)
+    await message.answer(
+        f"{answer.text}\n\n{t('ai_usage_left', lang).format(left=left)}",
+        reply_markup=ai_upgrade_keyboard(lang) if left == 0 else None,
+    )
+    await state.clear()
 
 
 @router.message(Command("profil"))
@@ -372,6 +429,19 @@ async def action_guide(callback: CallbackQuery) -> None:
     await callback.answer()
 
 
+@router.callback_query(F.data == "action:ask_ai")
+async def action_ask_ai(callback: CallbackQuery, state: FSMContext) -> None:
+    await state.clear()
+    await state.set_state(FormStates.waiting_ai_question)
+    lang = await get_language(callback.from_user.id)
+    used = await ai_questions_today(callback.from_user.id)
+    left = max(AI_FREE_DAILY_LIMIT - used, 0)
+    await callback.message.answer(
+        f"{t('ai_prompt', lang)}\n\n{t('ai_usage_left', lang).format(left=left)}"
+    )
+    await callback.answer()
+
+
 @router.callback_query(F.data == "action:review")
 async def action_review(callback: CallbackQuery) -> None:
     lang = await get_language(callback.from_user.id)
@@ -457,6 +527,10 @@ async def on_waitlist(callback: CallbackQuery) -> None:
     product = callback.data.split(":")[1]
     lang = await get_language(callback.from_user.id)
     ok = await join_waitlist(callback.from_user.id, product)
+    if product == "ai_subscription":
+        await callback.message.answer(t("ai_subscription_ok" if ok else "ai_subscription_dup", lang))
+        await callback.answer()
+        return
     if product == "human_review":
         await callback.message.answer(t("review_waitlist_ok" if ok else "review_waitlist_dup", lang))
         await callback.answer()
@@ -908,6 +982,7 @@ async def cmd_stats(message: Message) -> None:
     lines = [
         f"Users: {stats['users']} (+{stats['users_1d']} / 24h, +{stats['users_7d']} / 7d)",
         f"PDFs: {stats['completions']}",
+        f"AI questions: {stats['ai_questions']} (+{stats['ai_questions_7d']} / 7d)",
         f"Feedback: {fb}",
     ]
     for doc_id, count in stats["by_document"]:
@@ -916,6 +991,8 @@ async def cmd_stats(message: Message) -> None:
     lines.append(f"Waitlist karta pobytu: {karta}")
     human_review = await waitlist_count("human_review")
     lines.append(f"Paid review leads: {human_review}")
+    ai_subscription = await waitlist_count("ai_subscription")
+    lines.append(f"AI subscription leads: {ai_subscription}")
     if stats.get("by_referral"):
         lines.append("Referrals:")
         for ref, count in stats["by_referral"]:

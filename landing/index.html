@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="WniosekPL — bot Telegram: PESEL, Meldunek EL/ZC/1, pakiet Przeprowadzka oraz opcjonalne sprawdzenie dokumentów za 29 zł. Pomocnik, nie urząd." />
+  <meta name="description" content="WniosekPL — AI-pomocnik w Telegram: PESEL, Meldunek, karta pobytu, pisma do urzędu, darmowe PDF i opcjonalne sprawdzenie dokumentów." />
   <meta property="og:title" content="WniosekPL — formularze urzędowe w Telegram" />
-  <meta property="og:description" content="Darmowe PDF: PESEL, Meldunek, pakiet Przeprowadzka. Opcjonalnie sprawdzenie przez człowieka za 29 zł." />
+  <meta property="og:description" content="AI-pomocnik dla cudzoziemców w Polsce: dokumenty, checklisty, PDF, pisma do urzędu i opcjonalna weryfikacja." />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="pl_PL" />
   <meta property="og:image" content="og.svg" />
   <meta property="og:image:type" content="image/svg+xml" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="WniosekPL — formularze urzędowe w Telegram" />
-  <meta name="twitter:description" content="PESEL, Meldunek, pakiet Przeprowadzka — darmowe PDF plus opcjonalna płatna weryfikacja." />
+  <meta name="twitter:description" content="AI-pomocnik dla cudzoziemców w Polsce: dokumenty, checklisty, PDF i pisma do urzędu." />
   <meta name="twitter:image" content="og.svg" />
   <title>WniosekPL — formularze urzędowe w Telegram</title>
   <style>
@@ -55,6 +55,7 @@
       <ul id="features">
         <li>PESEL (gov.pl)</li>
         <li>Meldunek EL/ZC/1 i EL/ZPS/1</li>
+        <li>AI-pomocnik: karta pobytu, ZUS/NFZ, pisma z urzędu</li>
         <li>Pakiet Przeprowadzka — 3 PDF naraz</li>
         <li>Checklisty do urzędu + podgląd PDF</li>
       </ul>
@@ -65,9 +66,15 @@
       <strong id="pricing-title">Taryfy</strong>
       <div class="pricing">
         <div class="plan">
-          <strong id="free-title">PDF samodzielnie</strong>
+          <strong id="free-title">Start</strong>
           <div class="price" id="free-price">0 zł</div>
-          <div class="muted" id="free-desc">Wypełnij formularz w Telegram i pobierz gotowy PDF.</div>
+          <div class="muted" id="free-desc">PDF samodzielnie + 5 pytań dziennie do AI-pomocnika.</div>
+        </div>
+        <div class="plan">
+          <strong id="ai-title">AI bez limitu</strong>
+          <div class="price" id="ai-price">19 zł / mies.</div>
+          <div class="muted" id="ai-desc">Plan w przygotowaniu: więcej pytań, analiza PDF/zdjęć, pisma do urzędu i przypomnienia.</div>
+          <a class="btn secondary" id="ai-link" href="https://t.me/wniosekpl_bot?start=ai">Chcę subskrypcję</a>
         </div>
         <div class="plan">
           <strong id="review-title">Sprawdzenie przez człowieka</strong>
@@ -85,6 +92,7 @@
     const start = ref ? `?start=ref_${encodeURIComponent(ref)}` : "";
     document.getElementById("tg-link").href = `https://t.me/${BOT}${start}`;
     document.getElementById("review-link").href = `https://t.me/${BOT}?start=review`;
+    document.getElementById("ai-link").href = `https://t.me/${BOT}?start=ai`;
 
     const copy = {
       pl: {
@@ -92,9 +100,13 @@
         btn: "Otwórz w Telegram",
         free: "🎁 PDF bezpłatnie — płatna tylko opcjonalna weryfikacja",
         pricingTitle: "Taryfy",
-        freeTitle: "PDF samodzielnie",
+        freeTitle: "Start",
         freePrice: "0 zł",
-        freeDesc: "Wypełnij formularz w Telegram i pobierz gotowy PDF.",
+        freeDesc: "PDF samodzielnie + 5 pytań dziennie do AI-pomocnika.",
+        aiTitle: "AI bez limitu",
+        aiPrice: "19 zł / mies.",
+        aiDesc: "Plan w przygotowaniu: więcej pytań, analiza PDF/zdjęć, pisma do urzędu i przypomnienia.",
+        aiBtn: "Chcę subskrypcję",
         reviewTitle: "Sprawdzenie przez człowieka",
         reviewPrice: "29 zł",
         reviewDesc: "Dodatkowa kontrola danych, typowych błędów i checklisty przed urzędem.",
@@ -105,9 +117,13 @@
         btn: "Открыть в Telegram",
         free: "🎁 PDF бесплатно — платная только дополнительная проверка",
         pricingTitle: "Тарифы",
-        freeTitle: "PDF самостоятельно",
+        freeTitle: "Старт",
         freePrice: "0 zł",
-        freeDesc: "Заполните форму в Telegram и скачайте готовый PDF.",
+        freeDesc: "PDF самостоятельно + 5 вопросов в день AI-помощнику.",
+        aiTitle: "AI без лимита",
+        aiPrice: "19 zł / мес",
+        aiDesc: "План в подготовке: больше вопросов, анализ PDF/фото, письма в ужонд и напоминания.",
+        aiBtn: "Хочу подписку",
         reviewTitle: "Проверка человеком",
         reviewPrice: "29 zł",
         reviewDesc: "Проверка данных, типичных ошибок и чеклиста перед походом в urząd.",
@@ -118,9 +134,13 @@
         btn: "Open in Telegram",
         free: "🎁 PDFs are free — only optional review is paid",
         pricingTitle: "Pricing",
-        freeTitle: "Self-service PDF",
+        freeTitle: "Starter",
         freePrice: "0 zł",
-        freeDesc: "Fill the form in Telegram and download a ready PDF.",
+        freeDesc: "Self-service PDFs + 5 AI assistant questions per day.",
+        aiTitle: "Unlimited AI",
+        aiPrice: "19 zł / mo",
+        aiDesc: "Plan in preparation: more questions, PDF/photo analysis, office letters, and reminders.",
+        aiBtn: "I want subscription",
         reviewTitle: "Human review",
         reviewPrice: "29 zł",
         reviewDesc: "Extra check of data, common mistakes, and office checklist before submission.",
@@ -131,9 +151,13 @@
         btn: "Відкрити в Telegram",
         free: "🎁 PDF безкоштовно — платна лише додаткова перевірка",
         pricingTitle: "Тарифи",
-        freeTitle: "PDF самостійно",
+        freeTitle: "Старт",
         freePrice: "0 zł",
-        freeDesc: "Заповніть форму в Telegram і завантажте готовий PDF.",
+        freeDesc: "PDF самостійно + 5 питань на день AI-помічнику.",
+        aiTitle: "AI без ліміту",
+        aiPrice: "19 zł / міс",
+        aiDesc: "План у підготовці: більше питань, аналіз PDF/фото, листи до urzędu і нагадування.",
+        aiBtn: "Хочу підписку",
         reviewTitle: "Перевірка людиною",
         reviewPrice: "29 zł",
         reviewDesc: "Додаткова перевірка даних, типових помилок і чекліста перед urzędem.",
@@ -152,6 +176,10 @@
         document.getElementById("free-title").textContent = c.freeTitle;
         document.getElementById("free-price").textContent = c.freePrice;
         document.getElementById("free-desc").textContent = c.freeDesc;
+        document.getElementById("ai-title").textContent = c.aiTitle;
+        document.getElementById("ai-price").textContent = c.aiPrice;
+        document.getElementById("ai-desc").textContent = c.aiDesc;
+        document.getElementById("ai-link").textContent = c.aiBtn;
         document.getElementById("review-title").textContent = c.reviewTitle;
         document.getElementById("review-price").textContent = c.reviewPrice;
         document.getElementById("review-desc").textContent = c.reviewDesc;

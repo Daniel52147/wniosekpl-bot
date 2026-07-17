@@ -44,6 +44,79 @@ TEXTS = {
         "ua": "📄 Документ або пакет:",
         "pl": "📄 Formularz lub pakiet:",
     },
+    "ai_ask_btn": {
+        "ru": "🤖 Спросить AI-помощника",
+        "en": "🤖 Ask AI assistant",
+        "ua": "🤖 Запитати AI-помічника",
+        "pl": "🤖 Zapytaj asystenta AI",
+    },
+    "ai_subscription_btn": {
+        "ru": "🚀 Хочу безлимит за 19 zł/мес",
+        "en": "🚀 I want unlimited for 19 zł/mo",
+        "ua": "🚀 Хочу безліміт за 19 zł/міс",
+        "pl": "🚀 Chcę bez limitu za 19 zł/mies.",
+    },
+    "ai_prompt": {
+        "ru": (
+            "🤖 Напишите вопрос о жизни и документах в Польше.\n\n"
+            "Пример: «Я гражданин Украины, работаю официально, хочу карту побыту».\n"
+            "Бесплатно: 5 вопросов в день. /cancel — отмена."
+        ),
+        "en": (
+            "🤖 Send a question about life and paperwork in Poland.\n\n"
+            "Example: “I am Ukrainian, legally employed, and need a residence card”.\n"
+            "Free: 5 questions per day. /cancel to abort."
+        ),
+        "ua": (
+            "🤖 Напишіть питання про життя і документи в Польщі.\n\n"
+            "Приклад: «Я громадянин України, працюю офіційно, хочу карту побиту».\n"
+            "Безкоштовно: 5 питань на день. /cancel — скасувати."
+        ),
+        "pl": (
+            "🤖 Napisz pytanie o życie i dokumenty w Polsce.\n\n"
+            "Przykład: „Jestem z Ukrainy, pracuję legalnie i chcę kartę pobytu”.\n"
+            "Za darmo: 5 pytań dziennie. /cancel — anuluj."
+        ),
+    },
+    "ai_usage_left": {
+        "ru": "Осталось бесплатных вопросов сегодня: {left}.",
+        "en": "Free questions left today: {left}.",
+        "ua": "Залишилось безкоштовних питань сьогодні: {left}.",
+        "pl": "Darmowe pytania na dziś: {left}.",
+    },
+    "ai_limit_reached": {
+        "ru": (
+            "Лимит бесплатных AI-вопросов на сегодня закончился.\n\n"
+            "Идея подписки: <b>19 zł/мес</b> — больше вопросов, анализ PDF/фото и генерация писем. "
+            "Нажмите кнопку, если хотите такой тариф."
+        ),
+        "en": (
+            "You reached today's free AI question limit.\n\n"
+            "Subscription idea: <b>19 zł/mo</b> for more questions, PDF/photo analysis, and letter generation. "
+            "Tap if you want this plan."
+        ),
+        "ua": (
+            "Ліміт безкоштовних AI-питань на сьогодні закінчився.\n\n"
+            "Ідея підписки: <b>19 zł/міс</b> — більше питань, аналіз PDF/фото і генерація листів."
+        ),
+        "pl": (
+            "Dzisiejszy limit darmowych pytań AI został wykorzystany.\n\n"
+            "Pomysł subskrypcji: <b>19 zł/mies.</b> — więcej pytań, analiza PDF/zdjęć i generowanie pism. "
+            "Kliknij, jeśli chcesz taki plan."
+        ),
+    },
+    "ai_subscription_ok": {
+        "ru": "✅ Интерес к подписке сохранён. Это поможет понять спрос и запустить тариф быстрее.",
+        "en": "✅ Subscription interest saved. This helps validate demand and launch the plan faster.",
+        "ua": "✅ Інтерес до підписки збережено.",
+        "pl": "✅ Zainteresowanie subskrypcją zapisane. To pomoże szybciej uruchomić plan.",
+    },
+    "ai_subscription_dup": {
+        "ru": "Вы уже отметили интерес к подписке.",
+        "en": "You already marked interest in the subscription.",
+        "ua": "Ви вже відмітили інтерес до підписки.",
+        "pl": "Już zaznaczyłeś zainteresowanie subskrypcją.",
+    },
     "cancelled": {
         "ru": "Отменено. /start — снова.",
         "en": "Cancelled. /start to restart.",
@@ -234,6 +307,7 @@ TEXTS = {
         "ru": (
             f"<b>{BRAND}</b>\n"
             "/start — меню\n"
+            "/ask — AI-помощник по документам\n"
             "/docs — документы\n"
             "/lang — язык\n"
             "/cancel — отмена\n"
@@ -248,13 +322,14 @@ TEXTS = {
         ),
         "en": (
             f"<b>{BRAND}</b>\n"
-            "/start /docs /lang /cancel /usun /privacy /review\n"
+            "/start /ask /docs /lang /cancel /usun /privacy /review\n"
             "📦 Relocation package · EL/ZC/1 · EL/ZPS/1"
         ),
-        "ua": f"<b>{BRAND}</b>\n/start /docs /lang /cancel /usun",
+        "ua": f"<b>{BRAND}</b>\n/start /ask /docs /lang /cancel /usun",
         "pl": (
             f"<b>{BRAND}</b>\n"
             "/start — menu\n"
+            "/ask — asystent AI od dokumentów\n"
             "/docs — formularze\n"
             "/lang — język\n"
             "/cancel — anuluj\n"

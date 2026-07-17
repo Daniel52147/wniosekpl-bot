@@ -27,6 +27,7 @@ def quick_keyboard(lang: str) -> InlineKeyboardMarkup:
     pkg = PACKAGES["przeprowadzka"]
     return InlineKeyboardMarkup(
         inline_keyboard=[
+            [InlineKeyboardButton(text=t("ai_ask_btn", lang), callback_data="action:ask_ai")],
             [
                 InlineKeyboardButton(text=pkg.title(lang), callback_data="package:przeprowadzka"),
                 InlineKeyboardButton(text=t("quick_pesel", lang), callback_data="doc:pesel"),
@@ -48,6 +49,16 @@ def review_keyboard(lang: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text=t("review_waitlist_btn", lang), callback_data="waitlist:human_review")],
+            [InlineKeyboardButton(text=t("another", lang), callback_data="action:docs")],
+        ]
+    )
+
+
+def ai_upgrade_keyboard(lang: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=t("ai_subscription_btn", lang), callback_data="waitlist:ai_subscription")],
+            [InlineKeyboardButton(text=t("review_btn", lang), callback_data="action:review")],
             [InlineKeyboardButton(text=t("another", lang), callback_data="action:docs")],
         ]
     )
@@ -75,6 +86,7 @@ def meldunek_menu_keyboard(lang: str) -> InlineKeyboardMarkup:
 def documents_keyboard(docs: dict[str, DocumentDef], lang: str) -> InlineKeyboardMarkup:
     pkg = PACKAGES["przeprowadzka"]
     buttons = [
+        [InlineKeyboardButton(text=t("ai_ask_btn", lang), callback_data="action:ask_ai")],
         [InlineKeyboardButton(text=pkg.title(lang), callback_data="package:przeprowadzka")],
         [
             InlineKeyboardButton(text="🆔 PESEL", callback_data="doc:pesel"),

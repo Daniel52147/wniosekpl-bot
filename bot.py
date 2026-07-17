@@ -42,6 +42,7 @@ async def main() -> None:
         await bot.set_my_commands(
             [
                 BotCommand(command="start", description="Menu główne / Main menu"),
+                BotCommand(command="ask", description="AI pomocnik / AI assistant"),
                 BotCommand(command="docs", description="Wybierz formularz"),
                 BotCommand(command="lang", description="Zmień język"),
                 BotCommand(command="help", description="Pomoc"),
