@@ -59,6 +59,11 @@ def test_server_document_detail_and_generate(tmp_path, monkeypatch):
 def test_server_assistant_ask_records_usage_and_enforces_limit(tmp_path, monkeypatch):
     monkeypatch.setattr(database, "DATABASE_PATH", tmp_path / "api.db")
     monkeypatch.setattr(server, "AI_FREE_DAILY_LIMIT", 1)
+    import src.config as config
+    import src.entitlements as entitlements
+
+    monkeypatch.setattr(config, "AI_FREE_DAILY_LIMIT", 1)
+    monkeypatch.setattr(entitlements, "AI_FREE_DAILY_LIMIT", 1)
 
     payload = {
         "user_id": 42,
