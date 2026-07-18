@@ -199,6 +199,7 @@
     if (window.wniosekplLoadMos) window.wniosekplLoadMos().catch(() => {});
     if (window.wniosekplRefreshProfile) window.wniosekplRefreshProfile();
     if (window.wniosekplRefreshAccountLink) window.wniosekplRefreshAccountLink();
+    if (window.wniosekplLoadGuide) window.wniosekplLoadGuide().catch(() => {});
     document.getElementById("mos-next")?.scrollIntoView({ behavior: "smooth", block: "start" });
     // Soft nudge: one account across phone + browser.
     const banner = document.getElementById("tg-link-banner");

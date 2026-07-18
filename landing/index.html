@@ -311,6 +311,59 @@
     }
     .pricing-teaser p { margin: 0; color: var(--muted); font-size: 0.92rem; }
 
+    .official-bar {
+      display: grid;
+      gap: 0.5rem;
+      margin: 0 0 1.25rem;
+      padding: 0.85rem 1rem;
+      border-radius: 14px;
+      border: 1px solid rgba(16, 36, 33, 0.12);
+      background: rgba(255,255,255,0.7);
+    }
+    .official-bar .kicker {
+      margin: 0;
+      font-size: 0.75rem;
+      font-weight: 750;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--moss);
+    }
+    .official-bar .note { margin: 0; color: var(--muted); font-size: 0.92rem; }
+    .official-links { display: flex; flex-wrap: wrap; gap: 0.45rem 0.9rem; }
+    .official-links a {
+      color: var(--moss-deep);
+      font-weight: 700;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(11, 79, 64, 0.25);
+    }
+    .path-section {
+      margin: 0.25rem 0 1.5rem;
+      padding: 1.2rem 0 0;
+      border-top: 1px solid var(--line);
+    }
+    .path-section h2 {
+      font-family: Syne, sans-serif;
+      margin: 0 0 0.35rem;
+      font-size: clamp(1.35rem, 3vw, 1.75rem);
+    }
+    .path-section > .sub { margin: 0 0 0.9rem; color: var(--muted); max-width: 38rem; }
+    .path-grid {
+      display: grid;
+      gap: 0.75rem;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .path-grid article {
+      padding: 0.9rem 0.95rem;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.65);
+    }
+    .path-grid strong { display: block; margin-bottom: 0.3rem; font-family: Syne, sans-serif; }
+    .path-grid p { margin: 0; color: var(--muted); font-size: 0.92rem; line-height: 1.4; }
+    @media (max-width: 800px) {
+      .path-grid { grid-template-columns: 1fr; }
+    }
+
     .trust {
       margin: 0.5rem 0 1.5rem;
       padding: 1.25rem 0 0;
@@ -442,28 +495,40 @@
       </div>
     </header>
 
+    <aside class="official-bar" id="official-bar" aria-label="Oficjalne źródła">
+      <p class="kicker" id="official-kicker">Oficjalna ścieżka</p>
+      <p class="note" id="official-note">Wniosek składasz tylko na mos.cudzoziemcy.gov.pl — portal UdSC. My przygotowujemy Cię krok po kroku.</p>
+      <div class="official-links" id="official-links"></div>
+    </aside>
+
     <section class="hero">
       <div>
         <h1 id="hero-title">WniosekPL</h1>
-        <p class="lead" id="hero-sub">AI-pomocnik dla cudzoziemców w Polsce. Pomaga z MOS 2.0, PESEL, meldunkiem i dokumentami — zanim wejdziesz na oficjalny portal.</p>
+        <p class="lead" id="hero-sub">Przewodnik dla cudzoziemców w Polsce: przygotujesz się do oficjalnego MOS 2.0 — PESEL, dokumenty i checklista — zanim wejdziesz na portal gov.pl.</p>
         <div class="cta-row">
-          <a class="cta" id="cta-profile" href="/profile">Otwórz profil</a>
+          <a class="cta" id="cta-profile" href="/profile">Zacznij przygotowanie</a>
           <a class="ghost" id="cta-tg" href="/profile?tab=account&link=1">Połącz Telegram</a>
         </div>
         <p class="tg-status" id="tg-status"></p>
       </div>
       <div class="hero-card" aria-hidden="true">
         <div>
-          <div class="kicker" id="visual-kicker">Co umie bot</div>
-          <h2 id="visual-title">Praktyczna pomoc, nie urząd</h2>
+          <div class="kicker" id="visual-kicker">Co dostajesz</div>
+          <h2 id="visual-title">Przygotowanie, nie urząd</h2>
           <ul id="can-do-list">
-            <li><i></i><span>Wyjaśni MOS 2.0 i co przygotować przed wnioskiem</span></li>
-            <li><i></i><span>Pomoże z PESEL, meldunkiem i pismami do urzędu</span></li>
-            <li><i></i><span>Zrobi checklistę i PDF — po polsku, rosyjsku, ukraińsku, angielsku</span></li>
+            <li><i></i><span>Checklistę przed oficjalnym wnioskiem w MOS</span></li>
+            <li><i></i><span>PDF (PESEL, meldunek, pisma) z zapisem postępu</span></li>
+            <li><i></i><span>Wyjaśnienia PL / RU / UA / EN — bez składania za Ciebie</span></li>
           </ul>
         </div>
-        <p class="note" id="visual-note">Oficjalny wniosek składasz na mos.cudzoziemcy.gov.pl. My przygotowujemy Cię krok po kroku.</p>
+        <p class="note" id="visual-note">Oficjalny wniosek i decyzje — tylko MOS / UdSC na gov.pl. My prowadzimy Cię do tego momentu.</p>
       </div>
+    </section>
+
+    <section class="path-section" aria-label="Ścieżka">
+      <h2 id="path-section-title">Oficjalna droga do wniosku</h2>
+      <p class="sub" id="path-section-sub">Najpierw przygotowanie u nas — złożenie tylko w MOS na gov.pl.</p>
+      <div class="path-grid" id="landing-path"></div>
     </section>
 
     <section class="features" aria-label="Funkcje">
@@ -483,10 +548,10 @@
 
     <section class="band">
       <div>
-        <h2 id="band-title">Wszystkie funkcje są w profilu</h2>
-        <p id="band-body">AI, MOS, dokumenty, terminy i płatności — na osobnej stronie. Tu tylko opis, co bot potrafi.</p>
+        <h2 id="band-title">Zarządzasz wszystkim w profilu</h2>
+        <p id="band-body">Trzy zakładki: następny krok, dokumenty PDF i konto (login / Telegram). Prosto, oficjalnie, bez chaosu.</p>
       </div>
-      <a class="cta" id="band-cta" href="/profile">Przejdź do profilu</a>
+      <a class="cta" id="band-cta" href="/profile">Zacznij przygotowanie</a>
     </section>
 
     <section class="pricing-teaser" aria-label="Taryfy">
@@ -522,7 +587,7 @@
 
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna.</span>
-      <span>WniosekPL · v2.4.1 · <a href="/profile">Profil</a> · <a href="/setup">Setup</a></span>
+      <span>WniosekPL · v2.4.2 · <a href="/profile">Profil</a> · <a href="/setup">Setup</a></span>
     </footer>
   </div>
 
@@ -567,23 +632,23 @@
     const copy = {
       pl: {
         profile: "Profil",
-        heroSub: "AI-pomocnik dla cudzoziemców w Polsce. Pomaga z MOS 2.0, PESEL, meldunkiem i dokumentami — zanim wejdziesz na oficjalny portal.",
-        ctaProfile: "Otwórz profil",
+        heroSub: "Przewodnik dla cudzoziemców w Polsce: przygotujesz się do oficjalnego MOS 2.0 — PESEL, dokumenty i checklista — zanim wejdziesz na portal gov.pl.",
+        ctaProfile: "Zacznij przygotowanie",
         ctaTg: "Połącz Telegram",
-        kicker: "Co umie bot",
-        visualTitle: "Praktyczna pomoc, nie urząd",
+        kicker: "Co dostajesz",
+        visualTitle: "Przygotowanie, nie urząd",
         canDo: [
-          "Wyjaśni MOS 2.0 i co przygotować przed wnioskiem",
-          "Pomoże z PESEL, meldunkiem i pismami do urzędu",
-          "Zrobi checklistę i PDF — PL / RU / UA / EN",
+          "Checklistę przed oficjalnym wnioskiem w MOS",
+          "PDF (PESEL, meldunek, pisma) z zapisem postępu",
+          "Wyjaśnienia PL / RU / UA / EN — bez składania za Ciebie",
         ],
-        visualNote: "Oficjalny wniosek składasz na mos.cudzoziemcy.gov.pl. My przygotowujemy Cię krok po kroku.",
+        visualNote: "Oficjalny wniosek i decyzje — tylko MOS / UdSC na gov.pl. My prowadzimy Cię do tego momentu.",
         f1t: "Przewodnik MOS", f1b: "Checklist gotowości, załączniki, szablon do pracodawcy i przypomnienie o końcu pobytu.",
         f2t: "AI-asystent", f2b: "Pytasz swoim językiem — dostajesz plan i przyciski do dokumentów.",
         f3t: "PDF i terminy", f3b: "PESEL, meldunek, pisma. Postęp i terminy zapisujesz w profilu.",
-        bandTitle: "Wszystkie funkcje są w profilu",
-        bandBody: "AI, MOS, dokumenty, terminy i płatności — na osobnej stronie. Tu tylko opis, co bot potrafi.",
-        bandCta: "Przejdź do profilu",
+        bandTitle: "Zarządzasz wszystkim w profilu",
+        bandBody: "Trzy zakładki: następny krok, dokumenty PDF i konto (login / Telegram). Prosto, oficjalnie, bez chaosu.",
+        bandCta: "Zacznij przygotowanie",
         freeTitle: "Start", freePrice: "0 zł", freeDesc: "PDF + 5 pytań AI dziennie.",
         aiTitle: "AI bez limitu", aiPrice: "19 zł / mies.", aiDesc: "Bez limitu pytań w profilu.",
         reviewTitle: "Human review", reviewPrice: "29 zł", reviewDesc: "Sprawdzenie przez człowieka.",
@@ -592,23 +657,23 @@
       },
       ru: {
         profile: "Профиль",
-        heroSub: "AI-помощник для иностранцев в Польше. MOS 2.0, PESEL, meldunek и документы — до входа на официальный портал.",
-        ctaProfile: "Открыть профиль",
+        heroSub: "Гид для иностранцев в Польше: подготовка к официальному MOS 2.0 — PESEL, документы и чеклист — до входа на портал gov.pl.",
+        ctaProfile: "Начать подготовку",
         ctaTg: "Связать Telegram",
-        kicker: "Что умеет бот",
-        visualTitle: "Практическая помощь, не urząd",
+        kicker: "Что получаешь",
+        visualTitle: "Подготовка, не urząd",
         canDo: [
-          "Объяснит MOS 2.0 и что собрать до подачи",
-          "Поможет с PESEL, meldunkiem и письмами в urząd",
-          "Сделает чеклист и PDF — RU / PL / UA / EN",
+          "Чеклист перед официальным wniosком в MOS",
+          "PDF (PESEL, meldunek, письма) с сохранением прогресса",
+          "Пояснения RU / PL / UA / EN — без подачи за тебя",
         ],
-        visualNote: "Официальный wniosek — на mos.cudzoziemcy.gov.pl. Мы готовим шаг за шагом.",
+        visualNote: "Официальный wniosek и решения — только MOS / UdSC на gov.pl. Мы ведём тебя до этого момента.",
         f1t: "Гид MOS", f1b: "Чеклист готовности, приложения, текст работодателю и напоминание о сроке pobytu.",
         f2t: "AI-ассистент", f2b: "Спрашиваешь на своём языке — получаешь план и кнопки к документам.",
         f3t: "PDF и сроки", f3b: "PESEL, meldunek, письма. Прогресс хранится в профиле.",
-        bandTitle: "Все функции — в профиле",
-        bandBody: "AI, MOS, документы, сроки и оплата — на отдельной странице. Здесь только описание.",
-        bandCta: "Перейти в профиль",
+        bandTitle: "Всё управление — в профиле",
+        bandBody: "Три вкладки: следующий шаг, PDF и аккаунт (вход / Telegram). Просто и официально.",
+        bandCta: "Начать подготовку",
         freeTitle: "Старт", freePrice: "0 zł", freeDesc: "PDF + 5 вопросов AI в день.",
         aiTitle: "AI без лимита", aiPrice: "19 zł / мес.", aiDesc: "Без лимита вопросов в профиле.",
         reviewTitle: "Human review", reviewPrice: "29 zł", reviewDesc: "Проверка человеком.",
@@ -617,23 +682,23 @@
       },
       en: {
         profile: "Profile",
-        heroSub: "AI helper for foreigners in Poland. MOS 2.0, PESEL, address registration and documents — before the official portal.",
-        ctaProfile: "Open profile",
+        heroSub: "A guide for foreigners in Poland: prepare for official MOS 2.0 — PESEL, documents and checklist — before you enter the gov.pl portal.",
+        ctaProfile: "Start preparing",
         ctaTg: "Link Telegram",
-        kicker: "What the bot can do",
-        visualTitle: "Practical help, not a government office",
+        kicker: "What you get",
+        visualTitle: "Preparation, not a government office",
         canDo: [
-          "Explains MOS 2.0 and what to prepare",
-          "Helps with PESEL, meldunek and office letters",
-          "Builds checklists and PDFs — EN / PL / RU / UA",
+          "A checklist before the official MOS application",
+          "PDFs (PESEL, meldunek, letters) with saved progress",
+          "Explanations in EN / PL / RU / UA — we do not file for you",
         ],
-        visualNote: "You file on mos.cudzoziemcy.gov.pl. We get you ready step by step.",
+        visualNote: "Official filing and decisions — only MOS / UdSC on gov.pl. We guide you up to that point.",
         f1t: "MOS guide", f1b: "Readiness checklist, attachments, employer message and stay deadline reminder.",
         f2t: "AI assistant", f2b: "Ask in your language — get a plan and document buttons.",
         f3t: "PDFs & deadlines", f3b: "PESEL, meldunek, letters. Progress lives in your profile.",
-        bandTitle: "All features live in your profile",
-        bandBody: "AI, MOS, documents, deadlines and billing — on a separate page. This page only explains the product.",
-        bandCta: "Go to profile",
+        bandTitle: "Manage everything in your profile",
+        bandBody: "Three tabs: next step, PDF documents, and account (login / Telegram). Simple and official.",
+        bandCta: "Start preparing",
         freeTitle: "Starter", freePrice: "0 zł", freeDesc: "PDFs + 5 AI questions / day.",
         aiTitle: "Unlimited AI", aiPrice: "19 zł / mo", aiDesc: "Unlimited questions in the profile.",
         reviewTitle: "Human review", reviewPrice: "29 zł", reviewDesc: "Human check before filing.",
@@ -642,23 +707,23 @@
       },
       ua: {
         profile: "Профіль",
-        heroSub: "AI-помічник для іноземців у Польщі. MOS 2.0, PESEL, meldunek і документи — до офіційного порталу.",
-        ctaProfile: "Відкрити профіль",
+        heroSub: "Гід для іноземців у Польщі: підготовка до офіційного MOS 2.0 — PESEL, документи і чекліст — до входу на портал gov.pl.",
+        ctaProfile: "Почати підготовку",
         ctaTg: "Повʼязати Telegram",
-        kicker: "Що вміє бот",
-        visualTitle: "Практична допомога, не urząd",
+        kicker: "Що отримуєш",
+        visualTitle: "Підготовка, не urząd",
         canDo: [
-          "Пояснить MOS 2.0 і що зібрати до подачі",
-          "Допоможе з PESEL, meldunkiem і листами до urzędu",
-          "Зробить чекліст і PDF — UA / PL / RU / EN",
+          "Чекліст перед офіційним wniosком у MOS",
+          "PDF (PESEL, meldunek, листи) зі збереженням прогресу",
+          "Пояснення UA / PL / RU / EN — без подання за тебе",
         ],
-        visualNote: "Офіційний wniosek — на mos.cudzoziemcy.gov.pl. Ми готуємо крок за кроком.",
+        visualNote: "Офіційний wniosek і рішення — лише MOS / UdSC на gov.pl. Ми ведемо тебе до цього моменту.",
         f1t: "Гід MOS", f1b: "Чекліст готовності, додатки, текст роботодавцю і нагадування про строк.",
         f2t: "AI-асистент", f2b: "Питаєш своєю мовою — отримуєш план і кнопки до документів.",
         f3t: "PDF і строки", f3b: "PESEL, meldunek, листи. Прогрес у профілі.",
-        bandTitle: "Усі функції — в профілі",
-        bandBody: "AI, MOS, документи, строки й оплата — на окремій сторінці. Тут лише опис.",
-        bandCta: "Перейти в профіль",
+        bandTitle: "Усе керування — в профілі",
+        bandBody: "Три вкладки: наступний крок, PDF і акаунт (вхід / Telegram). Просто й офіційно.",
+        bandCta: "Почати підготовку",
         freeTitle: "Старт", freePrice: "0 zł", freeDesc: "PDF + 5 питань AI на день.",
         aiTitle: "AI без ліміту", aiPrice: "19 zł / міс.", aiDesc: "Без ліміту питань у профілі.",
         reviewTitle: "Human review", reviewPrice: "29 zł", reviewDesc: "Перевірка людиною.",
@@ -751,5 +816,6 @@
   </script>
   <script src="/static/auth.js"></script>
   <script src="/static/trust.js"></script>
+  <script src="/static/guide.js"></script>
 </body>
 </html>

@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.4.2 — 2026-07-18
+
+### New-user UX + official tone
+- Official bar (MOS / UdSC / Profil Zaufany / Info) on landing and cabinet
+- 3-stage path: Prepare → Review → File in MOS
+- First-visit “How to use profile” card; clearer tab hints
+- Onboarding and landing copy emphasize filing only on gov.pl
+
 ## 2.4.1 — 2026-07-18
 
 ### Prod hardening

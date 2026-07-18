@@ -628,6 +628,104 @@
       background: linear-gradient(120deg, rgba(210, 239, 106, 0.28), rgba(255,255,255,0.7));
     }
     .tg-link-banner strong { display: block; font-size: 1.02rem; }
+    .official-bar {
+      display: grid;
+      gap: 0.55rem;
+      margin: 0 0 1rem;
+      padding: 0.85rem 1rem;
+      border-radius: 14px;
+      border: 1px solid rgba(16, 36, 33, 0.12);
+      background: rgba(255,255,255,0.72);
+    }
+    .official-bar .kicker {
+      margin: 0;
+      font-size: 0.75rem;
+      font-weight: 750;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--moss);
+    }
+    .official-bar .note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+    .official-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem 0.85rem;
+    }
+    .official-links a {
+      color: var(--moss-deep);
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(11, 79, 64, 0.25);
+    }
+    .official-links a:hover { border-bottom-color: var(--moss-deep); }
+    .journey-card {
+      margin: 0 0 1rem;
+      padding: 0.95rem 1.05rem;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: linear-gradient(165deg, rgba(255,255,255,0.9), rgba(234, 243, 239, 0.85));
+    }
+    .journey-card h3 {
+      margin: 0 0 0.7rem;
+      font-size: 1.05rem;
+    }
+    .journey-path {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 0.55rem;
+    }
+    @media (min-width: 800px) {
+      .journey-path { grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+    }
+    .journey-step {
+      padding: 0.7rem 0.75rem;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.65);
+      opacity: 0.78;
+    }
+    .journey-step.current {
+      opacity: 1;
+      border-color: rgba(20, 122, 97, 0.45);
+      background: rgba(210, 239, 106, 0.22);
+      box-shadow: 0 0 0 1px rgba(20, 122, 97, 0.08);
+    }
+    .journey-step.done {
+      opacity: 1;
+      border-color: rgba(20, 122, 97, 0.28);
+    }
+    .journey-step strong { display: block; margin-bottom: 0.25rem; font-size: 0.95rem; }
+    .journey-step p { margin: 0; color: var(--muted); font-size: 0.86rem; line-height: 1.4; }
+    .how-card {
+      margin: 0 0 1rem;
+      padding: 0.95rem 1.05rem;
+      border-radius: 16px;
+      border: 1px dashed rgba(20, 122, 97, 0.35);
+      background: rgba(255,255,255,0.8);
+    }
+    .how-card h3 { margin: 0 0 0.45rem; font-size: 1.05rem; }
+    .how-card ul {
+      margin: 0 0 0.75rem;
+      padding-left: 1.15rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .profile-tabs button .tab-hint {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-top: 0.1rem;
+    }
+    .profile-tabs button.active .tab-hint { color: rgba(11, 79, 64, 0.72); }
     .mos-tools {
       border-top: 1px solid var(--line);
       padding-top: 0.85rem;
@@ -1357,29 +1455,46 @@
     </header>
 
 
-    <p class="muted" id="app-crumb" style="margin:0.35rem 0 1rem">
+    <p class="muted" id="app-crumb" style="margin:0.35rem 0 0.75rem">
       <a href="/" style="color:var(--moss-deep);font-weight:700;text-decoration:none" id="app-home-link">← Strona główna</a>
-      <span id="app-crumb-text"> · Twój następny krok do MOS</span>
+      <span id="app-crumb-text"> · Przygotowanie do oficjalnego MOS</span>
     </p>
+
+    <aside class="official-bar" id="official-bar" aria-label="Oficjalne źródła">
+      <p class="kicker" id="official-kicker">Oficjalna ścieżka</p>
+      <p class="note" id="official-note">Wniosek składasz tylko na mos.cudzoziemcy.gov.pl — to portal UdSC. My przygotowujemy Cię krok po kroku.</p>
+      <div class="official-links" id="official-links"></div>
+    </aside>
 
     <section id="profile">
       <div class="profile-page" id="account">
         <div class="profile-page-head">
           <div>
-            <h2 id="profile-title">Kabinet</h2>
-            <p id="profile-sub">Jeden następny krok. Reszta — tylko gdy potrzebujesz.</p>
+            <h2 id="profile-title">Twój profil</h2>
+            <p id="profile-sub">Jeden następny krok do oficjalnego MOS. Reszta — w zakładkach poniżej.</p>
           </div>
           <div id="auth-user-box" class="status"></div>
         </div>
 
-        <div class="profile-tabs" role="tablist" aria-label="Kabinet">
-          <button type="button" class="active" data-profile-tab="now" id="tab-now">Teraz</button>
-          <button type="button" data-profile-tab="docs" id="tab-docs">Dokumenty</button>
-          <button type="button" data-profile-tab="account" id="tab-account">Konto</button>
+        <div class="profile-tabs" role="tablist" aria-label="Profil">
+          <button type="button" class="active" data-profile-tab="now" id="tab-now">Teraz <span class="tab-hint" id="tab-now-hint">Następny krok</span></button>
+          <button type="button" data-profile-tab="docs" id="tab-docs">Dokumenty <span class="tab-hint" id="tab-docs-hint">PDF</span></button>
+          <button type="button" data-profile-tab="account" id="tab-account">Konto <span class="tab-hint" id="tab-account-hint">Login / Telegram</span></button>
         </div>
 
         <!-- NOW -->
         <div class="profile-tab-panel" data-profile-panel="now" id="panel-now">
+          <div class="how-card" id="how-card" hidden>
+            <h3 id="how-title">Jak korzystać z profilu</h3>
+            <ul id="how-list"></ul>
+            <button type="button" class="cta" id="how-dismiss">Rozumiem</button>
+          </div>
+
+          <div class="journey-card" id="journey-card">
+            <h3 id="journey-title">Jak to działa — 3 etapy</h3>
+            <ol class="journey-path" id="journey-path"></ol>
+          </div>
+
           <div class="mos-panel" id="onboarding" style="margin-bottom:1rem">
             <p class="mos-panel-label" id="ob-kicker">Start</p>
             <h3 id="ob-title" style="margin:0 0 0.4rem">3 pytania — Twój plan</h3>
@@ -1708,7 +1823,7 @@
 
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.</span>
-      <span>WniosekPL · v2.4.1 · <a href="/setup">Setup</a></span>
+      <span>WniosekPL · v2.4.2 · <a href="/setup">Setup</a></span>
     </footer>
   </div>
 
@@ -2529,5 +2644,6 @@
   <script src="/static/auth.js"></script>
   <script src="/static/trust.js"></script>
   <script src="/static/account-link.js"></script>
+  <script src="/static/guide.js"></script>
 </body>
 </html>

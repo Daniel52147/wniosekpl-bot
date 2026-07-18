@@ -107,7 +107,7 @@ from src.services_directory import search_services
 from src.validators import is_required, validate_field
 
 LANDING_DIR = ROOT / "landing"
-PRODUCT_VERSION = "2.4.1"
+PRODUCT_VERSION = "2.4.2"
 
 
 def telegram_configured() -> bool:
@@ -1182,6 +1182,17 @@ async def trust_api(lang: Literal["ru", "en", "ua", "pl"] = "pl"):
     from src.trust import trust_payload
 
     return trust_payload(lang)
+
+
+@app.get("/api/guide")
+async def guide_ux_api(
+    lang: Literal["ru", "en", "ua", "pl"] = "pl",
+    stage: Literal["prepare", "check", "file"] = "prepare",
+):
+    """New-user journey: 3 official stages + how to use the cabinet."""
+    from src.guide_ux import guide_ux_payload
+
+    return guide_ux_payload(lang, stage)
 
 
 @app.get("/api/account/link")

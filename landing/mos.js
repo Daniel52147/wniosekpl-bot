@@ -417,6 +417,7 @@
     renderNext(next);
     highlightCurrent(next.complete ? "" : next.id);
     renderSync();
+    if (window.wniosekplLoadGuide) window.wniosekplLoadGuide().catch(() => {});
 
     const purposes = document.getElementById("mos-purposes");
     if (purposes) {
