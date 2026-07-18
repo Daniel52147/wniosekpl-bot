@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 
 import server
+import src.config as config
 import src.database as database
 from src.countries import list_countries
 from src.marketplace import list_lawyers
@@ -35,6 +36,12 @@ def test_parse_checkout_completed():
 
 def test_platform_v2_auth_lawyers_webhook_countries(tmp_path, monkeypatch):
     monkeypatch.setattr(database, "DATABASE_PATH", tmp_path / "v2.db")
+    monkeypatch.setattr("src.runtime_secrets.SECRETS_PATH", tmp_path / "secrets.env")
+    monkeypatch.setattr(config, "STRIPE_SECRET_KEY", "")
+    monkeypatch.setattr(config, "STRIPE_WEBHOOK_SECRET", "")
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "")
+    monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", "")
+    monkeypatch.setenv("ALLOW_MOCK_BILLING", "true")
 
     with TestClient(server.app) as client:
         meta = client.get("/api/meta")
@@ -103,4 +110,8 @@ def test_platform_v2_auth_lawyers_webhook_countries(tmp_path, monkeypatch):
 
         health = client.get("/health")
         assert health.status_code == 200
-        assert "ocr" in health.json()
+        assert health.json()["status"] == "ok"
+        ready = client.get("/ready")
+        assert ready.status_code == 200
+        assert "ocr" in ready.json()
+        assert "mock_billing_allowed" in ready.json()

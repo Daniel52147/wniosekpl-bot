@@ -38,25 +38,43 @@ def stripe_webhook_configured() -> bool:
     return bool((config.STRIPE_WEBHOOK_SECRET or "").strip())
 
 
+def mock_billing_allowed() -> bool:
+    """Mock unlock is only for demos without Stripe (or explicit opt-in)."""
+    import os
+
+    flag = (os.getenv("ALLOW_MOCK_BILLING") or "").strip().lower()
+    if flag in {"1", "true", "yes", "on"}:
+        return True
+    if flag in {"0", "false", "no", "off"}:
+        return False
+    return not stripe_configured()
+
+
 def price_id_for(product: str) -> str:
     if product == "ai_subscription":
-        return config.STRIPE_PRICE_AI_MONTHLY
+        return (config.STRIPE_PRICE_AI_MONTHLY or "").strip()
     if product == "human_review":
-        return config.STRIPE_PRICE_HUMAN_REVIEW
+        return (config.STRIPE_PRICE_HUMAN_REVIEW or "").strip()
     return ""
 
 
 def billing_status() -> dict:
+    modes = []
+    if stripe_configured():
+        modes.append("stripe")
+    if mock_billing_allowed():
+        modes.append("mock")
     return {
         "stripe_configured": stripe_configured(),
         "stripe_webhook_configured": stripe_webhook_configured(),
+        "mock_billing_allowed": mock_billing_allowed(),
         "publishable_key": config.STRIPE_PUBLISHABLE_KEY or None,
         "prices": PLAN_PRICES,
         "price_ids": {
             "ai_subscription": bool(config.STRIPE_PRICE_AI_MONTHLY),
             "human_review": bool(config.STRIPE_PRICE_HUMAN_REVIEW),
         },
-        "modes": ["stripe", "mock"],
+        "modes": modes or ["unavailable"],
     }
 
 
@@ -97,11 +115,17 @@ async def create_checkout_session(user_id: int, product: str) -> dict:
     if product not in PLAN_PRICES:
         raise ValueError("unknown_product")
 
-    if stripe_configured() and price_id_for(product):
+    if stripe_configured():
+        if not price_id_for(product):
+            raise ValueError("missing_stripe_price")
         try:
             return await _stripe_checkout(user_id, product)
-        except Exception:
-            logger.warning("Stripe checkout failed; falling back to mock", exc_info=True)
+        except Exception as exc:
+            logger.warning("Stripe checkout failed", exc_info=True)
+            raise ValueError(f"stripe_checkout_failed:{exc}") from exc
+
+    if not mock_billing_allowed():
+        raise ValueError("billing_unavailable")
 
     qs = urlencode({"user_id": user_id, "product": product})
     return {
@@ -333,6 +357,13 @@ async def handle_stripe_event(event: dict) -> dict:
         parsed = parse_checkout_completed(event)
         if not parsed:
             return {"handled": False}
+        payment_status = (parsed.get("payment_status") or "").lower()
+        if payment_status not in {"paid", "no_payment_required"}:
+            return {
+                "handled": False,
+                "reason": "payment_not_completed",
+                "payment_status": payment_status or None,
+            }
         if parsed.get("customer_id"):
             await set_stripe_customer_id(parsed["user_id"], parsed["customer_id"])
         await apply_successful_purchase(

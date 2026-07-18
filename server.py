@@ -25,15 +25,13 @@ from src.accounts import (
 from src.ai_assistant import answer_question_smart
 from src.auth import hash_token, issue_session, logout_session, new_token, resolve_session
 from src.checklists import checklist
+import src.config as config
 from src.config import (
-    ADMIN_API_KEY,
     AI_FREE_DAILY_LIMIT,
-    BOT_TOKEN,
     BOT_USERNAME,
     DEFAULT_COUNTRY,
     OUTPUT_DIR,
     PLAN_PRICES,
-    PUBLIC_BASE_URL,
     ROOT,
     SESSION_DAYS,
     UPLOADS_DIR,
@@ -96,6 +94,7 @@ from src.payments import (
     create_checkout_session,
     handle_stripe_event,
     list_invoices,
+    mock_billing_allowed,
     stripe_configured,
     stripe_webhook_configured,
     verify_stripe_signature,
@@ -106,18 +105,19 @@ from src.services_directory import search_services
 from src.validators import is_required, validate_field
 
 LANDING_DIR = ROOT / "landing"
-PRODUCT_VERSION = "2.2.0"
+PRODUCT_VERSION = "2.2.1"
 
 
 def telegram_configured() -> bool:
-    token = (BOT_TOKEN or "").strip()
+    token = (config.BOT_TOKEN or "").strip()
     return bool(token) and "your_telegram_bot_token" not in token
 
 
 def require_admin(x_admin_key: str | None) -> None:
-    if not ADMIN_API_KEY:
+    expected = (config.ADMIN_API_KEY or "").strip()
+    if not expected:
         return
-    if x_admin_key != ADMIN_API_KEY:
+    if x_admin_key != expected:
         raise HTTPException(status_code=401, detail="admin_unauthorized")
 
 
@@ -334,6 +334,17 @@ async def setup_configure(
 
 @app.get("/health")
 async def health():
+    """Cheap liveness probe for deploy platforms."""
+    return {
+        "status": "ok",
+        "version": PRODUCT_VERSION,
+        "documents_count": len(_docs()),
+    }
+
+
+@app.get("/ready")
+async def ready():
+    """Detailed readiness / dependency status."""
     return {
         "status": "ok",
         "version": PRODUCT_VERSION,
@@ -343,11 +354,13 @@ async def health():
         "omniroute_reachable": await omniroute_reachable(),
         "stripe_configured": stripe_configured(),
         "stripe_webhook_configured": stripe_webhook_configured(),
+        "mock_billing_allowed": mock_billing_allowed(),
         "email_configured": email_configured(),
         "database_backend": database_backend(),
         "ocr": ocr_engine_status(),
         "default_country": DEFAULT_COUNTRY,
         "documents_count": len(_docs()),
+        "public_base_url": config.PUBLIC_BASE_URL,
     }
 
 
@@ -389,7 +402,7 @@ async def product_meta(
         "countries": list_countries(),
         "documents_count": len(_docs()),
         "prices": PLAN_PRICES,
-        "public_base_url": PUBLIC_BASE_URL,
+        "public_base_url": config.PUBLIC_BASE_URL,
         "ai_gateway": "omniroute",
         "auth": {
             "password": True,
@@ -534,7 +547,7 @@ async def auth_magic_link(payload: MagicLinkRequest):
     token = new_token()
     expires = (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
     await create_magic_link(hash_token(token), payload.user_id, payload.email, expires)
-    link = f"{PUBLIC_BASE_URL}/api/auth/claim?token={token}"
+    link = f"{config.PUBLIC_BASE_URL}/api/auth/claim?token={token}"
     await notify_user(
         user_id=payload.user_id,
         email=payload.email,
@@ -696,7 +709,10 @@ async def billing_checkout(
     if not billing_limiter.allow(f"{ip}:{user_id}"):
         raise HTTPException(status_code=429, detail="rate_limited")
     await upsert_user(user_id, None, None, None)
-    session = await create_checkout_session(user_id, payload.product)
+    try:
+        session = await create_checkout_session(user_id, payload.product)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     await record_payment(
         user_id,
         payload.product,
@@ -710,6 +726,8 @@ async def billing_checkout(
 
 @app.get("/api/billing/mock-complete")
 async def billing_mock_complete(user_id: int, product: str):
+    if not mock_billing_allowed():
+        raise HTTPException(status_code=403, detail="mock_billing_disabled")
     if product not in PLAN_PRICES:
         raise HTTPException(status_code=400, detail="unknown_product")
     await apply_successful_purchase(
@@ -762,9 +780,15 @@ async def billing_webhook(
     stripe_signature: str | None = Header(default=None, alias="Stripe-Signature"),
 ):
     payload = await request.body()
-    if stripe_webhook_configured():
-        if not verify_stripe_signature(payload, stripe_signature):
+    if stripe_configured():
+        if not stripe_webhook_configured() or not verify_stripe_signature(
+            payload, stripe_signature
+        ):
             raise HTTPException(status_code=400, detail="invalid_signature")
+    elif stripe_webhook_configured() and not verify_stripe_signature(
+        payload, stripe_signature
+    ):
+        raise HTTPException(status_code=400, detail="invalid_signature")
 
     try:
         event = json.loads(payload.decode("utf-8"))

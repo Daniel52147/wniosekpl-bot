@@ -1,11 +1,18 @@
 from fastapi.testclient import TestClient
 
 import server
+import src.config as config
 import src.database as database
 
 
 def test_register_login_checkout_cancel(tmp_path, monkeypatch):
     monkeypatch.setattr(database, "DATABASE_PATH", tmp_path / "auth.db")
+    monkeypatch.setattr("src.runtime_secrets.SECRETS_PATH", tmp_path / "secrets.env")
+    monkeypatch.setattr(config, "STRIPE_SECRET_KEY", "")
+    monkeypatch.setattr(config, "STRIPE_WEBHOOK_SECRET", "")
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "")
+    monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", "")
+    monkeypatch.setenv("ALLOW_MOCK_BILLING", "true")
 
     with TestClient(server.app) as client:
         reg = client.post(

@@ -4,6 +4,7 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 
 import server
+import src.config as config
 import src.database as database
 from src.knowledge import search_knowledge
 from src.karta_wizard import default_progress, progress_view
@@ -45,6 +46,12 @@ def test_fallback_letter_contains_polish_greeting():
 
 def test_platform_billing_cabinet_karta_and_letter(tmp_path, monkeypatch):
     monkeypatch.setattr(database, "DATABASE_PATH", tmp_path / "platform.db")
+    monkeypatch.setattr("src.runtime_secrets.SECRETS_PATH", tmp_path / "secrets.env")
+    monkeypatch.setattr(config, "STRIPE_SECRET_KEY", "")
+    monkeypatch.setattr(config, "STRIPE_WEBHOOK_SECRET", "")
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "")
+    monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", "")
+    monkeypatch.setenv("ALLOW_MOCK_BILLING", "true")
 
     with TestClient(server.app) as client:
         meta = client.get("/api/meta", params={"user_id": 101})
