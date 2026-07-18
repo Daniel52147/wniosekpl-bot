@@ -107,7 +107,7 @@ from src.services_directory import search_services
 from src.validators import is_required, validate_field
 
 LANDING_DIR = ROOT / "landing"
-PRODUCT_VERSION = "2.3.0"
+PRODUCT_VERSION = "2.4.0"
 
 
 def telegram_configured() -> bool:
@@ -286,6 +286,15 @@ class BillingUserRequest(BaseModel):
     user_id: int
 
 
+class DocDraftRequest(BaseModel):
+    user_id: int | None = None
+    answers: dict[str, str] = Field(default_factory=dict)
+
+
+class AccountUnlinkRequest(BaseModel):
+    user_id: int | None = None
+
+
 def _docs() -> dict:
     return getattr(app.state, "documents", None) or load_all_documents()
 
@@ -382,6 +391,19 @@ async def health():
 @app.get("/ready")
 async def ready():
     """Detailed readiness / dependency status."""
+    from pathlib import Path
+
+    db_path = Path(config.DATABASE_PATH)
+    backup_dir = db_path.parent / "backups"
+    backup_count = 0
+    latest_backup = None
+    if backup_dir.is_dir():
+        backups = sorted(backup_dir.glob(f"{db_path.stem}_*{db_path.suffix}"))
+        backup_count = len(backups)
+        if backups:
+            latest_backup = backups[-1].name
+    public = (config.PUBLIC_BASE_URL or "").rstrip("/")
+    stable_domain = bool(public) and "trycloudflare.com" not in public and "localhost" not in public and "127.0.0.1" not in public
     return {
         "status": "ok",
         "version": PRODUCT_VERSION,
@@ -394,10 +416,20 @@ async def ready():
         "mock_billing_allowed": mock_billing_allowed(),
         "email_configured": email_configured(),
         "database_backend": database_backend(),
+        "database_exists": db_path.exists(),
+        "backup_count": backup_count,
+        "latest_backup": latest_backup,
         "ocr": ocr_engine_status(),
         "default_country": DEFAULT_COUNTRY,
         "documents_count": len(_docs()),
         "public_base_url": config.PUBLIC_BASE_URL,
+        "stable_domain": stable_domain,
+        "prod_checklist": {
+            "stripe_webhook": stripe_webhook_configured(),
+            "stable_domain": stable_domain,
+            "db_backups": backup_count > 0,
+            "telegram": telegram_configured(),
+        },
     }
 
 
@@ -693,6 +725,37 @@ async def generate_document(doc_id: str, payload: GenerateRequest):
     )
 
 
+@app.get("/api/documents/{doc_id}/draft")
+async def get_document_draft(
+    doc_id: str,
+    user_id: int | None = Query(default=None),
+    authorization: str | None = Header(default=None),
+):
+    from src.web_drafts import get_doc_draft
+
+    if doc_id not in _docs():
+        raise HTTPException(status_code=404, detail="document_not_found")
+    resolved = await _resolve_user(user_id, authorization)
+    draft = await get_doc_draft(resolved, doc_id)
+    return {"doc_id": doc_id, "draft": draft, "user_id": resolved}
+
+
+@app.post("/api/documents/{doc_id}/draft")
+async def save_document_draft(
+    doc_id: str,
+    payload: DocDraftRequest,
+    authorization: str | None = Header(default=None),
+):
+    from src.web_drafts import save_doc_draft
+
+    if doc_id not in _docs():
+        raise HTTPException(status_code=404, detail="document_not_found")
+    resolved = await _resolve_user(payload.user_id, authorization)
+    await upsert_user(resolved, None, None, None)
+    draft = await save_doc_draft(resolved, doc_id, payload.answers)
+    return {"ok": True, "doc_id": doc_id, "draft": draft, "user_id": resolved}
+
+
 @app.post("/api/assistant/ask")
 async def ask_assistant(payload: AssistantRequest, request: Request):
     ip = request.client.host if request.client else "unknown"
@@ -865,6 +928,8 @@ async def cabinet(
     user_id: int,
     authorization: str | None = Header(default=None),
 ):
+    from src.account_link import mos_progress_for
+
     resolved = await _resolve_user(user_id, authorization)
     await upsert_user(resolved, None, None, None)
     plan = await user_plan(resolved)
@@ -876,7 +941,7 @@ async def cabinet(
         "uploads": await list_uploads(resolved),
         "ai_history": await recent_ai_questions(resolved),
         "karta": progress_view(await get_karta_progress(resolved)),
-        "mos": await get_mos_progress(resolved),
+        "mos": await mos_progress_for(resolved),
     }
 
 
@@ -887,6 +952,7 @@ async def resume_snapshot(
     authorization: str | None = Header(default=None),
 ):
     """Compact 'what to finish' snapshot for the chat-side profile rail."""
+    from src.account_link import mos_progress_for
     from src.mos_guide import guide_payload, next_action
 
     resolved = None
@@ -897,7 +963,7 @@ async def resume_snapshot(
     if authorization or user_id is not None:
         try:
             resolved = await _resolve_user(user_id, authorization)
-            mos_done = await get_mos_progress(resolved)
+            mos_done = await mos_progress_for(resolved)
             calendar = (await list_calendar_events(resolved))[:3]
             karta_steps = progress_view(await get_karta_progress(resolved), lang)
             karta_left = sum(1 for s in karta_steps if not s.get("done"))
@@ -944,8 +1010,10 @@ async def calendar_done(event_id: int, user_id: int):
 async def mos_guide_api(
     lang: Literal["ru", "en", "ua", "pl"] = "pl",
     user_id: int | None = Query(default=None),
+    purpose: str | None = Query(default=None),
     authorization: str | None = Header(default=None),
 ):
+    from src.account_link import mos_progress_for
     from src.mos_guide import guide_payload
 
     done: dict[str, bool] = {}
@@ -953,10 +1021,10 @@ async def mos_guide_api(
     if authorization or user_id:
         try:
             resolved = await _resolve_user(user_id, authorization)
-            done = await get_mos_progress(resolved)
+            done = await mos_progress_for(resolved)
         except Exception:
             done = {}
-    payload = guide_payload(lang, done=done)
+    payload = guide_payload(lang, done=done, purpose=purpose)
     if resolved:
         payload["user_id"] = resolved
         payload["saved_progress"] = done
@@ -969,6 +1037,7 @@ async def onboarding_api(
     authorization: str | None = Header(default=None),
 ):
     """Apply 3-question onboarding: purpose + PESEL + optional stay deadline."""
+    from src.account_link import mos_progress_for, save_mos_progress_synced
     from src.mos_guide import next_action
     from src.onboarding import build_plan
 
@@ -981,7 +1050,7 @@ async def onboarding_api(
         try:
             resolved = await _resolve_user(payload.user_id, authorization)
             await upsert_user(resolved, None, None, payload.lang)
-            steps = await get_mos_progress(resolved)
+            steps = await mos_progress_for(resolved)
             if payload.has_pesel:
                 steps["pesel"] = True
             if payload.due_at:
@@ -1009,7 +1078,7 @@ async def onboarding_api(
                         )
                 except Exception:
                     reminder_id = None
-            await set_mos_progress(resolved, steps)
+            await save_mos_progress_synced(resolved, steps)
         except Exception:
             resolved = None
             steps = {"pesel": True} if payload.has_pesel else {}
@@ -1044,15 +1113,16 @@ async def mos_step_api(
     payload: MosStepUpdate,
     authorization: str | None = Header(default=None),
 ):
+    from src.account_link import mos_progress_for, save_mos_progress_synced
     from src.mos_guide import READY_STEPS, next_action
 
     user_id = await _resolve_user(payload.user_id, authorization)
     valid = {s["id"] for s in READY_STEPS}
     if payload.step_id not in valid:
         raise HTTPException(status_code=400, detail="unknown_step")
-    steps = await get_mos_progress(user_id)
+    steps = await mos_progress_for(user_id)
     steps[payload.step_id] = payload.done
-    await set_mos_progress(user_id, steps)
+    await save_mos_progress_synced(user_id, steps)
     return {"ok": True, "steps": steps, "next_action": next_action(steps, "pl")}
 
 
@@ -1072,9 +1142,11 @@ async def mos_deadline_api(
         notes=f"Przypomnienie: złóż wniosek w MOS przed końcem legalnego pobytu ({due}).",
     )
     # Mark readiness step + add a prep reminder days_before if still in the future.
-    steps = await get_mos_progress(user_id)
+    from src.account_link import mos_progress_for, save_mos_progress_synced
+
+    steps = await mos_progress_for(user_id)
     steps["legal_stay"] = True
-    await set_mos_progress(user_id, steps)
+    await save_mos_progress_synced(user_id, steps)
     reminder_id = None
     try:
         from datetime import date as date_cls, timedelta
@@ -1098,6 +1170,52 @@ async def mos_deadline_api(
         "due_at": due,
         "steps": steps,
     }
+
+
+@app.get("/api/trust")
+async def trust_api(lang: Literal["ru", "en", "ua", "pl"] = "pl"):
+    from src.trust import trust_payload
+
+    return trust_payload(lang)
+
+
+@app.get("/api/account/link")
+async def account_link_status(
+    user_id: int | None = Query(default=None),
+    authorization: str | None = Header(default=None),
+):
+    from src.account_link import status_for
+
+    resolved = await _resolve_user(user_id, authorization)
+    status = await status_for(resolved)
+    status["user_id"] = resolved
+    return status
+
+
+@app.post("/api/account/link-code")
+async def account_link_code(
+    user_id: int | None = Query(default=None),
+    authorization: str | None = Header(default=None),
+):
+    from src.account_link import issue_link_code
+
+    resolved = await _resolve_user(user_id, authorization)
+    await upsert_user(resolved, None, None, None)
+    issued = await issue_link_code(resolved)
+    issued["user_id"] = resolved
+    return issued
+
+
+@app.post("/api/account/unlink")
+async def account_unlink(
+    payload: AccountUnlinkRequest,
+    authorization: str | None = Header(default=None),
+):
+    from src.account_link import unlink
+
+    resolved = await _resolve_user(payload.user_id, authorization)
+    ok = await unlink(resolved)
+    return {"ok": ok, "user_id": resolved}
 
 
 @app.get("/api/karta/{user_id}")

@@ -172,6 +172,32 @@ async def _open_main_menu(
 async def cmd_start(message: Message, state: FSMContext, command: CommandObject) -> None:
     pending_ref = None
     pending_action = None
+    if command.args and command.args.startswith("link_"):
+        from src.account_link import link_telegram_with_code
+
+        code = command.args[5:]
+        result = await link_telegram_with_code(message.from_user.id, code)
+        lang = await get_language(message.from_user.id)
+        if result.get("ok"):
+            await message.answer(
+                {
+                    "pl": "✓ Konto strony powiązane. Postęp MOS i szkice są wspólne.",
+                    "ru": "✓ Аккаунт сайта связан. Прогресс MOS и черновики общие.",
+                    "en": "✓ Website account linked. MOS progress and drafts are shared.",
+                    "ua": "✓ Акаунт сайту повʼязано. Прогрес MOS і чернетки спільні.",
+                }.get(lang, "✓ Linked.")
+            )
+        else:
+            await message.answer(
+                {
+                    "pl": "Kod wygasł lub jest nieprawidłowy. Wygeneruj nowy w profilu na stronie (Konto).",
+                    "ru": "Код истёк или неверный. Сгенерируй новый в кабинете на сайте (Konto).",
+                    "en": "Code expired or invalid. Generate a new one in the website profile (Account).",
+                    "ua": "Код прострочений або невірний. Згенеруй новий у кабінеті на сайті (Konto).",
+                }.get(lang, "Invalid code.")
+            )
+        await _open_main_menu(message, state, None, None)
+        return
     if command.args and command.args.startswith("ref_"):
         pending_ref = command.args[4:]
     elif command.args == "review":
@@ -179,6 +205,44 @@ async def cmd_start(message: Message, state: FSMContext, command: CommandObject)
     elif command.args == "ai":
         pending_action = "ai"
     await _open_main_menu(message, state, pending_ref, pending_action)
+
+
+@router.message(Command("link"))
+async def cmd_link(message: Message, command: CommandObject) -> None:
+    """Manually link website account: /link 123456"""
+    from src.account_link import link_telegram_with_code
+
+    lang = await get_language(message.from_user.id)
+    code = (command.args or "").strip()
+    if not code:
+        await message.answer(
+            {
+                "pl": "Użycie: /link KOD — kod z profilu na stronie (zakładka Konto).",
+                "ru": "Использование: /link КОД — код из кабинета на сайте (вкладка Konto).",
+                "en": "Usage: /link CODE — code from the website profile (Account tab).",
+                "ua": "Використання: /link КОД — код з кабінету на сайті (вкладка Konto).",
+            }.get(lang, "Usage: /link CODE")
+        )
+        return
+    result = await link_telegram_with_code(message.from_user.id, code)
+    if result.get("ok"):
+        await message.answer(
+            {
+                "pl": "✓ Konto strony powiązane. Postęp MOS i szkice są wspólne.",
+                "ru": "✓ Аккаунт сайта связан. Прогресс MOS и черновики общие.",
+                "en": "✓ Website account linked. MOS progress and drafts are shared.",
+                "ua": "✓ Акаунт сайту повʼязано. Прогрес MOS і чернетки спільні.",
+            }.get(lang, "✓ Linked.")
+        )
+    else:
+        await message.answer(
+            {
+                "pl": "Kod wygasł lub jest nieprawidłowy. Wygeneruj nowy w profilu na stronie.",
+                "ru": "Код истёк или неверный. Сгенерируй новый в кабинете на сайте.",
+                "en": "Code expired or invalid. Generate a new one on the website.",
+                "ua": "Код прострочений або невірний. Згенеруй новий на сайті.",
+            }.get(lang, "Invalid code.")
+        )
 
 
 @router.callback_query(F.data.startswith("lang:"))

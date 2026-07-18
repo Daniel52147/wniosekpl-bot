@@ -20,3 +20,13 @@ def test_backup_database_returns_none_for_missing_source(tmp_path):
 
     assert backup_path is None
     assert not (tmp_path / "backups").exists()
+
+
+def test_backup_database_prunes_old_copies(tmp_path):
+    db_path = tmp_path / "app.db"
+    db_path.write_bytes(b"v1")
+    dest = tmp_path / "backups"
+    for i in range(5):
+        backup_database(src=db_path, dest_dir=dest, stamp=f"2026071{i}_120000", keep=3)
+    kept = sorted(dest.glob("app_*.db"))
+    assert len(kept) == 3

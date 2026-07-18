@@ -367,6 +367,99 @@ EMPLOYER_HELPER = {
 }
 
 
+# What to do inside the official MOS portal after checklist is done
+MOS_FILING_STEPS = [
+    {
+        "id": "login",
+        "pl": "Zaloguj się do MOS przez login.gov.pl (Profil Zaufany)",
+        "ru": "Войди в MOS через login.gov.pl (Profil Zaufany)",
+        "en": "Log into MOS via login.gov.pl (trusted profile)",
+        "ua": "Увійди в MOS через login.gov.pl (Profil Zaufany)",
+    },
+    {
+        "id": "wniosek",
+        "pl": "Utwórz nowy wniosek o pobyt i wypełnij dane",
+        "ru": "Создай новый wniosek о pobyt и заполни данные",
+        "en": "Create a new residence application and fill in your data",
+        "ua": "Створи новий wniosek про pobyt і заповни дані",
+    },
+    {
+        "id": "pliki",
+        "pl": "Dołącz pliki: paszport, zdjęcie, opłaty, dokumenty celu",
+        "ru": "Приложи файлы: паспорт, фото, оплаты, документы цели",
+        "en": "Attach files: passport, photo, fees, purpose documents",
+        "ua": "Додай файли: паспорт, фото, оплати, документи мети",
+    },
+    {
+        "id": "podpis",
+        "pl": "Wyślij załącznik do e-podpisu pracodawcy / uczelni (email)",
+        "ru": "Отправь załącznik на e-подпись работодателю / вузу (email)",
+        "en": "Send the attachment for employer / university e-signature (email)",
+        "ua": "Надішли załącznik на e-підпис роботодавцю / вишу (email)",
+    },
+    {
+        "id": "upo",
+        "pl": "Wyślij wniosek i pobierz UPO (potwierdzenie złożenia)",
+        "ru": "Отправь wniosek и скачай UPO (подтверждение подачи)",
+        "en": "Submit the application and download UPO (filing confirmation)",
+        "ua": "Надішли wniosek і завантаж UPO (підтвердження подання)",
+    },
+]
+
+
+def ready_finale(purpose: str | None = None, lang: str = "pl") -> dict:
+    """Single screen after checklist: attachments + Open MOS + 5 portal steps."""
+    lang = lang if lang in {"pl", "ru", "en", "ua"} else "pl"
+    purpose_id = purpose if purpose in {p["id"] for p in PURPOSES} else "work"
+    purpose_obj = next(p for p in PURPOSES if p["id"] == purpose_id)
+    items_key = f"items_{lang}"
+    copy = {
+        "pl": {
+            "title": "Wszystko gotowe — czas na MOS",
+            "sub": "Poniżej: co dołączyć pod Twój cel, potem 5 kroków w oficjalnym portalu.",
+            "attach_title": "Co dołączyć pod Twój cel",
+            "steps_title": "Co zrobić w MOS — 5 kroków",
+            "cta": "Otwórz MOS",
+            "change_purpose": "Zmień cel",
+        },
+        "ru": {
+            "title": "Всё готово — пора в MOS",
+            "sub": "Ниже: что приложить под твою цель, затем 5 шагов в официальном портале.",
+            "attach_title": "Что приложить под твою цель",
+            "steps_title": "Что сделать в MOS — 5 шагов",
+            "cta": "Открыть MOS",
+            "change_purpose": "Сменить цель",
+        },
+        "en": {
+            "title": "All set — time for MOS",
+            "sub": "Below: what to attach for your purpose, then 5 steps in the official portal.",
+            "attach_title": "What to attach for your purpose",
+            "steps_title": "What to do in MOS — 5 steps",
+            "cta": "Open MOS",
+            "change_purpose": "Change purpose",
+        },
+        "ua": {
+            "title": "Усе готово — час на MOS",
+            "sub": "Нижче: що додати під твою мету, потім 5 кроків в офіційному порталі.",
+            "attach_title": "Що додати під твою мету",
+            "steps_title": "Що зробити в MOS — 5 кроків",
+            "cta": "Відкрити MOS",
+            "change_purpose": "Змінити мету",
+        },
+    }[lang]
+    return {
+        "purpose": purpose_id,
+        "purpose_title": purpose_obj.get(lang, purpose_obj["pl"]),
+        "attachments": purpose_obj.get(items_key, purpose_obj["items_pl"]),
+        "portal_url": MOS_PORTAL_URL,
+        "steps": [
+            {"id": s["id"], "title": s.get(lang, s["pl"]), "n": i + 1}
+            for i, s in enumerate(MOS_FILING_STEPS)
+        ],
+        "copy": copy,
+    }
+
+
 def next_action(done: dict[str, bool] | None, lang: str = "pl") -> dict:
     """Return the first incomplete readiness step as the next action."""
     lang = lang if lang in {"pl", "ru", "en", "ua"} else "pl"
@@ -403,7 +496,11 @@ def next_action(done: dict[str, bool] | None, lang: str = "pl") -> dict:
     }
 
 
-def guide_payload(lang: str = "pl", done: dict[str, bool] | None = None) -> dict:
+def guide_payload(
+    lang: str = "pl",
+    done: dict[str, bool] | None = None,
+    purpose: str | None = None,
+) -> dict:
     lang = (lang or "pl").lower()
     if lang not in {"pl", "ru", "en", "ua"}:
         lang = "pl"
@@ -464,6 +561,8 @@ def guide_payload(lang: str = "pl", done: dict[str, bool] | None = None) -> dict
             "sync_local": "Postęp zapisany na tym urządzeniu. Zaloguj się, żeby przenieść na inne.",
             "disclaimer": "WniosekPL nie jest urzędem i nie składa wniosku za Ciebie. Od 27.04.2026 pobyt czasowy/stały/rezydent UE — zasadniczo tylko online w MOS.",
             "open_mos": "Przejdź do mos.cudzoziemcy.gov.pl",
+            "finale_show_checklist": "Pokaż checklistę",
+            "finale_hide_checklist": "Ukryj checklistę",
         },
         "ru": {
             "title": "Подготовка к MOS 2.0",
@@ -493,6 +592,8 @@ def guide_payload(lang: str = "pl", done: dict[str, bool] | None = None) -> dict
             "sync_local": "Прогресс на этом устройстве. Войди, чтобы перенести на другое.",
             "disclaimer": "WniosekPL — не urząd и не подаёт заявление за тебя. С 27.04.2026 pobyt — в основном только online в MOS.",
             "open_mos": "Перейти на mos.cudzoziemcy.gov.pl",
+            "finale_show_checklist": "Показать чеклист",
+            "finale_hide_checklist": "Скрыть чеклист",
         },
         "en": {
             "title": "Prepare for MOS 2.0",
@@ -522,6 +623,8 @@ def guide_payload(lang: str = "pl", done: dict[str, bool] | None = None) -> dict
             "sync_local": "Saved on this device. Log in to sync elsewhere.",
             "disclaimer": "WniosekPL is not a government office and does not file for you. Since 27 Apr 2026 residence permits are mostly online-only via MOS.",
             "open_mos": "Go to mos.cudzoziemcy.gov.pl",
+            "finale_show_checklist": "Show checklist",
+            "finale_hide_checklist": "Hide checklist",
         },
         "ua": {
             "title": "Підготовка до MOS 2.0",
@@ -551,6 +654,8 @@ def guide_payload(lang: str = "pl", done: dict[str, bool] | None = None) -> dict
             "sync_local": "Збережено на цьому пристрої. Увійди, щоб синхронізувати.",
             "disclaimer": "WniosekPL — не urząd і не подає заяву за тебе. З 27.04.2026 pobyt здебільшого тільки online в MOS.",
             "open_mos": "Перейти на mos.cudzoziemcy.gov.pl",
+            "finale_show_checklist": "Показати чекліст",
+            "finale_hide_checklist": "Сховати чекліст",
         },
     }
 
@@ -566,6 +671,7 @@ def guide_payload(lang: str = "pl", done: dict[str, bool] | None = None) -> dict
             }
         )
 
+    nxt = next_action(done, lang)
     return {
         "portal_url": MOS_PORTAL_URL,
         "info_url": MOS_INFO_URL,
@@ -576,5 +682,6 @@ def guide_payload(lang: str = "pl", done: dict[str, bool] | None = None) -> dict
         "purposes": purposes,
         "walkthrough": walkthrough,
         "employer_helper": EMPLOYER_HELPER[lang],
-        "next_action": next_action(done, lang),
+        "next_action": nxt,
+        "finale": ready_finale(purpose, lang),
     }

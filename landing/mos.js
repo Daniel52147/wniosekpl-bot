@@ -80,6 +80,90 @@
       : uiCopy.sync_local || "";
   }
 
+  function renderFinale(next) {
+    const finale = document.getElementById("mos-ready-finale");
+    const checklistWrap = document.getElementById("mos-checklist-wrap");
+    const nextBox = document.getElementById("mos-next");
+    if (!finale) return;
+    const show = !!(next && next.complete && guideData && guideData.finale);
+    finale.hidden = !show;
+    if (checklistWrap) checklistWrap.hidden = show;
+    if (nextBox) nextBox.hidden = show;
+    if (!show) return;
+
+    const f = guideData.finale;
+    const fc = f.copy || {};
+    setText("mos-finale-title", fc.title || uiCopy.next_done || "");
+    setText("mos-finale-sub", fc.sub || "");
+    setText("mos-finale-attach-title", fc.attach_title || "");
+    setText("mos-finale-steps-title", fc.steps_title || "");
+    setText("mos-finale-purpose", f.purpose_title || "");
+
+    const attach = document.getElementById("mos-finale-attach");
+    if (attach) {
+      attach.innerHTML = "";
+      (f.attachments || []).forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        attach.appendChild(li);
+      });
+    }
+    const steps = document.getElementById("mos-finale-steps");
+    if (steps) {
+      steps.innerHTML = "";
+      (f.steps || []).forEach((step) => {
+        const li = document.createElement("li");
+        li.innerHTML = "<span class=\"n\"></span><span class=\"t\"></span>";
+        li.querySelector(".n").textContent = String(step.n || "");
+        li.querySelector(".t").textContent = step.title || "";
+        steps.appendChild(li);
+      });
+    }
+    const cta = document.getElementById("mos-finale-cta");
+    if (cta) {
+      cta.href = f.portal_url || guideData.portal_url || "https://mos.cudzoziemcy.gov.pl";
+      cta.textContent = fc.cta || uiCopy.open_mos_btn || "MOS";
+      cta.target = "_blank";
+      cta.rel = "noopener";
+    }
+    const toggle = document.getElementById("mos-finale-toggle-checklist");
+    if (toggle) {
+      toggle.textContent = uiCopy.finale_show_checklist || "Checklist";
+      toggle.onclick = () => {
+        if (!checklistWrap) return;
+        const open = checklistWrap.hidden;
+        checklistWrap.hidden = !open;
+        toggle.textContent = open
+          ? uiCopy.finale_hide_checklist || "Hide"
+          : uiCopy.finale_show_checklist || "Checklist";
+        if (open) checklistWrap.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      };
+    }
+    const purposeBtns = document.getElementById("mos-finale-purposes");
+    if (purposeBtns && guideData.purposes) {
+      purposeBtns.innerHTML = "";
+      const selected =
+        localStorage.getItem(PURPOSE_KEY) || f.purpose || guideData.purposes[0]?.id;
+      guideData.purposes.forEach((p) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = p.title;
+        if (p.id === selected) btn.classList.add("active");
+        btn.addEventListener("click", () => {
+          localStorage.setItem(PURPOSE_KEY, p.id);
+          guideData.finale = {
+            ...f,
+            purpose: p.id,
+            purpose_title: p.title,
+            attachments: p.items || [],
+          };
+          renderFinale(next);
+        });
+        purposeBtns.appendChild(btn);
+      });
+    }
+  }
+
   function renderNext(next) {
     const box = document.getElementById("mos-next");
     const title = document.getElementById("mos-next-title");
@@ -113,6 +197,7 @@
       mark.textContent = uiCopy.mark_done || "Dalej";
       mark.dataset.stepId = next.id || "";
     }
+    renderFinale(next);
   }
 
   function highlightCurrent(nextId) {
@@ -244,6 +329,8 @@
   async function loadMosGuide() {
     const qs = new URLSearchParams({ lang: lang() });
     if (userId()) qs.set("user_id", String(userId()));
+    const purpose = localStorage.getItem(PURPOSE_KEY);
+    if (purpose) qs.set("purpose", purpose);
     const res = await fetch(`${API}/api/mos/guide?${qs}`, {
       headers: token() ? { Authorization: `Bearer ${token()}` } : {},
     });

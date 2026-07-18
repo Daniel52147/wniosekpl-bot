@@ -253,6 +253,29 @@ async def init_db() -> None:
             )
             """
         )
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS account_links (
+                web_user_id INTEGER NOT NULL UNIQUE,
+                telegram_id INTEGER NOT NULL UNIQUE,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS link_codes (
+                code TEXT PRIMARY KEY,
+                web_user_id INTEGER NOT NULL,
+                expires_at TEXT NOT NULL,
+                used INTEGER DEFAULT 0,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        await db.execute(
+            "CREATE INDEX IF NOT EXISTS idx_link_codes_web ON link_codes (web_user_id)"
+        )
         for col, decl in (
             ("referral", "TEXT"),
             ("email", "TEXT"),
@@ -947,6 +970,111 @@ async def set_mos_progress(telegram_id: int, steps: dict[str, bool]) -> None:
             (telegram_id, json.dumps(steps, ensure_ascii=False), _now()),
         )
         await db.commit()
+
+
+async def create_link_code(code: str, web_user_id: int, expires_at: str) -> None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        # Invalidate previous unused codes for this web user.
+        await db.execute(
+            "UPDATE link_codes SET used = 1 WHERE web_user_id = ? AND used = 0",
+            (web_user_id,),
+        )
+        await db.execute(
+            """
+            INSERT INTO link_codes (code, web_user_id, expires_at, used, created_at)
+            VALUES (?, ?, ?, 0, ?)
+            """,
+            (code, web_user_id, expires_at, _now()),
+        )
+        await db.commit()
+
+
+async def claim_link_code(code: str, telegram_id: int) -> int | None:
+    """Mark code used and create account_links. Returns web_user_id or None."""
+    now = _now()
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cur = await db.execute(
+            """
+            SELECT web_user_id, expires_at, used FROM link_codes
+            WHERE code = ?
+            """,
+            (code,),
+        )
+        row = await cur.fetchone()
+        if not row:
+            return None
+        web_user_id, expires_at, used = row[0], row[1], row[2]
+        if used:
+            return None
+        if expires_at < now:
+            return None
+        # One Telegram / one web account.
+        await db.execute(
+            "DELETE FROM account_links WHERE web_user_id = ? OR telegram_id = ?",
+            (web_user_id, telegram_id),
+        )
+        await db.execute(
+            """
+            INSERT INTO account_links (web_user_id, telegram_id, created_at)
+            VALUES (?, ?, ?)
+            """,
+            (web_user_id, telegram_id, now),
+        )
+        await db.execute(
+            "UPDATE link_codes SET used = 1 WHERE code = ?",
+            (code,),
+        )
+        await db.commit()
+        return int(web_user_id)
+
+
+async def get_linked_peer(user_id: int) -> int | None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cur = await db.execute(
+            """
+            SELECT web_user_id, telegram_id FROM account_links
+            WHERE web_user_id = ? OR telegram_id = ?
+            """,
+            (user_id, user_id),
+        )
+        row = await cur.fetchone()
+        if not row:
+            return None
+        web_id, tg_id = int(row[0]), int(row[1])
+        if user_id == web_id:
+            return tg_id
+        if user_id == tg_id:
+            return web_id
+        return None
+
+
+async def get_link_status(user_id: int) -> dict | None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cur = await db.execute(
+            """
+            SELECT web_user_id, telegram_id, created_at FROM account_links
+            WHERE web_user_id = ? OR telegram_id = ?
+            """,
+            (user_id, user_id),
+        )
+        row = await cur.fetchone()
+        if not row:
+            return None
+        return {
+            "web_user_id": int(row[0]),
+            "telegram_id": int(row[1]),
+            "created_at": row[2],
+        }
+
+
+async def unlink_accounts(user_id: int) -> bool:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cur = await db.execute(
+            "DELETE FROM account_links WHERE web_user_id = ? OR telegram_id = ?",
+            (user_id, user_id),
+        )
+        await db.commit()
+        return cur.rowcount > 0
 
 
 async def recent_ai_questions(telegram_id: int, limit: int = 10) -> list[dict]:

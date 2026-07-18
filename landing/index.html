@@ -311,6 +311,37 @@
     }
     .pricing-teaser p { margin: 0; color: var(--muted); font-size: 0.92rem; }
 
+    .trust {
+      margin: 0.5rem 0 1.5rem;
+      padding: 1.25rem 0 0;
+      border-top: 1px solid var(--line);
+    }
+    .trust .kicker {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--moss);
+      margin: 0 0 0.35rem;
+    }
+    .trust h2 {
+      font-family: Syne, sans-serif;
+      margin: 0 0 0.4rem;
+      font-size: clamp(1.4rem, 3vw, 1.85rem);
+    }
+    .trust > p { margin: 0 0 0.85rem; color: var(--muted); max-width: 40rem; }
+    .trust-links { display: flex; flex-wrap: wrap; gap: 0.65rem 1.1rem; margin: 0.4rem 0 1rem; }
+    .trust-links a { color: var(--moss-deep); font-weight: 650; }
+    .faq-list { display: grid; gap: 0.45rem; }
+    .faq-list details {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0.65rem 0.85rem;
+      background: rgba(255,255,255,0.55);
+    }
+    .faq-list summary { cursor: pointer; font-weight: 650; }
+    .faq-list p { margin: 0.4rem 0 0; color: var(--muted); font-size: 0.92rem; }
+
     .foot {
       padding: 1.2rem 0 2.2rem;
       color: var(--muted);
@@ -476,9 +507,22 @@
       </article>
     </section>
 
+    <section class="trust" id="trust" aria-label="Zaufanie">
+      <p class="kicker" id="trust-kicker">Zaufanie</p>
+      <h2 id="trust-title">Nie jesteśmy urzędem</h2>
+      <p id="trust-body">Pomagamy przygotować się do MOS. Oficjalne decyzje i złożenie wniosku — tylko na gov.pl / MOS.</p>
+      <strong id="trust-gov-title">Oficjalne źródła</strong>
+      <div class="trust-links" id="trust-gov-links"></div>
+      <strong id="trust-faq-title">Krótki FAQ</strong>
+      <div class="faq-list" id="trust-faq"></div>
+      <p style="margin:1rem 0 0">
+        <a id="trust-contact" href="mailto:hello@wniosekpl.pl">Napisz do nas</a>
+      </p>
+    </section>
+
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna.</span>
-      <span>WniosekPL · v2.2.8 · <a href="/profile">Profil</a> · <a href="/setup">Setup</a></span>
+      <span>WniosekPL · v2.4.0 · <a href="/profile">Profil</a> · <a href="/setup">Setup</a></span>
     </footer>
   </div>
 
@@ -706,5 +750,6 @@
     })();
   </script>
   <script src="/static/auth.js"></script>
+  <script src="/static/trust.js"></script>
 </body>
 </html>

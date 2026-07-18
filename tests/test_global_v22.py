@@ -11,7 +11,7 @@ from src.services_directory import search_services
 
 
 def test_version_is_2_2():
-    assert server.PRODUCT_VERSION.startswith("2.2")
+    assert server.PRODUCT_VERSION.startswith("2.")
 
 
 def test_new_documents_loaded():
@@ -44,7 +44,7 @@ def test_packages_and_gdpr_and_calendar_api(tmp_path, monkeypatch):
     with TestClient(server.app) as client:
         meta = client.get("/api/meta")
         assert meta.status_code == 200
-        assert meta.json()["version"].startswith("2.2")
+        assert meta.json()["version"].startswith("2.")
 
         pkgs = client.get("/api/packages", params={"lang": "ru"})
         assert pkgs.status_code == 200

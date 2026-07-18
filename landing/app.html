@@ -511,6 +511,110 @@
     }
     .mos-ready label.current .hint,
     .mos-ready label:focus-within .hint { display: block; }
+    .mos-finale {
+      background: linear-gradient(160deg, rgba(210, 239, 106, 0.22), rgba(20, 122, 97, 0.08));
+      border: 1px solid rgba(20, 122, 97, 0.22);
+      border-radius: 18px;
+      padding: 1.15rem 1.2rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .mos-finale h3 { margin: 0 0 0.35rem; font-size: 1.35rem; }
+    .mos-finale .mos-finale-sub { margin: 0 0 0.9rem; color: var(--muted); }
+    .mos-finale-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 820px) {
+      .mos-finale-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .mos-finale-block strong {
+      display: block;
+      margin-bottom: 0.45rem;
+      font-size: 0.95rem;
+    }
+    .mos-finale-block ul {
+      margin: 0;
+      padding-left: 1.1rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .mos-finale-steps {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 0.45rem;
+    }
+    .mos-finale-steps li {
+      display: grid;
+      grid-template-columns: 1.6rem 1fr;
+      gap: 0.55rem;
+      align-items: start;
+      color: var(--ink);
+      line-height: 1.4;
+    }
+    .mos-finale-steps .n {
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      background: var(--moss-deep);
+      color: var(--white);
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: inline-grid;
+      place-items: center;
+    }
+    .mos-finale .mos-actions { margin-top: 1rem; }
+    .mos-finale-purposes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin: 0.35rem 0 0.65rem;
+    }
+    .mos-finale-purposes button {
+      border: 1px solid var(--line);
+      background: var(--white);
+      border-radius: 999px;
+      padding: 0.3rem 0.7rem;
+      font: inherit;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .mos-finale-purposes button.active {
+      background: var(--moss-deep);
+      color: var(--white);
+      border-color: var(--moss-deep);
+    }
+    .trust-block {
+      margin-top: 1rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--line);
+    }
+    .trust-block h3 { margin: 0 0 0.35rem; font-size: 1.05rem; }
+    .trust-links { display: grid; gap: 0.35rem; margin: 0.55rem 0; }
+    .trust-links a { color: var(--moss-deep); font-weight: 600; }
+    .faq-list { display: grid; gap: 0.45rem; margin: 0.55rem 0 0; }
+    .faq-list details {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0.55rem 0.75rem;
+      background: rgba(255,255,255,0.55);
+    }
+    .faq-list summary { cursor: pointer; font-weight: 650; }
+    .faq-list p { margin: 0.4rem 0 0; color: var(--muted); font-size: 0.92rem; }
+    .tg-link-box {
+      display: grid;
+      gap: 0.55rem;
+      margin-top: 0.65rem;
+    }
+    .tg-link-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 1.35rem;
+      letter-spacing: 0.18em;
+      font-weight: 700;
+      color: var(--moss-deep);
+    }
     .mos-tools {
       border-top: 1px solid var(--line);
       padding-top: 0.85rem;
@@ -1297,6 +1401,27 @@
           </div>
 
           <div id="now-workspace">
+          <div class="mos-finale" id="mos-ready-finale" hidden>
+            <h3 id="mos-finale-title">Wszystko gotowe</h3>
+            <p class="mos-finale-sub" id="mos-finale-sub"></p>
+            <div class="mos-finale-purposes" id="mos-finale-purposes" aria-label="Cel pobytu"></div>
+            <div class="mos-finale-grid">
+              <div class="mos-finale-block">
+                <strong id="mos-finale-attach-title">Co dołączyć</strong>
+                <p class="muted" id="mos-finale-purpose" style="margin:0 0 0.35rem"></p>
+                <ul id="mos-finale-attach"></ul>
+              </div>
+              <div class="mos-finale-block">
+                <strong id="mos-finale-steps-title">5 kroków w MOS</strong>
+                <ol class="mos-finale-steps" id="mos-finale-steps"></ol>
+              </div>
+            </div>
+            <div class="mos-actions">
+              <a class="cta" id="mos-finale-cta" href="https://mos.cudzoziemcy.gov.pl" target="_blank" rel="noopener">Otwórz MOS</a>
+              <button type="button" class="ghost" id="mos-finale-toggle-checklist">Pokaż checklistę</button>
+            </div>
+          </div>
+
           <div class="mos-panel" id="mos-next" style="margin-bottom:1rem">
             <p class="mos-panel-label" id="mos-next-label">Twój następny krok</p>
             <div class="mos-meter" aria-hidden="true">
@@ -1316,7 +1441,7 @@
             <p class="mos-sync" id="mos-sync"></p>
           </div>
 
-          <div class="profile-grid" style="margin-bottom:1rem">
+          <div class="profile-grid" style="margin-bottom:1rem" id="mos-checklist-wrap">
             <article class="profile-card">
               <strong class="card-title" id="now-checklist-title">Checklist MOS</strong>
               <div class="mos-ready" id="mos-ready" style="margin:0.5rem 0 0"></div>
@@ -1474,6 +1599,32 @@
                 <p id="reset-note" class="muted" style="margin:0"></p>
               </form>
             </article>
+            <article class="profile-card">
+              <strong class="card-title" id="tg-link-title">Telegram ↔ strona</strong>
+              <p class="muted" id="tg-link-hint" style="margin:0.35rem 0 0">Jeden postęp: MOS i szkice formularzy. Zaloguj się, wygeneruj kod, otwórz bota.</p>
+              <div class="tg-link-box" id="tg-link-box">
+                <p id="tg-link-status" class="muted">…</p>
+                <div id="tg-link-code-wrap" hidden>
+                  <div class="tg-link-code" id="tg-link-code"></div>
+                  <a class="cta" id="tg-link-open" href="#" target="_blank" rel="noopener">Otwórz bota z kodem</a>
+                  <p class="muted" id="tg-link-howto">Albo w Telegram: /link KOD</p>
+                </div>
+                <div class="row-actions" style="display:flex;flex-wrap:wrap;gap:0.45rem">
+                  <button type="button" class="cta" id="tg-link-generate">Połącz z Telegram</button>
+                  <button type="button" class="ghost" id="tg-link-unlink" hidden>Odłącz</button>
+                </div>
+              </div>
+            </article>
+            <article class="profile-card" id="trust-cabinet">
+              <strong class="card-title" id="trust-title">Nie jesteśmy urzędem</strong>
+              <p class="muted" id="trust-body" style="margin:0.35rem 0 0">Oficjalny wniosek — tylko MOS / gov.pl.</p>
+              <div class="trust-links" id="trust-gov-links"></div>
+              <strong class="card-title" style="margin-top:0.75rem" id="trust-faq-title">FAQ</strong>
+              <div class="faq-list" id="trust-faq"></div>
+              <p style="margin:0.75rem 0 0">
+                <a id="trust-contact" href="mailto:hello@wniosekpl.pl">Kontakt</a>
+              </p>
+            </article>
           </div>
         </div>
       </div>
@@ -1533,7 +1684,7 @@
 
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.</span>
-      <span>WniosekPL · v2.3.0 · <a href="/setup">Setup</a></span>
+      <span>WniosekPL · v2.4.0 · <a href="/setup">Setup</a></span>
     </footer>
   </div>
 
@@ -2047,6 +2198,64 @@
       });
     }
 
+    function draftKey(docId) {
+      return `wniosekpl_doc_draft:${docId}`;
+    }
+    function loadLocalDraft(docId) {
+      try {
+        return JSON.parse(localStorage.getItem(draftKey(docId)) || "null");
+      } catch (_) {
+        return null;
+      }
+    }
+    function saveLocalDraft(docId, answers) {
+      localStorage.setItem(
+        draftKey(docId),
+        JSON.stringify({ answers, updated_at: new Date().toISOString() })
+      );
+    }
+    function collectFormAnswers(form) {
+      const answers = {};
+      [...form.elements].forEach((el) => {
+        if (el.name) answers[el.name] = el.value;
+      });
+      return answers;
+    }
+    let draftTimer = null;
+    function scheduleDraftSave(docId, form) {
+      if (draftTimer) clearTimeout(draftTimer);
+      draftTimer = setTimeout(() => {
+        const answers = collectFormAnswers(form);
+        saveLocalDraft(docId, answers);
+        const token = localStorage.getItem("wniosekpl_session_token");
+        const uid = getUserId();
+        if (!token && !uid) return;
+        const headers = { "Content-Type": "application/json" };
+        if (token) headers.Authorization = `Bearer ${token}`;
+        fetch(`${API}/api/documents/${docId}/draft`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ user_id: uid, answers }),
+        }).catch(() => {});
+      }, 400);
+    }
+    async function fetchServerDraft(docId) {
+      const token = localStorage.getItem("wniosekpl_session_token");
+      const uid = getUserId();
+      if (!token && !uid) return null;
+      try {
+        const qs = uid ? `?user_id=${uid}` : "";
+        const headers = {};
+        if (token) headers.Authorization = `Bearer ${token}`;
+        const res = await fetch(`${API}/api/documents/${docId}/draft${qs}`, { headers });
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data.draft || null;
+      } catch (_) {
+        return null;
+      }
+    }
+
     async function openDoc(docId) {
       const res = await fetch(`${API}/api/documents/${docId}?lang=${lang}`);
       if (!res.ok) return;
@@ -2064,6 +2273,12 @@
       }
       const form = document.getElementById("doc-form");
       form.innerHTML = "";
+      const local = loadLocalDraft(docId);
+      const server = await fetchServerDraft(docId);
+      const saved =
+        (server && server.answers) ||
+        (local && local.answers) ||
+        {};
       data.fields.forEach((field) => {
         const wrap = document.createElement("div");
         wrap.className = "field";
@@ -2077,6 +2292,8 @@
         input.name = field.key;
         input.required = field.required;
         if (input.tagName === "TEXTAREA") input.rows = 4;
+        if (saved[field.key] != null) input.value = saved[field.key];
+        input.addEventListener("input", () => scheduleDraftSave(docId, form));
         wrap.appendChild(label);
         wrap.appendChild(input);
         const err = document.createElement("div");
@@ -2090,6 +2307,14 @@
     }
 
     function closeDoc() {
+      if (currentDocId) {
+        const form = document.getElementById("doc-form");
+        if (form) {
+          const answers = collectFormAnswers(form);
+          saveLocalDraft(currentDocId, answers);
+          scheduleDraftSave(currentDocId, form);
+        }
+      }
       document.getElementById("doc-modal").classList.remove("open");
       document.getElementById("doc-modal").setAttribute("aria-hidden", "true");
       currentDocId = null;
@@ -2102,6 +2327,8 @@
       [...form.elements].forEach((el) => {
         if (el.name) answers[el.name] = el.value.trim();
       });
+      saveLocalDraft(currentDocId, answers);
+      scheduleDraftSave(currentDocId, form);
       form.querySelectorAll(".err").forEach((el) => { el.textContent = ""; });
       const btn = document.getElementById("modal-generate");
       btn.disabled = true;
@@ -2277,5 +2504,7 @@
   <script src="/static/onboarding.js"></script>
   <script src="/static/platform.js"></script>
   <script src="/static/auth.js"></script>
+  <script src="/static/trust.js"></script>
+  <script src="/static/account-link.js"></script>
 </body>
 </html>
