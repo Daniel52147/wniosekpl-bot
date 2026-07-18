@@ -1,4 +1,38 @@
 articles:
+  - id: mos_2
+    tags: [mos, mos2, pobyt, karta, cudzoziemcy, online]
+    title:
+      ru: "MOS 2.0 — официальная подача pobytu online"
+      en: "MOS 2.0 — official online residence filing"
+      ua: "MOS 2.0 — офіційна подача pobytu online"
+      pl: "MOS 2.0 — oficjalne składanie wniosku o pobyt online"
+    body:
+      ru: |
+        MOS 2.0 (Moduł Obsługi Spraw) — государственный портал UdSC:
+        https://mos.cudzoziemcy.gov.pl
+        С 27 апреля 2026: pobyt czasowy / stały / rezydent UE — в основном ТОЛЬКО через MOS.
+        Нужны: новое аккаунт в MOS, login через login.gov.pl (Profil Zaufany), PESEL,
+        сканы паспорта, фото, оплаты, иногда e-подписанный заłączник от pracodawcy/uczelni.
+        После отправки — UPO; потом urząd вызовет на odciski / паспорт.
+        WniosekPL: готовим checklist, документы и ответы AI — подача идёт в MOS.
+      en: |
+        MOS 2.0 is the official UdSC portal: https://mos.cudzoziemcy.gov.pl
+        Since 27 April 2026 temporary/permanent/EU long-term residence is mostly online-only.
+        You need a new MOS account, login.gov.pl (trusted profile), PESEL, passport scans,
+        photo, fees, and sometimes an e-signed employer/university attachment.
+        After submit you get UPO; later the office calls you for fingerprints/passport.
+        WniosekPL prepares checklists and docs — filing happens in MOS.
+      ua: |
+        MOS 2.0 — офіційний портал: https://mos.cudzoziemcy.gov.pl
+        З 27.04.2026 більшість заяв на pobyt — тільки online. Потрібні PESEL і Profil Zaufany.
+        WniosekPL готує чекліст і документи; подача — в MOS.
+      pl: |
+        MOS 2.0 to oficjalny portal UdSC: https://mos.cudzoziemcy.gov.pl
+        Od 27.04.2026 wnioski o pobyt czasowy/stały/rezydenta UE składasz głównie tylko online.
+        Potrzebujesz: nowego konta MOS, login.gov.pl (Profil Zaufany), PESEL, skanów paszportu,
+        zdjęcia, opłat, czasem e-podpisanego załącznika od pracodawcy/uczelni.
+        Po wysłaniu dostajesz UPO; urząd wzywa potem na odciski/paszport.
+        WniosekPL przygotowuje checklistę i dokumenty — wniosek składasz w MOS.
   - id: kolejka_uw
     tags: [kolejka, uw, wizyta, urzad]
     title:

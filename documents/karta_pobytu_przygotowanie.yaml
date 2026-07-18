@@ -3,10 +3,10 @@ title_pl: "Karta pobytu — przygotowanie danych"
 title_ru: "Karta pobytu — подготовка данных"
 title_en: "Residence card — data preparation"
 title_ua: "Karta pobytu — підготовка даних"
-description_ru: "Сбор данных для karty pobytu. Это не официальный бланк воеводства — распечатайте как памятку и сверьте список на сайте urzędu."
-description_en: "Data collection for a residence card. Not the official voivodeship form — use as a checklist and verify locally."
-description_pl: "Zbieranie danych do karty pobytu. To nie oficjalny wniosek wojewody — użyj jako checklistę."
-description_ua: "Збір даних для karty pobytu. Це не офіційний бланк — використайте як чекліст."
+description_ru: "Подготовка данных к подаче в MOS 2.0 (с 27.04.2026 pobyt обычно только online: mos.cudzoziemcy.gov.pl). Это не бланк MOS — checklist перед входом в портал."
+description_en: "Prep data for MOS 2.0 filing (since 27 Apr 2026 residence apps are usually online-only: mos.cudzoziemcy.gov.pl). Not the MOS form — checklist before you log in."
+description_pl: "Przygotowanie danych do MOS 2.0 (od 27.04.2026 pobyt zwykle tylko online: mos.cudzoziemcy.gov.pl). To nie formularz MOS — checklista przed logowaniem."
+description_ua: "Підготовка даних до MOS 2.0 (з 27.04.2026 pobyt зазвичай тільки online: mos.cudzoziemcy.gov.pl). Це не бланк MOS — чекліст перед входом."
 fields:
   - key: imie
     label_pl: Imię

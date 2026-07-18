@@ -38,27 +38,38 @@ articles:
       pl: |
         Pobyt czasowy: EL/ZC/1, stały: EL/ZPS/1. Potrzebny podpis właściciela i zwykle umowa najmu.
   - id: karta_pobytu
-    tags: [karta, pobytu, residence, wojewoda]
+    tags: [karta, pobytu, residence, wojewoda, mos]
     title:
-      ru: "Karta pobytu"
-      en: "Residence card"
-      ua: "Karta pobytu"
-      pl: "Karta pobytu"
+      ru: "Karta pobytu / MOS 2.0"
+      en: "Residence card / MOS 2.0"
+      ua: "Karta pobytu / MOS 2.0"
+      pl: "Karta pobytu / MOS 2.0"
     body:
       ru: |
-        Подаётся в urząd wojewódzki до окончания легального пребывания. Обычно нужны:
-        wniosek, паспорт и копии, фото, страховка, адрес, доходы/работа/учёба, opłata skarbowa.
-        Список зависит от цели пребывания — сверьте на сайте своего воеводства.
+        С 27.04.2026 большинство wniosków на pobyt czasowy / stały / rezydent UE
+        подаются ТОЛЬКО онлайн через официальный портал MOS 2.0:
+        https://mos.cudzoziemcy.gov.pl (нужны PESEL + Profil Zaufany / login.gov.pl).
+        Бумажный бланк воеводства для этих дел больше не принимают (есть редкие исключения).
+        WniosekPL помогает подготовить данные, checklist и документы ДО входа в MOS —
+        мы не заменяем государственный портал.
       en: |
-        File at the voivodeship office before your legal stay ends. Usually required:
-        application, passport copies, photos, insurance, address, income/work/studies, stamp duty.
-        Exact list depends on purpose of stay.
+        Since 27 Apr 2026 most temporary/permanent/EU long-term residence applications
+        must be filed ONLY online via official MOS 2.0: https://mos.cudzoziemcy.gov.pl
+        (PESEL + trusted profile / login.gov.pl required). Paper voivodeship forms are
+        no longer accepted for those cases (few exceptions remain).
+        WniosekPL helps prepare data, checklists and attachments BEFORE MOS —
+        we do not replace the government portal.
       ua: |
-        Подається в urząd wojewódzki до кінця легального перебування. Потрібні wniosek, паспорт,
-        фото, страхування, адреса, доходи і opłata.
+        З 27.04.2026 більшість заяв на pobyt подають ТІЛЬКИ онлайн через MOS 2.0:
+        https://mos.cudzoziemcy.gov.pl (потрібні PESEL і Profil Zaufany).
+        WniosekPL допомагає підготувати дані та чекліст перед входом у MOS.
       pl: |
-        Składasz w urzędzie wojewódzkim przed końcem legalnego pobytu. Zwykle: wniosek, paszport,
-        zdjęcia, ubezpieczenie, adres, dochody i opłata skarbowa.
+        Od 27.04.2026 wnioski o pobyt czasowy/stały/rezydenta UE składasz zasadniczo
+        TYLKO online w MOS 2.0: https://mos.cudzoziemcy.gov.pl
+        (PESEL + Profil Zaufany / login.gov.pl). Papierowe blankiety wojewody dla tych spraw
+        nie są już przyjmowane (są wyjątki ustawowe).
+        WniosekPL pomaga przygotować dane, checklistę i załączniki PRZED wejściem do MOS —
+        nie zastępujemy portalu rządowego.
   - id: office_letter
     tags: [pismo, wezwanie, urząd, letter]
     title:
