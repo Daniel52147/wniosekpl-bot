@@ -2,8 +2,13 @@
   const API = "";
   const READY_KEY = "wniosekpl_mos_ready";
   const PURPOSE_KEY = "wniosekpl_mos_purpose";
+  const TAB_KEY = "wniosekpl_mos_tab";
   const TOKEN_KEY = "wniosekpl_session_token";
   const USER_KEY = "wniosekpl_web_user_id";
+
+  let guideData = null;
+  let readyState = {};
+  let uiCopy = {};
 
   function lang() {
     return localStorage.getItem("wniosekpl_lang") || "pl";
@@ -14,13 +19,19 @@
   function userId() {
     return Number(localStorage.getItem(USER_KEY) || 0) || undefined;
   }
+  function loggedIn() {
+    return !!(token() || userId());
+  }
   function headers(json = true) {
     const h = {};
     if (json) h["Content-Type"] = "application/json";
     if (token()) h.Authorization = `Bearer ${token()}`;
     return h;
   }
-
+  function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el && value != null) el.textContent = value;
+  }
   function loadReady() {
     try {
       return JSON.parse(localStorage.getItem(READY_KEY) || "{}");
@@ -28,15 +39,45 @@
       return {};
     }
   }
-
   function saveReady(state) {
     localStorage.setItem(READY_KEY, JSON.stringify(state));
   }
 
-  function renderProgress(ready) {
-    const done = ready.filter((s) => s.done).length;
-    const el = document.getElementById("mos-progress");
-    if (el) el.textContent = `${done} / ${ready.length}`;
+  function computeNext(steps, portalUrl) {
+    const incomplete = (steps || []).find((s) => !readyState[s.id]);
+    if (incomplete) {
+      return {
+        id: incomplete.id,
+        complete: false,
+        title: incomplete.title,
+        hint: incomplete.hint,
+        link: incomplete.link || "#mos-ready",
+      };
+    }
+    return {
+      id: "open_mos",
+      complete: true,
+      title: uiCopy.open_mos || "Otwórz MOS",
+      hint: (guideData && guideData.next_action && guideData.next_action.hint) || "",
+      link: portalUrl || "https://mos.cudzoziemcy.gov.pl",
+    };
+  }
+
+  function renderProgress(total) {
+    const done = Object.values(readyState).filter(Boolean).length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    setText("mos-progress", `${done} / ${total}`);
+    setText("mos-progress-pct", `${pct}%`);
+    const fill = document.getElementById("mos-progress-fill");
+    if (fill) fill.style.width = `${pct}%`;
+  }
+
+  function renderSync() {
+    const el = document.getElementById("mos-sync");
+    if (!el) return;
+    el.textContent = loggedIn()
+      ? uiCopy.sync_account || ""
+      : uiCopy.sync_local || "";
   }
 
   function renderNext(next) {
@@ -44,20 +85,40 @@
     const title = document.getElementById("mos-next-title");
     const body = document.getElementById("mos-next-body");
     const cta = document.getElementById("mos-next-cta");
+    const mark = document.getElementById("mos-mark-done");
+    const label = document.getElementById("mos-next-label");
     if (!box || !next) return;
-    box.hidden = false;
-    if (title) title.textContent = next.complete ? next.title : `Następny krok: ${next.title}`;
+    if (label) {
+      label.textContent = next.complete
+        ? uiCopy.next_done || uiCopy.next_title || ""
+        : uiCopy.next_title || "";
+    }
+    if (title) title.textContent = next.title || "";
     if (body) body.textContent = next.hint || "";
     if (cta) {
-      cta.href = next.link || "#mos";
-      cta.textContent = next.complete ? "Otwórz MOS" : "Zrób ten krok";
+      cta.href = next.link || "#mos-ready";
+      cta.textContent = next.complete
+        ? uiCopy.open_mos_btn || uiCopy.cta || "MOS"
+        : uiCopy.do_step || "Dalej";
       if ((next.link || "").startsWith("http")) {
         cta.target = "_blank";
         cta.rel = "noopener";
       } else {
         cta.removeAttribute("target");
+        cta.removeAttribute("rel");
       }
     }
+    if (mark) {
+      mark.hidden = !!next.complete;
+      mark.textContent = uiCopy.mark_done || "Dalej";
+      mark.dataset.stepId = next.id || "";
+    }
+  }
+
+  function highlightCurrent(nextId) {
+    document.querySelectorAll("#mos-ready label").forEach((label) => {
+      label.classList.toggle("current", label.dataset.stepId === nextId);
+    });
   }
 
   function renderPurposeItems(purpose) {
@@ -67,7 +128,7 @@
       return;
     }
     box.hidden = false;
-    box.innerHTML = `<strong></strong><ul></ul>`;
+    box.innerHTML = "<strong></strong><ul></ul>";
     box.querySelector("strong").textContent = purpose.title;
     const ul = box.querySelector("ul");
     (purpose.items || []).forEach((item) => {
@@ -77,8 +138,19 @@
     });
   }
 
+  function setTab(tabId) {
+    const id = tabId || "purpose";
+    localStorage.setItem(TAB_KEY, id);
+    document.querySelectorAll("[data-mos-tab]").forEach((btn) => {
+      btn.classList.toggle("active", btn.getAttribute("data-mos-tab") === id);
+    });
+    document.querySelectorAll("[data-mos-panel]").forEach((panel) => {
+      panel.hidden = panel.getAttribute("data-mos-panel") !== id;
+    });
+  }
+
   async function syncStep(stepId, done) {
-    if (!token() && !userId()) return;
+    if (!loggedIn()) return;
     try {
       await fetch(`${API}/api/mos/step`, {
         method: "POST",
@@ -90,6 +162,84 @@
     }
   }
 
+  function applyStepChange(stepId, done, steps) {
+    readyState[stepId] = done;
+    saveReady(readyState);
+    const label = document.querySelector(`#mos-ready label[data-step-id="${stepId}"]`);
+    if (label) {
+      label.classList.toggle("done", done);
+      const input = label.querySelector("input");
+      if (input) input.checked = done;
+    }
+    renderProgress(steps.length);
+    const next = computeNext(steps, guideData && guideData.portal_url);
+    renderNext(next);
+    highlightCurrent(next.complete ? "" : next.id);
+    renderSync();
+    syncStep(stepId, done);
+  }
+
+  function wireTabs() {
+    document.querySelectorAll("[data-mos-tab]").forEach((btn) => {
+      btn.addEventListener("click", () => setTab(btn.getAttribute("data-mos-tab")));
+    });
+    setTab(localStorage.getItem(TAB_KEY) || "purpose");
+  }
+
+  function wireMarkDone() {
+    const mark = document.getElementById("mos-mark-done");
+    if (!mark || mark.dataset.wired) return;
+    mark.dataset.wired = "1";
+    mark.addEventListener("click", () => {
+      const stepId = mark.dataset.stepId;
+      if (!stepId || !guideData) return;
+      if (stepId === "legal_stay") {
+        setTab("deadline");
+        document.getElementById("mos-deadline-date")?.focus();
+        return;
+      }
+      if (stepId === "employer_ready") {
+        setTab("employer");
+        document.getElementById("mos-employer-copy")?.focus();
+        return;
+      }
+      applyStepChange(stepId, true, guideData.ready || []);
+      const nextLabel = document.querySelector("#mos-ready label.current");
+      nextLabel?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+  }
+
+  function wireDeadline() {
+    const form = document.getElementById("mos-deadline-form");
+    if (!form || form.dataset.wired) return;
+    form.dataset.wired = "1";
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const note = document.getElementById("mos-deadline-note");
+      const due = document.getElementById("mos-deadline-date")?.value;
+      const calendar = document.getElementById("mos-deadline-account");
+      if (!due) return;
+      if (!loggedIn()) {
+        if (note) note.textContent = uiCopy.deadline_login || "";
+        document.getElementById("btn-open-login")?.click();
+        return;
+      }
+      const res = await fetch(`${API}/api/mos/deadline`, {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify({ user_id: userId(), due_at: due, days_before: 14 }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        if (note) note.textContent = data.detail || "Error";
+        return;
+      }
+      if (note) note.textContent = uiCopy.deadline_ok || "";
+      if (calendar) calendar.hidden = false;
+      if (guideData) applyStepChange("legal_stay", true, guideData.ready || []);
+    });
+  }
+
   async function loadMosGuide() {
     const qs = new URLSearchParams({ lang: lang() });
     if (userId()) qs.set("user_id", String(userId()));
@@ -98,63 +248,31 @@
     });
     if (!res.ok) return;
     const data = await res.json();
-    const copy = data.copy || {};
+    guideData = data;
+    uiCopy = data.copy || {};
 
-    const setText = (id, value) => {
-      const el = document.getElementById(id);
-      if (el && value != null) el.textContent = value;
-    };
-    setText("mos-title", copy.title);
-    setText("mos-sub", copy.sub);
-    setText("mos-ready-title", copy.ready_title);
-    setText("mos-purpose-title", copy.purpose_title);
-    setText("mos-walk-title", copy.walk_title);
-    setText("mos-disclaimer", copy.disclaimer);
-    setText("mos-deadline-title", copy.deadline_title);
-    setText("mos-deadline-hint", copy.deadline_hint);
-    setText("mos-deadline-btn", copy.deadline_btn);
-    setText("mos-next-title", copy.next_title);
+    setText("mos-title", uiCopy.title);
+    setText("mos-sub", uiCopy.sub);
+    setText("mos-ready-title", uiCopy.ready_title);
+    setText("mos-purpose-title", uiCopy.purpose_title);
+    setText("mos-disclaimer", uiCopy.disclaimer);
+    setText("mos-deadline-title", uiCopy.deadline_title);
+    setText("mos-deadline-hint", uiCopy.deadline_hint);
+    setText("mos-deadline-btn", uiCopy.deadline_btn);
+    setText("mos-tab-purpose", uiCopy.tab_purpose);
+    setText("mos-tab-employer", uiCopy.tab_employer);
+    setText("mos-tab-deadline", uiCopy.tab_deadline);
+    setText("mos-deadline-account", uiCopy.deadline_calendar);
 
     const open = document.getElementById("mos-open");
     if (open) {
       open.href = data.portal_url || "https://mos.cudzoziemcy.gov.pl";
-      open.textContent = copy.cta || copy.open_mos || open.textContent;
+      open.textContent = uiCopy.cta || open.textContent;
     }
     const info = document.getElementById("mos-info");
     if (info) {
       info.href = data.info_url || info.href;
-      info.textContent = copy.info || info.textContent;
-    }
-
-    const journey = document.getElementById("mos-journey");
-    if (journey) {
-      journey.innerHTML = "";
-      (data.journey || []).forEach((step) => {
-        const art = document.createElement("article");
-        art.innerHTML = `<strong></strong><span></span>`;
-        art.querySelector("strong").textContent = `${step.id}.`;
-        art.querySelector("span").textContent = step.title;
-        journey.appendChild(art);
-      });
-    }
-
-    const walk = document.getElementById("mos-walk");
-    if (walk) {
-      walk.innerHTML = "";
-      (data.walkthrough || []).forEach((step) => {
-        const art = document.createElement("article");
-        art.innerHTML = `<strong></strong><p></p><a class="ghost"></a>`;
-        art.querySelector("strong").textContent = step.title;
-        art.querySelector("p").textContent = step.body;
-        const a = art.querySelector("a");
-        a.href = step.href || "#mos";
-        a.textContent = step.cta || "Dalej";
-        if ((step.href || "").startsWith("http")) {
-          a.target = "_blank";
-          a.rel = "noopener";
-        }
-        walk.appendChild(art);
-      });
+      info.textContent = uiCopy.info || info.textContent;
     }
 
     const employer = data.employer_helper || {};
@@ -164,13 +282,13 @@
     if (msg) msg.textContent = employer.message || "";
     const copyBtn = document.getElementById("mos-employer-copy");
     if (copyBtn) {
-      copyBtn.textContent = copy.copy_employer || "Kopiuj";
+      copyBtn.textContent = uiCopy.copy_employer || "Kopiuj";
       copyBtn.onclick = async () => {
         try {
           await navigator.clipboard.writeText(employer.message || "");
-          copyBtn.textContent = "✓";
+          copyBtn.textContent = uiCopy.copied || "✓";
           setTimeout(() => {
-            copyBtn.textContent = copy.copy_employer || "Kopiuj";
+            copyBtn.textContent = uiCopy.copy_employer || "Kopiuj";
           }, 1200);
         } catch (_) {
           copyBtn.textContent = "!";
@@ -178,71 +296,47 @@
       };
     }
 
-    let state = loadReady();
+    readyState = loadReady();
     if (data.saved_progress && typeof data.saved_progress === "object") {
-      state = { ...state, ...data.saved_progress };
-      saveReady(state);
+      readyState = { ...readyState, ...data.saved_progress };
+      saveReady(readyState);
     }
 
+    const steps = data.ready || [];
     const readyBox = document.getElementById("mos-ready");
     if (readyBox) {
       readyBox.innerHTML = "";
-      const view = (data.ready || []).map((step) => ({
-        ...step,
-        done: !!state[step.id],
-      }));
-      const refreshNext = () => {
-        const doneMap = Object.fromEntries(view.map((s) => [s.id, !!state[s.id]]));
-        // recompute next locally from current checklist order
-        const incomplete = view.find((s) => !doneMap[s.id]);
-        if (incomplete) {
-          renderNext({
-            complete: false,
-            title: incomplete.title,
-            hint: incomplete.hint,
-            link: incomplete.link,
-          });
-        } else {
-          renderNext(data.next_action?.complete ? data.next_action : {
-            complete: true,
-            title: copy.open_mos || "Otwórz MOS",
-            hint: data.next_action?.hint || "",
-            link: data.portal_url,
-          });
-        }
-      };
-
-      view.forEach((step) => {
+      steps.forEach((step) => {
+        const done = !!readyState[step.id];
         const label = document.createElement("label");
-        if (step.done) label.classList.add("done");
-        label.innerHTML = `<input type="checkbox" /><div><span class="title"></span><span class="hint"></span></div>`;
+        label.dataset.stepId = step.id;
+        if (done) label.classList.add("done");
+        label.innerHTML =
+          '<input type="checkbox" /><div><span class="title"></span><span class="hint"></span></div>';
         const input = label.querySelector("input");
-        input.checked = step.done;
+        input.checked = done;
         label.querySelector(".title").textContent = step.title;
         label.querySelector(".hint").textContent = step.hint || "";
         input.addEventListener("change", () => {
-          state[step.id] = input.checked;
-          saveReady(state);
-          label.classList.toggle("done", input.checked);
-          renderProgress(
-            view.map((s) => ({ ...s, done: s.id === step.id ? input.checked : !!state[s.id] }))
-          );
-          refreshNext();
-          syncStep(step.id, input.checked);
+          applyStepChange(step.id, input.checked, steps);
         });
         readyBox.appendChild(label);
       });
-      renderProgress(view);
-      refreshNext();
-    } else if (data.next_action) {
-      renderNext(data.next_action);
     }
+
+    renderProgress(steps.length);
+    const next = computeNext(steps, data.portal_url);
+    renderNext(next);
+    highlightCurrent(next.complete ? "" : next.id);
+    renderSync();
 
     const purposes = document.getElementById("mos-purposes");
     if (purposes) {
       purposes.innerHTML = "";
-      const selected = localStorage.getItem(PURPOSE_KEY) || (data.purposes?.[0]?.id ?? "");
-      let current = data.purposes?.find((p) => p.id === selected) || data.purposes?.[0];
+      const selected =
+        localStorage.getItem(PURPOSE_KEY) || (data.purposes?.[0]?.id ?? "");
+      let current =
+        data.purposes?.find((p) => p.id === selected) || data.purposes?.[0];
       (data.purposes || []).forEach((purpose) => {
         const btn = document.createElement("button");
         btn.type = "button";
@@ -260,41 +354,9 @@
     }
   }
 
-  function wireDeadline() {
-    document.getElementById("mos-deadline-form")?.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const note = document.getElementById("mos-deadline-note");
-      const due = document.getElementById("mos-deadline-date")?.value;
-      if (!due) return;
-      if (!token() && !userId()) {
-        if (note) note.textContent = "Zaloguj się (prawy górny róg), żeby zapisać przypomnienie.";
-        document.getElementById("btn-open-login")?.click();
-        return;
-      }
-      const res = await fetch(`${API}/api/mos/deadline`, {
-        method: "POST",
-        headers: headers(),
-        body: JSON.stringify({ user_id: userId(), due_at: due, days_before: 14 }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        if (note) note.textContent = data.detail || "Nie udało się dodać";
-        return;
-      }
-      if (note) {
-        note.textContent = data.reminder_id
-          ? "Dodano termin końca pobytu + przypomnienie na 14 dni wcześniej."
-          : "Dodano termin końca legalnego pobytu.";
-      }
-      // also mark legal_stay ready
-      const state = loadReady();
-      state.legal_stay = true;
-      saveReady(state);
-      loadMosGuide().catch(() => {});
-    });
-  }
-
   function wire() {
+    wireTabs();
+    wireMarkDone();
     wireDeadline();
     loadMosGuide().catch(() => {});
   }

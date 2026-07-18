@@ -380,132 +380,224 @@
       margin-right: 0.35rem;
     }
 
-    .mos-banner {
+    .mos-flow {
       display: grid;
       gap: 1rem;
-      padding: 1.15rem 1.2rem;
-      border-radius: 18px;
-      border: 1px solid rgba(20, 122, 97, 0.22);
+    }
+    .mos-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: end;
+      flex-wrap: wrap;
+    }
+    .mos-head h2 {
+      font-family: Syne, sans-serif;
+      font-size: clamp(1.55rem, 3.2vw, 2.1rem);
+      letter-spacing: -0.035em;
+      margin: 0 0 0.35rem;
+    }
+    .mos-head p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 48ch;
+      line-height: 1.45;
+    }
+    .mos-head-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .mos-panel {
+      padding: 1.15rem 1.2rem 1.25rem;
+      border-radius: 20px;
+      border: 1px solid rgba(20, 122, 97, 0.2);
       background:
-        linear-gradient(135deg, rgba(20, 122, 97, 0.10), rgba(210, 239, 106, 0.12)),
+        linear-gradient(160deg, rgba(210, 239, 106, 0.2) 0%, rgba(255,255,255,0.96) 42%),
         var(--white);
       box-shadow: var(--shadow);
-      margin-bottom: 1rem;
+      animation: rise 0.5s ease both;
     }
-    .mos-banner p { margin: 0.35rem 0 0; color: var(--muted); max-width: 54ch; line-height: 1.5; }
-    .mos-journey {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 0.55rem;
-      margin: 1rem 0;
+    .mos-panel-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--moss-deep);
+      margin: 0 0 0.35rem;
     }
-    .mos-journey article {
-      padding: 0.85rem;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: var(--white);
-    }
-    .mos-journey strong {
-      display: block;
+    .mos-panel h3 {
       font-family: Syne, sans-serif;
-      font-size: 0.95rem;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.25rem;
+      font-size: clamp(1.25rem, 2.6vw, 1.55rem);
+      letter-spacing: -0.03em;
+      margin: 0 0 0.45rem;
+      line-height: 1.2;
     }
-    .mos-journey span { color: var(--muted); font-size: 0.86rem; line-height: 1.4; }
+    .mos-panel .mos-hint {
+      margin: 0 0 1rem;
+      color: var(--muted);
+      line-height: 1.45;
+      max-width: 52ch;
+    }
+    .mos-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: center;
+    }
+    .mos-meter {
+      display: grid;
+      gap: 0.4rem;
+      margin-bottom: 0.95rem;
+    }
+    .mos-meter-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--moss-deep);
+    }
+    .mos-meter-track {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(16, 36, 33, 0.08);
+      overflow: hidden;
+    }
+    .mos-meter-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--moss), #1fa07d);
+      transition: width 0.35s ease;
+    }
+    .mos-sync {
+      margin: 0.75rem 0 0;
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
     .mos-ready {
       display: grid;
-      gap: 0.55rem;
-      margin: 0.8rem 0 1.2rem;
+      gap: 0.45rem;
     }
     .mos-ready label {
       display: grid;
       grid-template-columns: auto 1fr;
-      gap: 0.7rem;
+      gap: 0.65rem;
       align-items: start;
-      padding: 0.85rem 1rem;
-      border-radius: 14px;
+      padding: 0.75rem 0.85rem;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      border-bottom: 1px solid var(--line);
+      background: transparent;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .mos-ready label:last-child { border-bottom-color: transparent; }
+    .mos-ready label:hover { background: rgba(20, 122, 97, 0.05); }
+    .mos-ready label.done { background: rgba(20, 122, 97, 0.06); }
+    .mos-ready label.current {
+      border-color: rgba(20, 122, 97, 0.35);
+      background: rgba(210, 239, 106, 0.16);
+    }
+    .mos-ready input { margin-top: 0.2rem; width: 1.05rem; height: 1.05rem; accent-color: var(--moss); }
+    .mos-ready .title { font-weight: 700; }
+    .mos-ready .hint {
+      display: none;
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 0.2rem;
+      line-height: 1.4;
+    }
+    .mos-ready label.current .hint,
+    .mos-ready label:focus-within .hint { display: block; }
+    .mos-tools {
+      border-top: 1px solid var(--line);
+      padding-top: 0.85rem;
+      margin-top: 0.25rem;
+    }
+    .mos-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-bottom: 0.85rem;
+    }
+    .mos-tabs button {
+      font: inherit;
+      cursor: pointer;
       border: 1px solid var(--line);
       background: var(--white);
-      cursor: pointer;
-      transition: border-color 0.15s ease, background 0.15s ease;
-    }
-    .mos-ready label:hover { border-color: rgba(20, 122, 97, 0.35); }
-    .mos-ready label.done {
-      border-color: rgba(20, 122, 97, 0.4);
-      background: rgba(20, 122, 97, 0.06);
-    }
-    .mos-ready input { margin-top: 0.2rem; width: 1.05rem; height: 1.05rem; }
-    .mos-ready .title { font-weight: 700; }
-    .mos-ready .hint { display: block; color: var(--muted); font-size: 0.9rem; margin-top: 0.2rem; line-height: 1.4; }
-    .mos-progress {
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 0.45rem 0.85rem;
       font-weight: 700;
-      color: var(--moss-deep);
-      margin: 0.4rem 0 0.8rem;
+      font-size: 0.88rem;
     }
-    .mos-purposes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
+    .mos-tabs button.active {
+      background: var(--moss-deep);
+      border-color: var(--moss-deep);
+      color: var(--white);
+    }
+    .mos-tab-panel[hidden] { display: none !important; }
+    .mos-purposes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 0.7rem;
+    }
     .mos-purposes button {
       text-align: left;
       font: inherit;
       cursor: pointer;
       border: 1px solid var(--line);
       background: var(--white);
-      border-radius: 14px;
-      padding: 0.9rem 1rem;
+      border-radius: 999px;
+      padding: 0.45rem 0.85rem;
       font-weight: 700;
+      font-size: 0.9rem;
     }
     .mos-purposes button.active {
       border-color: rgba(20, 122, 97, 0.45);
       background: rgba(20, 122, 97, 0.08);
       color: var(--moss-deep);
     }
-    .mos-purpose-items {
-      margin-top: 0.8rem;
-      padding: 1rem;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: #fbfdfc;
+    .mos-purpose-items ul {
+      margin: 0.35rem 0 0;
+      padding-left: 1.1rem;
+      color: var(--muted);
+      line-height: 1.55;
     }
-    .mos-purpose-items ul { margin: 0.4rem 0 0; padding-left: 1.1rem; color: var(--muted); line-height: 1.5; }
-    .mos-cta-row { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1rem; }
-    .mos-next {
-      margin: 0 0 1rem;
-      padding: 1rem 1.1rem;
-      border-radius: 16px;
-      border: 1px solid rgba(20, 122, 97, 0.28);
-      background: linear-gradient(135deg, rgba(210, 239, 106, 0.22), rgba(255,255,255,0.95));
-    }
-    .mos-next strong { font-family: Syne, sans-serif; letter-spacing: -0.02em; }
-    .mos-walk {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.65rem;
-      margin-bottom: 0.5rem;
-    }
-    .mos-walk article {
-      padding: 0.95rem 1rem;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: var(--white);
-    }
-    .mos-walk strong {
-      display: block;
+    .mos-purpose-items strong {
       font-family: Syne, sans-serif;
-      margin-bottom: 0.35rem;
       letter-spacing: -0.02em;
     }
-    .mos-walk p { margin: 0 0 0.7rem; color: var(--muted); line-height: 1.45; font-size: 0.94rem; }
-    .mos-helper {
-      margin-top: 1rem;
-      padding: 1rem;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: var(--white);
-    }
+    .mos-helper-copy { margin: 0 0 0.55rem; color: var(--muted); line-height: 1.45; }
     .mos-helper pre {
       white-space: pre-wrap;
-      max-height: 180px;
+      max-height: 160px;
       overflow: auto;
+      margin: 0 0 0.7rem;
+    }
+    .mos-deadline-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: center;
+    }
+    .mos-deadline-form input[type="date"] {
+      font: inherit;
+      padding: 0.65rem 0.8rem;
+      border-radius: 11px;
+      border: 1px solid var(--line);
+      background: var(--white);
+      min-width: 11rem;
+    }
+    .mos-foot-note {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--muted);
+      max-width: 62ch;
+      line-height: 1.45;
     }
 
     section {
@@ -873,11 +965,11 @@
     }
 
     @media (max-width: 900px) {
-      .hero, .docs, .pricing, .path, .mos-journey, .mos-purposes, .mos-walk { grid-template-columns: 1fr; }
+      .hero, .docs, .pricing, .path { grid-template-columns: 1fr; }
       .hero { min-height: auto; padding-top: 1rem; gap: 1.4rem; }
       .hero-visual { min-height: 280px; }
       .nav-links { display: none; }
-      .section-head { flex-direction: column; align-items: start; }
+      .section-head, .mos-head { flex-direction: column; align-items: start; }
       .top-right { gap: 0.35rem; }
       .auth-btn { padding: 0.48rem 0.72rem; font-size: 0.84rem; }
       .messages { max-height: 300px; }
@@ -958,46 +1050,75 @@
     </nav>
 
     <section id="mos">
-      <div class="mos-banner">
+      <div class="mos-flow">
+        <div class="mos-head">
+          <div>
+            <h2 id="mos-title">Przygotowanie do MOS 2.0</h2>
+            <p id="mos-sub">Jeden następny krok naraz. Potem oficjalny wniosek na mos.cudzoziemcy.gov.pl.</p>
+          </div>
+          <div class="mos-head-links">
+            <a class="ghost" id="mos-info" href="https://www.gov.pl/web/udsc/info-mos" target="_blank" rel="noopener">Info UdSC</a>
+            <a class="cta" id="mos-open" href="https://mos.cudzoziemcy.gov.pl" target="_blank" rel="noopener">Otwórz MOS</a>
+          </div>
+        </div>
+
+        <div class="mos-panel" id="mos-next">
+          <p class="mos-panel-label" id="mos-next-label">Twój następny krok</p>
+          <div class="mos-meter" aria-hidden="true">
+            <div class="mos-meter-row">
+              <span id="mos-progress">0 / 0</span>
+              <span id="mos-progress-pct">0%</span>
+            </div>
+            <div class="mos-meter-track"><div class="mos-meter-fill" id="mos-progress-fill"></div></div>
+          </div>
+          <h3 id="mos-next-title">Ładowanie…</h3>
+          <p class="mos-hint" id="mos-next-body"></p>
+          <div class="mos-actions">
+            <a class="cta" id="mos-next-cta" href="#mos-ready">Zrób ten krok</a>
+            <button type="button" class="ghost" id="mos-mark-done">Mam to — dalej</button>
+          </div>
+          <p class="mos-sync" id="mos-sync"></p>
+        </div>
+
         <div>
-          <h2 id="mos-title" style="margin:0;font-family:Syne,sans-serif;letter-spacing:-0.03em">Przygotowanie do MOS 2.0</h2>
-          <p id="mos-sub">Oficjalny wniosek o pobyt składasz w portalu państwa. My przeprowadzimy Cię krok po kroku — zanim się zalogujesz.</p>
+          <h3 id="mos-ready-title" style="font-family:Syne,sans-serif;margin:0 0 0.55rem;letter-spacing:-0.02em;font-size:1.15rem">Checklist gotowości</h3>
+          <div class="mos-ready" id="mos-ready"></div>
         </div>
-        <div class="mos-cta-row">
-          <a class="cta" id="mos-open" href="https://mos.cudzoziemcy.gov.pl" target="_blank" rel="noopener">Otwórz oficjalny MOS</a>
-          <a class="ghost" id="mos-info" href="https://www.gov.pl/web/udsc/info-mos" target="_blank" rel="noopener">Info UdSC</a>
+
+        <div class="mos-tools">
+          <div class="mos-tabs" role="tablist" aria-label="Narzędzia MOS">
+            <button type="button" class="active" data-mos-tab="purpose" id="mos-tab-purpose">Załączniki</button>
+            <button type="button" data-mos-tab="employer" id="mos-tab-employer">Do pracodawcy</button>
+            <button type="button" data-mos-tab="deadline" id="mos-tab-deadline">Termin pobytu</button>
+          </div>
+
+          <div class="mos-tab-panel" data-mos-panel="purpose" id="mos-panel-purpose">
+            <p class="mos-helper-copy" id="mos-purpose-title">Wybierz cel pobytu — pokażemy typowe załączniki.</p>
+            <div class="mos-purposes" id="mos-purposes"></div>
+            <div class="mos-purpose-items" id="mos-purpose-items" hidden></div>
+          </div>
+
+          <div class="mos-tab-panel" data-mos-panel="employer" id="mos-panel-employer" hidden>
+            <strong id="mos-employer-title">Szablon do pracodawcy</strong>
+            <p id="mos-employer-body" class="mos-helper-copy"></p>
+            <pre id="mos-employer-msg" class="checklist-box"></pre>
+            <button type="button" class="ghost" id="mos-employer-copy">Kopiuj wiadomość</button>
+          </div>
+
+          <div class="mos-tab-panel" data-mos-panel="deadline" id="mos-panel-deadline" hidden>
+            <strong id="mos-deadline-title">Koniec legalnego pobytu</strong>
+            <p id="mos-deadline-hint" class="mos-helper-copy"></p>
+            <form id="mos-deadline-form" class="mos-deadline-form">
+              <input id="mos-deadline-date" type="date" required />
+              <button class="cta" type="submit" id="mos-deadline-btn">Dodaj przypomnienie</button>
+              <a class="ghost" id="mos-deadline-account" href="#account" hidden>Kalendarz konta</a>
+            </form>
+            <p id="mos-deadline-note" class="mos-sync"></p>
+          </div>
         </div>
+
+        <p class="mos-foot-note" id="mos-disclaimer"></p>
       </div>
-      <div class="mos-next" id="mos-next" hidden>
-        <strong id="mos-next-title">Twój następny krok</strong>
-        <p id="mos-next-body" style="margin:0.35rem 0 0.7rem;color:var(--muted);line-height:1.45"></p>
-        <a class="cta" id="mos-next-cta" href="#mos">Dalej</a>
-      </div>
-      <div class="mos-journey" id="mos-journey"></div>
-      <h3 id="mos-walk-title" style="font-family:Syne,sans-serif;margin:0.4rem 0 0.6rem">Ścieżka przewodnika</h3>
-      <div class="mos-walk" id="mos-walk"></div>
-      <h3 id="mos-ready-title" style="font-family:Syne,sans-serif;margin:1.2rem 0 0.2rem">Czy jesteś gotowy?</h3>
-      <p class="mos-progress" id="mos-progress">0 / 0</p>
-      <div class="mos-ready" id="mos-ready"></div>
-      <h3 id="mos-purpose-title" style="font-family:Syne,sans-serif;margin:1rem 0 0.5rem">Załączniki według celu</h3>
-      <div class="mos-purposes" id="mos-purposes"></div>
-      <div class="mos-purpose-items" id="mos-purpose-items" hidden></div>
-      <div class="mos-helper" id="mos-employer">
-        <strong id="mos-employer-title">Szablon do pracodawcy</strong>
-        <p id="mos-employer-body" class="muted" style="margin:0.35rem 0"></p>
-        <pre id="mos-employer-msg" class="checklist-box"></pre>
-        <button type="button" class="ghost" id="mos-employer-copy">Kopiuj wiadomość</button>
-      </div>
-      <div class="mos-helper" id="mos-deadline-box">
-        <strong id="mos-deadline-title">Przypomnienie o końcu legalnego pobytu</strong>
-        <p id="mos-deadline-hint" class="muted" style="margin:0.35rem 0 0.7rem"></p>
-        <form id="mos-deadline-form" class="row-form" style="margin:0">
-          <input id="mos-deadline-date" type="date" required />
-          <button class="cta" type="submit" id="mos-deadline-btn">Dodaj przypomnienie</button>
-        </form>
-        <p id="mos-deadline-note" class="muted" style="margin:0.5rem 0 0"></p>
-      </div>
-      <p class="muted" id="mos-disclaimer" style="margin-top:1rem;max-width:60ch;line-height:1.5"></p>
     </section>
 
     <section id="assistant">
@@ -1274,7 +1395,7 @@
 
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.</span>
-      <span>WniosekPL · v2.2.4 · <a href="/setup">Setup</a></span>
+      <span>WniosekPL · v2.2.5 · <a href="/setup">Setup</a></span>
     </footer>
   </div>
 

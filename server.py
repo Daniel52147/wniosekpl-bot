@@ -107,7 +107,7 @@ from src.services_directory import search_services
 from src.validators import is_required, validate_field
 
 LANDING_DIR = ROOT / "landing"
-PRODUCT_VERSION = "2.2.4"
+PRODUCT_VERSION = "2.2.5"
 
 
 def telegram_configured() -> bool:

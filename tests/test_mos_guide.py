@@ -45,8 +45,10 @@ def test_mos_guide_api(tmp_path, monkeypatch):
         html = client.get("/").text
         assert 'id="mos"' in html
         assert "mos.js" in html
-        assert "mos-employer" in html
+        assert "mos-mark-done" in html
+        assert "mos-tab-purpose" in html
         assert "mos-deadline-form" in html
+        assert "mos-progress-fill" in html
 
 
 def test_mos_step_and_deadline_api(tmp_path, monkeypatch):
