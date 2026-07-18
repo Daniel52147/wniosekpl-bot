@@ -62,4 +62,4 @@ def test_assistant_api_returns_actions(tmp_path, monkeypatch):
         assert 'id="profile"' in html
         assert "profile-tabs" in html
         assert "profile.js" in html
-        assert "data-profile-tab" in html
+        assert 'data-profile-tab="now"' in html

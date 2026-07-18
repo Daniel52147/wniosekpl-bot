@@ -187,7 +187,8 @@
       if (window.wniosekplRefreshProfile) window.wniosekplRefreshProfile();
       return;
     }
-    location.href = `/profile?tab=${encodeURIComponent(tab)}`;
+    const mapped = { overview: "now", tasks: "now", mos: "now", calendar: "now", billing: "account" }[tab] || tab;
+    location.href = `/profile?tab=${encodeURIComponent(mapped || "now")}`;
   }
 
   async function login(ev) {

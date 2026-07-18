@@ -1208,11 +1208,9 @@
       </div>
       <div class="top-right">
         <nav class="nav-links" aria-label="Sekcje">
-          <a href="#profile">Przegląd</a>
-          <a href="#assistant">AI</a>
-          <a href="#mos">MOS</a>
-          <a href="#documents">Dokumenty</a>
-          <a href="#pricing">Taryfy</a>
+          <a href="#" data-profile-tab-link="now">Teraz</a>
+          <a href="#" data-profile-tab-link="docs">Dokumenty</a>
+          <a href="#" data-profile-tab-link="account">Konto</a>
           <a data-tg-link href="https://t.me/wniosekpl_bot" target="_blank" rel="noopener">Telegram</a>
         </nav>
         <div class="langs" id="langs">
@@ -1235,121 +1233,148 @@
     </header>
 
 
-    <p class="muted" id="app-crumb" style="margin:0.4rem 0 1rem">
-      <a href="/" style="color:var(--moss-deep);font-weight:700;text-decoration:none">← Strona główna</a>
-      <span> · Panel z AI, MOS, dokumentami i płatnościami</span>
+    <p class="muted" id="app-crumb" style="margin:0.35rem 0 1rem">
+      <a href="/" style="color:var(--moss-deep);font-weight:700;text-decoration:none" id="app-home-link">← Strona główna</a>
+      <span id="app-crumb-text"> · Twój następny krok do MOS</span>
     </p>
 
     <section id="profile">
       <div class="profile-page" id="account">
         <div class="profile-page-head">
           <div>
-            <h2 id="profile-title">Profil</h2>
-            <p id="profile-sub">Tu jest wszystko: zadania, MOS, terminy, płatności i konto — w zakładkach.</p>
+            <h2 id="profile-title">Kabinet</h2>
+            <p id="profile-sub">Jeden następny krok. Reszta — tylko gdy potrzebujesz.</p>
           </div>
           <div id="auth-user-box" class="status"></div>
         </div>
-        <div class="profile-tabs" role="tablist" aria-label="Profil">
-          <button type="button" class="active" data-profile-tab="overview" id="tab-overview">Przegląd</button>
-          <button type="button" data-profile-tab="tasks" id="tab-tasks">Zadania</button>
-          <button type="button" data-profile-tab="mos" id="tab-mos">MOS</button>
-          <button type="button" data-profile-tab="calendar" id="tab-calendar">Terminy</button>
-          <button type="button" data-profile-tab="billing" id="tab-billing">Płatności</button>
+
+        <div class="profile-tabs" role="tablist" aria-label="Kabinet">
+          <button type="button" class="active" data-profile-tab="now" id="tab-now">Teraz</button>
+          <button type="button" data-profile-tab="docs" id="tab-docs">Dokumenty</button>
           <button type="button" data-profile-tab="account" id="tab-account">Konto</button>
         </div>
 
-        <div class="profile-tab-panel" data-profile-panel="overview" id="panel-overview">
-          <div class="profile-grid">
-            <article class="profile-card">
-              <strong class="card-title" id="overview-plan-title">Plan</strong>
-              <div id="cabinet-box" class="muted">Ładowanie…</div>
-              <div class="row-actions" style="margin-top:0.75rem">
-                <a class="primary" href="#assistant" id="overview-ask">Zapytaj AI</a>
-                <a href="#mos" id="overview-mos-link">Przewodnik MOS</a>
+        <!-- NOW -->
+        <div class="profile-tab-panel" data-profile-panel="now" id="panel-now">
+          <div class="mos-panel" id="mos-next" style="margin-bottom:1rem">
+            <p class="mos-panel-label" id="mos-next-label">Twój następny krok</p>
+            <div class="mos-meter" aria-hidden="true">
+              <div class="mos-meter-row">
+                <span id="mos-progress">0 / 0</span>
+                <span id="mos-progress-pct">0%</span>
               </div>
-            </article>
-            <article class="profile-card">
-              <strong class="card-title" id="overview-next-title">Następny krok</strong>
-              <div id="profile-mos"></div>
-            </article>
-            <article class="profile-card">
-              <strong class="card-title" id="overview-tasks-title">Otwarte zadania</strong>
-              <div id="profile-todo-preview"></div>
-              <div class="row-actions" style="margin-top:0.75rem">
-                <button type="button" class="primary" data-goto-tab="tasks" id="overview-all-tasks">Wszystkie zadania</button>
-              </div>
-            </article>
-            <article class="profile-card">
-              <strong class="card-title" id="overview-cal-title">Najbliższy termin</strong>
-              <div id="profile-cal-preview"></div>
-              <div class="row-actions" style="margin-top:0.75rem">
-                <button type="button" data-goto-tab="calendar" id="overview-all-cal">Wszystkie terminy</button>
-              </div>
-            </article>
-          </div>
-        </div>
-
-        <div class="profile-tab-panel" data-profile-panel="tasks" id="panel-tasks" hidden>
-          <p class="profile-empty" id="tasks-hint" style="margin-bottom:0.85rem">Zadania z odpowiedzi AI — otwórz albo oznacz jako gotowe.</p>
-          <div id="profile-todo"></div>
-        </div>
-
-        <div class="profile-tab-panel" data-profile-panel="mos" id="panel-mos" hidden>
-          <div class="profile-stack">
-            <div class="profile-card">
-              <strong class="card-title" id="mos-tab-title">Checklist MOS</strong>
-              <p class="muted" id="mos-tab-hint" style="margin:0 0 0.7rem">Odznaczaj punkty — postęp synci się z przewodnikiem na stronie.</p>
-              <div class="profile-mos-list" id="profile-mos-list"></div>
-              <div class="row-actions" style="margin-top:0.85rem">
-                <a class="primary" href="#mos">Pełny przewodnik MOS</a>
-                <a href="https://mos.cudzoziemcy.gov.pl" target="_blank" rel="noopener">Oficjalny MOS</a>
-              </div>
+              <div class="mos-meter-track"><div class="mos-meter-fill" id="mos-progress-fill"></div></div>
             </div>
+            <h3 id="mos-next-title">Ładowanie…</h3>
+            <p class="mos-hint" id="mos-next-body"></p>
+            <div class="mos-actions">
+              <a class="cta" id="mos-next-cta" href="#mos-ready">Zrób ten krok</a>
+              <button type="button" class="ghost" id="mos-mark-done">Mam to — dalej</button>
+              <a class="ghost" id="mos-open" href="https://mos.cudzoziemcy.gov.pl" target="_blank" rel="noopener">Oficjalny MOS</a>
+            </div>
+            <p class="mos-sync" id="mos-sync"></p>
           </div>
-        </div>
 
-        <div class="profile-tab-panel" data-profile-panel="calendar" id="panel-calendar" hidden>
-          <div class="profile-stack">
-            <div class="profile-card">
-              <strong class="card-title" id="cal-tab-title">Terminy i przypomnienia</strong>
-              <div id="profile-cal"></div>
-              <div id="calendar-list" hidden></div>
-              <form id="profile-cal-form" class="profile-forms" style="margin-top:0.9rem">
-                <input id="profile-cal-title" placeholder="Np. Koniec wizy" required />
-                <input id="profile-cal-due" type="date" required />
-                <button class="cta" type="submit" id="profile-cal-btn">Dodaj termin</button>
+          <div class="profile-grid" style="margin-bottom:1rem">
+            <article class="profile-card">
+              <strong class="card-title" id="now-checklist-title">Checklist MOS</strong>
+              <div class="mos-ready" id="mos-ready" style="margin:0.5rem 0 0"></div>
+              <div class="profile-mos-list" id="profile-mos-list" hidden></div>
+            </article>
+            <article class="profile-card">
+              <strong class="card-title" id="now-side-title">Po drodze</strong>
+              <div id="profile-todo" style="margin-bottom:0.75rem"></div>
+              <div id="profile-todo-preview" hidden></div>
+              <div id="profile-mos" hidden></div>
+              <strong class="card-title" style="margin-top:0.5rem" id="now-deadline-title">Koniec legalnego pobytu</strong>
+              <p id="mos-deadline-hint" class="muted" style="margin:0.35rem 0 0.55rem"></p>
+              <form id="mos-deadline-form" class="mos-deadline-form">
+                <input id="mos-deadline-date" type="date" required />
+                <button class="cta" type="submit" id="mos-deadline-btn">Przypomnij</button>
               </form>
-              <p id="profile-cal-note" class="muted" style="margin:0.5rem 0 0"></p>
+              <p id="mos-deadline-note" class="mos-sync"></p>
+              <div id="profile-cal" style="margin-top:0.6rem"></div>
+              <div id="profile-cal-preview" hidden></div>
+              <div id="calendar-list" hidden></div>
+                          </article>
+          </div>
+
+          <details class="profile-card" style="margin-bottom:1rem" id="mos-helpers">
+            <summary style="cursor:pointer;font-weight:700" id="mos-helpers-summary">Załączniki / pracodawca</summary>
+            <div style="margin-top:0.8rem">
+              <p class="mos-helper-copy" id="mos-purpose-title"></p>
+              <div class="mos-purposes" id="mos-purposes"></div>
+              <div class="mos-purpose-items" id="mos-purpose-items" hidden></div>
+              <div style="margin-top:0.9rem">
+                <strong id="mos-employer-title">Szablon do pracodawcy</strong>
+                <p id="mos-employer-body" class="mos-helper-copy"></p>
+                <pre id="mos-employer-msg" class="checklist-box"></pre>
+                <button type="button" class="ghost" id="mos-employer-copy">Kopiuj</button>
+              </div>
+            </div>
+          </details>
+
+          <div class="section-head" style="margin-bottom:0.6rem">
+            <div>
+              <h2 id="assistant-title" style="font-size:1.35rem;margin:0">Zapytaj AI</h2>
+              <p id="assistant-sub" style="margin:0.25rem 0 0">Krótko opisz sprawę — dostaniesz plan i przyciski.</p>
+            </div>
+            <div class="status" id="usage">…</div>
+          </div>
+          <div class="chat" style="min-height:340px">
+            <div class="chat-top">
+              <div class="chips" id="chips"></div>
+            </div>
+            <div class="messages" id="messages" aria-live="polite"></div>
+            <form class="composer" id="ask-form">
+              <textarea id="question" rows="2" maxlength="2000" placeholder="Np. Chcę kartę pobytu, pracuję legalnie"></textarea>
+              <button class="send" id="send" type="submit">Wyślij</button>
+            </form>
+          </div>
+          <p class="mos-foot-note" id="mos-disclaimer" style="margin-top:1rem"></p>
+          <!-- hidden hooks for mos.js -->
+          <span id="mos-title" hidden></span>
+          <span id="mos-sub" hidden></span>
+          <span id="mos-ready-title" hidden></span>
+          <span id="mos-walk-title" hidden></span>
+          <span id="mos-info" hidden></span>
+          <span id="mos-tab-purpose" hidden></span>
+          <span id="mos-tab-employer" hidden></span>
+          <span id="mos-tab-deadline" hidden></span>
+          <span id="mos-deadline-title" hidden></span>
+          <span id="mos-deadline-account" hidden></span>
+          <div id="mos-journey" hidden></div>
+          <div id="mos-walk" hidden></div>
+          <div class="mos-tools" hidden>
+            <div class="mos-tabs">
+              <button type="button" class="active" data-mos-tab="purpose"></button>
+              <button type="button" data-mos-tab="employer"></button>
+              <button type="button" data-mos-tab="deadline"></button>
+            </div>
+            <div class="mos-tab-panel" data-mos-panel="purpose"></div>
+            <div class="mos-tab-panel" data-mos-panel="employer" hidden></div>
+            <div class="mos-tab-panel" data-mos-panel="deadline" hidden></div>
+          </div>
+        </div>
+
+        <!-- DOCS -->
+        <div class="profile-tab-panel" data-profile-panel="docs" id="panel-docs" hidden>
+          <div class="section-head" style="margin-bottom:0.75rem">
+            <div>
+              <h2 id="docs-title" style="margin:0;font-size:1.35rem">Dokumenty</h2>
+              <p id="docs-sub" style="margin:0.25rem 0 0">Wybierz formularz → PDF. Potem wróć do zakładki Teraz.</p>
             </div>
           </div>
+          <div class="docs" id="docs"></div>
         </div>
 
-        <div class="profile-tab-panel" data-profile-panel="billing" id="panel-billing" hidden>
-          <div class="profile-grid">
-            <article class="profile-card">
-              <strong class="card-title">Płatności</strong>
-              <p id="billing-status-line" class="muted">Ładowanie…</p>
-              <div class="row-actions" style="margin-top:0.75rem;display:flex;flex-wrap:wrap;gap:0.45rem">
-                <a class="primary" href="#" id="pay-ai-account">Kup AI 19 zł</a>
-                <a href="#" id="pay-review-account">Human review 29 zł</a>
-                <a href="#" id="btn-portal">Zarządzaj subskrypcją</a>
-                <a href="#" id="btn-cancel-sub">Anuluj subskrypcję</a>
-              </div>
-              <div id="invoices-box" class="muted" style="margin-top:0.85rem"></div>
-            </article>
-            <article class="profile-card">
-              <strong class="card-title">Kod promocyjny</strong>
-              <p class="muted" style="margin:0 0 0.6rem">Np. WAKACJE — miesiąc AI gratis.</p>
-              <p class="muted"><a href="#pricing">Aktywuj na stronie Taryfy</a> albo w Telegram: /promo WAKACJE</p>
-            </article>
-          </div>
-        </div>
-
+        <!-- ACCOUNT -->
         <div class="profile-tab-panel" data-profile-panel="account" id="panel-account" hidden>
           <div class="profile-grid">
             <article class="profile-card">
-              <strong class="card-title">Sesja</strong>
-              <p class="muted" style="margin:0 0 0.65rem">Zaloguj się, żeby synchronizować MOS, terminy i płatności.</p>
+              <strong class="card-title" id="acc-session-title">Sesja</strong>
+              <p class="muted" style="margin:0 0 0.65rem" id="acc-session-hint">Zaloguj się, żeby zapisać postęp na innych urządzeniach.</p>
+              <div id="cabinet-box" class="muted" style="margin-bottom:0.7rem">…</div>
               <div class="row-actions" style="display:flex;flex-wrap:wrap;gap:0.45rem">
                 <button type="button" class="primary" id="btn-account-login">Zaloguj</button>
                 <button type="button" id="btn-account-register">Załóż konto</button>
@@ -1357,13 +1382,52 @@
               <p id="magic-note" class="muted" style="margin-top:0.7rem"></p>
             </article>
             <article class="profile-card">
-              <strong class="card-title">Magic link / reset hasła</strong>
+              <strong class="card-title" id="acc-billing-title">Płatności</strong>
+              <p id="billing-status-line" class="muted">…</p>
+              <div id="billing-note" class="status" style="margin:0.4rem 0"></div>
+              <div class="pricing" style="grid-template-columns:1fr;gap:0.55rem;margin:0.6rem 0">
+                <article class="plan" style="padding:0.75rem">
+                  <strong id="free-title">Start</strong>
+                  <div class="price" id="free-price">0 zł</div>
+                  <p id="free-desc">PDF + 5 pytań AI / dzień</p>
+                </article>
+                <article class="plan featured" style="padding:0.75rem">
+                  <strong id="ai-title">AI bez limitu</strong>
+                  <div class="price" id="ai-price">19 zł / mies.</div>
+                  <p id="ai-desc">Bez limitu pytań</p>
+                  <a href="#" id="ai-link" data-pay="ai">Kup AI</a>
+                  <a href="#" id="pay-ai" hidden>Kup AI</a>
+                  <a href="#" id="pay-ai-account" hidden>Kup AI</a>
+                </article>
+                <article class="plan" style="padding:0.75rem">
+                  <strong id="review-title">Human review</strong>
+                  <div class="price" id="review-price">29 zł</div>
+                  <p id="review-desc">Sprawdzenie przez człowieka</p>
+                  <a href="#" id="review-link" data-pay="review">Kup review</a>
+                  <a href="#" id="pay-review" hidden>Kup</a>
+                  <a href="#" id="pay-review-account" hidden>Kup</a>
+                </article>
+              </div>
+              <div class="row-actions" style="display:flex;flex-wrap:wrap;gap:0.45rem">
+                <a href="#" id="btn-portal">Subskrypcja</a>
+                <a href="#" id="btn-cancel-sub">Anuluj</a>
+              </div>
+              <div id="invoices-box" class="muted" style="margin-top:0.7rem"></div>
+              <form id="promo-form" class="profile-forms" style="margin-top:0.9rem">
+                <strong id="promo-title">Kod promocyjny</strong>
+                <input id="promo-code" placeholder="WAKACJE" autocomplete="off" />
+                <button class="cta" type="submit" id="promo-btn">Aktywuj</button>
+                <p id="promo-note" class="muted" style="margin:0"></p>
+              </form>
+            </article>
+            <article class="profile-card">
+              <strong class="card-title">Magic link / hasło</strong>
               <form id="magic-form" class="profile-forms">
-                <input id="magic-email" type="email" placeholder="Magic link — email" required />
+                <input id="magic-email" type="email" placeholder="Email — magic link" required />
                 <button class="cta" type="submit">Wyślij link</button>
               </form>
               <form id="reset-form" class="profile-forms" style="margin-top:0.85rem">
-                <input id="reset-email" type="email" placeholder="Reset hasła — email" required />
+                <input id="reset-email" type="email" placeholder="Email — reset hasła" required />
                 <button class="ghost" type="submit">Wyślij reset</button>
                 <p id="reset-note" class="muted" style="margin:0"></p>
               </form>
@@ -1373,150 +1437,11 @@
       </div>
     </section>
 
-
-    <section id="mos">
-      <div class="mos-flow">
-        <div class="mos-head">
-          <div>
-            <h2 id="mos-title">Przygotowanie do MOS 2.0</h2>
-            <p id="mos-sub">Jeden następny krok naraz. Potem oficjalny wniosek na mos.cudzoziemcy.gov.pl.</p>
-          </div>
-          <div class="mos-head-links">
-            <a class="ghost" id="mos-info" href="https://www.gov.pl/web/udsc/info-mos" target="_blank" rel="noopener">Info UdSC</a>
-            <a class="cta" id="mos-open" href="https://mos.cudzoziemcy.gov.pl" target="_blank" rel="noopener">Otwórz MOS</a>
-          </div>
-        </div>
-
-        <div class="mos-panel" id="mos-next">
-          <p class="mos-panel-label" id="mos-next-label">Twój następny krok</p>
-          <div class="mos-meter" aria-hidden="true">
-            <div class="mos-meter-row">
-              <span id="mos-progress">0 / 0</span>
-              <span id="mos-progress-pct">0%</span>
-            </div>
-            <div class="mos-meter-track"><div class="mos-meter-fill" id="mos-progress-fill"></div></div>
-          </div>
-          <h3 id="mos-next-title">Ładowanie…</h3>
-          <p class="mos-hint" id="mos-next-body"></p>
-          <div class="mos-actions">
-            <a class="cta" id="mos-next-cta" href="#mos-ready">Zrób ten krok</a>
-            <button type="button" class="ghost" id="mos-mark-done">Mam to — dalej</button>
-          </div>
-          <p class="mos-sync" id="mos-sync"></p>
-        </div>
-
-        <div>
-          <h3 id="mos-ready-title" style="font-family:Syne,sans-serif;margin:0 0 0.55rem;letter-spacing:-0.02em;font-size:1.15rem">Checklist gotowości</h3>
-          <div class="mos-ready" id="mos-ready"></div>
-        </div>
-
-        <div class="mos-tools">
-          <div class="mos-tabs" role="tablist" aria-label="Narzędzia MOS">
-            <button type="button" class="active" data-mos-tab="purpose" id="mos-tab-purpose">Załączniki</button>
-            <button type="button" data-mos-tab="employer" id="mos-tab-employer">Do pracodawcy</button>
-            <button type="button" data-mos-tab="deadline" id="mos-tab-deadline">Termin pobytu</button>
-          </div>
-
-          <div class="mos-tab-panel" data-mos-panel="purpose" id="mos-panel-purpose">
-            <p class="mos-helper-copy" id="mos-purpose-title">Wybierz cel pobytu — pokażemy typowe załączniki.</p>
-            <div class="mos-purposes" id="mos-purposes"></div>
-            <div class="mos-purpose-items" id="mos-purpose-items" hidden></div>
-          </div>
-
-          <div class="mos-tab-panel" data-mos-panel="employer" id="mos-panel-employer" hidden>
-            <strong id="mos-employer-title">Szablon do pracodawcy</strong>
-            <p id="mos-employer-body" class="mos-helper-copy"></p>
-            <pre id="mos-employer-msg" class="checklist-box"></pre>
-            <button type="button" class="ghost" id="mos-employer-copy">Kopiuj wiadomość</button>
-          </div>
-
-          <div class="mos-tab-panel" data-mos-panel="deadline" id="mos-panel-deadline" hidden>
-            <strong id="mos-deadline-title">Koniec legalnego pobytu</strong>
-            <p id="mos-deadline-hint" class="mos-helper-copy"></p>
-            <form id="mos-deadline-form" class="mos-deadline-form">
-              <input id="mos-deadline-date" type="date" required />
-              <button class="cta" type="submit" id="mos-deadline-btn">Dodaj przypomnienie</button>
-              <a class="ghost" id="mos-deadline-account" href="#profile?tab=calendar" hidden>Kalendarz w profilu</a>
-            </form>
-            <p id="mos-deadline-note" class="mos-sync"></p>
-          </div>
-        </div>
-
-        <p class="mos-foot-note" id="mos-disclaimer"></p>
-      </div>
-    </section>
-
-    <section id="assistant">
-      <div class="section-head">
-        <div>
-          <h2 id="assistant-title">AI-asystent</h2>
-          <p id="assistant-sub">Pytasz — dostajesz plan i przyciski. Wszystko niedokończone znajdziesz w Profilu (zakładki).</p>
-        </div>
-        <div class="status" id="usage">Ładowanie limitu…</div>
-      </div>
-      <div class="assist-layout">
-        <div class="chat">
-          <div class="chat-top">
-            <div class="chips" id="chips"></div>
-          </div>
-          <div class="messages" id="messages" aria-live="polite"></div>
-          <form class="composer" id="ask-form">
-            <textarea id="question" rows="2" maxlength="2000" placeholder="Np. Jestem z Ukrainy, pracuję legalnie i chcę kartę pobytu"></textarea>
-            <button class="send" id="send" type="submit">Wyślij</button>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <section id="documents">
-      <div class="section-head">
-        <div>
-          <h2 id="docs-title">Dokumenty</h2>
-          <p id="docs-sub">Wybierz formularz, uzupełnij pola i pobierz PDF. Oficjalne blankiety też są w Telegram.</p>
-        </div>
-      </div>
-      <div class="docs" id="docs"></div>
-    </section>
-
-    <section id="pricing">
-      <div class="section-head">
-        <div>
-          <h2 id="pricing-title">Taryfy</h2>
-          <p id="pricing-sub">Zaczynasz za darmo. Płacisz tylko za więcej AI albo sprawdzenie przez człowieka.</p>
-        </div>
-        <div id="billing-note" class="status"></div>
-      </div>
-      <div class="pricing">
-        <article class="plan">
-          <strong id="free-title">Start</strong>
-          <div class="price" id="free-price">0 zł</div>
-          <p id="free-desc">PDF samodzielnie + 5 pytań dziennie do AI-pomocnika.</p>
-        </article>
-        <article class="plan featured">
-          <strong id="ai-title">AI bez limitu</strong>
-          <div class="price" id="ai-price">19 zł / mies.</div>
-          <p id="ai-desc">Bez limitu pytań, analiza PDF/zdjęć, pisma do urzędu i przypomnienia.</p>
-          <a href="#" id="ai-link" data-pay="ai">Chcę subskrypcję</a>
-          <a href="#" id="pay-ai" hidden aria-hidden="true">Kup AI</a>
-        </article>
-        <article class="plan">
-          <strong id="review-title">Sprawdzenie przez człowieka</strong>
-          <div class="price" id="review-price">29 zł</div>
-          <p id="review-desc">Dodatkowa kontrola danych, typowych błędów i checklisty przed urzędem.</p>
-          <a href="#" id="review-link" data-pay="review">Chcę sprawdzenie</a>
-          <a href="#" id="pay-review" hidden aria-hidden="true">Kup review</a>
-        </article>
-      </div>
-      <form id="promo-form" class="panel stack-form" style="margin-top:1rem">
-        <strong style="font-family:Syne,sans-serif">Kod promocyjny</strong>
-        <p class="muted" style="margin:0">Np. <code>WAKACJE</code> — 1 miesiąc AI bez limitu za darmo.</p>
-        <div class="row-form" style="margin:0">
-          <input id="promo-code" placeholder="WAKACJE" autocomplete="off" required />
-          <button class="cta" type="submit">Aktywuj</button>
-        </div>
-        <p id="promo-note" class="muted" style="margin:0"></p>
-      </form>
-    </section>
+    <!-- keep ids for pricing titles used by applyLang -->
+    <div hidden>
+      <span id="pricing-title"></span>
+      <span id="pricing-sub"></span>
+    </div>
 
     <div class="modal-backdrop" id="doc-modal" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true">
@@ -1531,117 +1456,6 @@
       </div>
     </div>
 
-    <details class="more-tools" id="tools">
-      <summary>Więcej narzędzi <span>pisma, OCR, kalendarz, prawnicy</span></summary>
-      <div class="tools-inner">
-        <section id="packages">
-          <div class="section-head">
-            <div>
-              <h2>Pakiet Przeprowadzka</h2>
-              <p>Jedne dane → 3 PDF (umowa + meldunek + PESEL) jako ZIP.</p>
-            </div>
-          </div>
-          <div id="packages-box" class="docs"></div>
-        </section>
-
-        <section id="karta">
-          <div class="section-head">
-            <div>
-              <h2>Karta pobytu — checklist</h2>
-              <p>Odznaczaj kroki. Dane możesz też zebrać w dokumencie „przygotowanie”.</p>
-            </div>
-          </div>
-          <div id="karta-steps" class="panel stack-form"></div>
-        </section>
-
-        <section id="letters">
-          <div class="section-head">
-            <div>
-              <h2>Generator pism</h2>
-              <p>Opisz sprawę — dostaniesz oficjalny tekst po polsku.</p>
-            </div>
-          </div>
-          <form id="letter-form" class="panel stack-form">
-            <input id="letter-name" placeholder="Imię i nazwisko" required />
-            <input id="letter-city" placeholder="Miasto" value="Warszawa" />
-            <input id="letter-office" placeholder="Urząd" required />
-            <input id="letter-case" placeholder="Znak sprawy" />
-            <input id="letter-topic" placeholder="Temat" required />
-            <textarea id="letter-content" rows="4" placeholder="Treść swoimi słowami" required></textarea>
-            <button class="cta" type="submit">Wygeneruj pismo</button>
-            <pre id="letter-out" class="checklist-box"></pre>
-          </form>
-        </section>
-
-        <section id="upload">
-          <div class="section-head">
-            <div>
-              <h2>Analiza PDF / zdjęcia</h2>
-              <p>Wrzuć pismo z urzędu. PDF z tekstem działa od razu.</p>
-            </div>
-          </div>
-          <form id="upload-form" class="panel stack-form">
-            <input id="upload-file" type="file" accept=".pdf,image/*" required />
-            <button class="cta" type="submit">Analizuj dokument</button>
-            <pre id="upload-out" class="checklist-box"></pre>
-          </form>
-        </section>
-
-        <section id="calendar">
-          <div class="section-head">
-            <div>
-              <h2>Kalendarz terminów</h2>
-              <p>Przypomnienia: ubezpieczenie, karta, wizyta w urzędzie.</p>
-            </div>
-            <a class="ghost" href="#" id="seed-cal">Dodaj przykładowe</a>
-          </div>
-          <form id="cal-form" class="row-form">
-            <input id="cal-title" placeholder="Tytuł" required />
-            <input id="cal-due" type="date" required />
-            <button class="cta" type="submit">Dodaj</button>
-          </form>
-          <div id="calendar-list" class="docs"></div>
-        </section>
-
-        <section id="services">
-          <div class="section-head">
-            <div>
-              <h2>Usługi i urzędy</h2>
-              <p>Startowa baza: Warszawa / Kraków + notariusz / tłumacz.</p>
-            </div>
-          </div>
-          <div id="services-box" class="docs"></div>
-        </section>
-
-        <section id="lawyers">
-          <div class="section-head">
-            <div>
-              <h2>Marketplace prawników</h2>
-              <p>Kliknij specjalistę — kontakt uzupełni się automatycznie.</p>
-            </div>
-          </div>
-          <div id="lawyers-box" class="docs"></div>
-          <form id="lawyer-lead-form" class="panel stack-form" style="margin-top:0.85rem">
-            <input id="lawyer-id" type="hidden" required />
-            <p id="lawyer-selected" class="muted">Wybierz prawnika z listy powyżej.</p>
-            <input id="lawyer-contact" placeholder="Email / Telegram" />
-            <textarea id="lawyer-message" rows="3" placeholder="Krótko o sprawie" required></textarea>
-            <button class="cta" type="submit">Wyślij zapytanie</button>
-            <p id="lawyer-lead-note" class="muted"></p>
-          </form>
-        </section>
-
-        <section id="countries">
-          <div class="section-head">
-            <div>
-              <h2>Kraje</h2>
-              <p>Polska działa teraz. Niemcy, Czechy i Litwa — w przygotowaniu.</p>
-            </div>
-          </div>
-          <div id="countries-box" class="docs"></div>
-        </section>
-      </div>
-    </details>
 
     <div class="modal-backdrop" id="auth-modal" aria-hidden="true">
       <div class="modal auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
@@ -1677,7 +1491,7 @@
 
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.</span>
-      <span>WniosekPL · v2.2.8 · <a href="/setup">Setup</a></span>
+      <span>WniosekPL · v2.2.9 · <a href="/setup">Setup</a></span>
     </footer>
   </div>
 
@@ -1708,6 +1522,15 @@
         profileOpen: "Otwórz",
         profileDone: "Gotowe",
         profileLogin: "Zaloguj, by synchronizować",
+        tabNow: "Teraz",
+        tabDocs: "Dokumenty",
+        tabAccount: "Konto",
+        nowSideTitle: "Po drodze",
+        appCrumb: " · Twój następny krok do MOS",
+        appHome: "← Strona główna",
+        profileTitle: "Kabinet",
+        profileSub: "Jeden następny krok. Reszta — tylko gdy potrzebujesz.",
+        profileEmptyTodo: "Brak otwartych zadań z AI.",
         profileTeaserBody: "{n} zadań · MOS, terminy, płatności w zakładkach",
         profileOpenFull: "Otwórz profil",
         tabOverview: "Przegląd",
@@ -1791,6 +1614,15 @@
         profileOpen: "Открыть",
         profileDone: "Готово",
         profileLogin: "Войди, чтобы синхронизировать",
+        tabNow: "Сейчас",
+        tabDocs: "Документы",
+        tabAccount: "Аккаунт",
+        nowSideTitle: "По пути",
+        appCrumb: " · Твой следующий шаг к MOS",
+        appHome: "← Главная",
+        profileTitle: "Кабинет",
+        profileSub: "Один следующий шаг. Остальное — только когда нужно.",
+        profileEmptyTodo: "Нет открытых задач из AI.",
         profileTeaserBody: "{n} задач · MOS, сроки, оплата во вкладках",
         profileOpenFull: "Открыть профиль",
         tabOverview: "Обзор",
@@ -1874,6 +1706,15 @@
         profileOpen: "Open",
         profileDone: "Done",
         profileLogin: "Log in to sync",
+        tabNow: "Now",
+        tabDocs: "Documents",
+        tabAccount: "Account",
+        nowSideTitle: "Along the way",
+        appCrumb: " · Your next step to MOS",
+        appHome: "← Home",
+        profileTitle: "Cabinet",
+        profileSub: "One next step. Everything else only when you need it.",
+        profileEmptyTodo: "No open AI tasks.",
         profileTeaserBody: "{n} tasks · MOS, deadlines, billing in tabs",
         profileOpenFull: "Open profile",
         tabOverview: "Overview",
@@ -1957,6 +1798,15 @@
         profileOpen: "Відкрити",
         profileDone: "Готово",
         profileLogin: "Увійди, щоб синхронізувати",
+        tabNow: "Зараз",
+        tabDocs: "Документи",
+        tabAccount: "Акаунт",
+        nowSideTitle: "По дорозі",
+        appCrumb: " · Твій наступний крок до MOS",
+        appHome: "← Головна",
+        profileTitle: "Кабінет",
+        profileSub: "Один наступний крок. Решта — лише коли треба.",
+        profileEmptyTodo: "Немає відкритих задач з AI.",
         profileTeaserBody: "{n} задач · MOS, строки, оплата у вкладках",
         profileOpenFull: "Відкрити профіль",
         tabOverview: "Огляд",

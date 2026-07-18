@@ -25,6 +25,11 @@ def test_landing_is_marketing_and_profile_is_app(tmp_path, monkeypatch):
         assert 'id="ask-form"' in app_html
         assert 'id="profile"' in app_html
         assert "profile-tabs" in app_html
-        assert 'id="mos"' in app_html
+        assert 'data-profile-tab="now"' in app_html
+        assert 'data-profile-tab="docs"' in app_html
+        assert 'data-profile-tab="account"' in app_html
+        assert 'data-profile-tab="billing"' not in app_html
+        assert 'id="mos-next"' in app_html
+        assert 'id="docs"' in app_html
 
         assert client.get("/app").status_code == 200

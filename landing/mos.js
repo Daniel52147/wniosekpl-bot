@@ -194,12 +194,13 @@
       const stepId = mark.dataset.stepId;
       if (!stepId || !guideData) return;
       if (stepId === "legal_stay") {
-        setTab("deadline");
         document.getElementById("mos-deadline-date")?.focus();
+        document.getElementById("mos-deadline-date")?.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
       if (stepId === "employer_ready") {
-        setTab("employer");
+        const helpers = document.getElementById("mos-helpers");
+        if (helpers) helpers.open = true;
         document.getElementById("mos-employer-copy")?.focus();
         return;
       }

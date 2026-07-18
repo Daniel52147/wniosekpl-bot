@@ -43,10 +43,9 @@ def test_mos_guide_api(tmp_path, monkeypatch):
         assert body["next_action"]["id"] == "pesel"
         assert body["walkthrough"][0]["body"]
         html = client.get("/profile").text
-        assert 'id="mos"' in html
+        assert 'id="mos-next"' in html
         assert "mos.js" in html
         assert "mos-mark-done" in html
-        assert "mos-tab-purpose" in html
         assert "mos-deadline-form" in html
         assert "mos-progress-fill" in html
 
