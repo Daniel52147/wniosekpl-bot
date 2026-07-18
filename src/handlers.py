@@ -305,10 +305,40 @@ async def cmd_premium(message: Message) -> None:
     await message.answer(
         f"Plan: <b>{plan['plan']}</b>\n"
         f"Web checkout: {PUBLIC_BASE_URL}\n"
+        f"/promo WAKACJE — 1 miesiąc AI gratis\n"
         f"/review — human check 29 zł\n"
         f"AI unlimited — 19 zł/mies (site checkout)\n"
         f"/lawyers — marketplace\n"
         f"/countries — roadmap krajów",
+    )
+
+
+@router.message(Command("promo"))
+async def cmd_promo(message: Message, command: CommandObject) -> None:
+    await _register_user(message)
+    code = (command.args or "").strip()
+    if not code:
+        await message.answer(
+            "Użycie: <code>/promo WAKACJE</code>\n"
+            "Kod WAKACJE = 1 miesiąc AI bez limitu za darmo."
+        )
+        return
+    from src.promos import redeem_promo
+
+    try:
+        result = await redeem_promo(message.from_user.id, code)
+    except ValueError as exc:
+        err = str(exc)
+        if err == "promo_already_used":
+            await message.answer("Ten kod już wykorzystałeś na tym koncie.")
+        elif err == "invalid_promo":
+            await message.answer("Nieprawidłowy kod promocyjny.")
+        else:
+            await message.answer(f"Nie udało się aktywować: {err}")
+        return
+    await message.answer(
+        f"✅ {result['message']}\n"
+        f"Sprawdź plan: /premium"
     )
 
 

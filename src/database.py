@@ -134,6 +134,19 @@ async def init_db() -> None:
         )
         await db.execute(
             """
+            CREATE TABLE IF NOT EXISTS promo_redemptions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                telegram_id INTEGER NOT NULL,
+                code TEXT NOT NULL,
+                product TEXT NOT NULL,
+                days INTEGER NOT NULL,
+                created_at TEXT NOT NULL,
+                UNIQUE(telegram_id, code)
+            )
+            """
+        )
+        await db.execute(
+            """
             CREATE TABLE IF NOT EXISTS calendar_events (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 telegram_id INTEGER NOT NULL,
@@ -386,6 +399,7 @@ async def delete_user_data(telegram_id: int) -> None:
             "magic_links",
             "email_tokens",
             "feedback",
+            "promo_redemptions",
         ):
             await db.execute(
                 f"DELETE FROM {table} WHERE telegram_id = ?",
@@ -646,6 +660,33 @@ async def has_active_subscription(telegram_id: int, plan: str | None = None) -> 
     if plan and sub.get("plan") != plan:
         return False
     return True
+
+
+async def has_redeemed_promo(telegram_id: int, code: str) -> bool:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cur = await db.execute(
+            "SELECT 1 FROM promo_redemptions WHERE telegram_id = ? AND code = ?",
+            (telegram_id, code),
+        )
+        return await cur.fetchone() is not None
+
+
+async def record_promo_redemption(
+    telegram_id: int,
+    code: str,
+    product: str,
+    days: int,
+) -> None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            """
+            INSERT INTO promo_redemptions
+            (telegram_id, code, product, days, created_at)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (telegram_id, code, product, days, _now()),
+        )
+        await db.commit()
 
 
 async def record_payment(

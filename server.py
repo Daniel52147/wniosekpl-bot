@@ -105,7 +105,7 @@ from src.services_directory import search_services
 from src.validators import is_required, validate_field
 
 LANDING_DIR = ROOT / "landing"
-PRODUCT_VERSION = "2.2.1"
+PRODUCT_VERSION = "2.2.2"
 
 
 def telegram_configured() -> bool:
@@ -189,6 +189,11 @@ class GenerateRequest(BaseModel):
 class CheckoutRequest(BaseModel):
     user_id: int
     product: Literal["ai_subscription", "human_review"]
+
+
+class PromoRequest(BaseModel):
+    user_id: int | None = None
+    code: str = Field(..., min_length=3, max_length=64)
 
 
 class LetterRequest(BaseModel):
@@ -696,6 +701,23 @@ async def create_lead(payload: LeadRequest):
 @app.get("/api/billing/status")
 async def billing_status_api():
     return billing_status()
+
+
+@app.post("/api/billing/promo")
+async def billing_promo(
+    payload: PromoRequest,
+    authorization: str | None = Header(default=None),
+):
+    from src.promos import redeem_promo
+
+    user_id = await _resolve_user(payload.user_id, authorization)
+    try:
+        result = await redeem_promo(user_id, payload.code)
+    except ValueError as exc:
+        detail = str(exc)
+        status = 409 if detail == "promo_already_used" else 400
+        raise HTTPException(status_code=status, detail=detail) from exc
+    return result
 
 
 @app.post("/api/billing/checkout")

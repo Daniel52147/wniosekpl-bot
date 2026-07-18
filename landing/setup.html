@@ -25,6 +25,18 @@
   <div class="box">
     <h1>Setup за 1 шаг</h1>
     <p>Вставь ключи ниже — я применю их сам. Аккаунты Stripe/Google создаются только в их кабинетах (это нельзя сделать без твоего логина).</p>
+    <div class="card">
+      <strong>Где Webhook в новом Stripe</strong>
+      <p style="margin:.4rem 0 .6rem;line-height:1.45">Старое меню Developers → Webhooks часто спрятано. Сейчас так:</p>
+      <ol style="margin:0;padding-left:1.2rem;line-height:1.55">
+        <li>Открой <a href="https://dashboard.stripe.com/test/workbench/webhooks" target="_blank" rel="noopener">Workbench → Webhooks (Test mode)</a></li>
+        <li>Или сверху справа Developers / иконка &lt;/&gt; → вкладка <b>Webhooks</b></li>
+        <li>Кнопка <b>Add destination</b> / <b>Create an event destination</b></li>
+        <li>Events on your account → выбери события → тип: <b>Webhook endpoint</b></li>
+        <li>URL возьми из блока статуса ниже (<code>.../api/billing/webhook</code>)</li>
+        <li>Signing secret → Reveal → вставь <code>whsec_...</code> в поле STRIPE_WEBHOOK_SECRET</li>
+      </ol>
+    </div>
     <div class="card" id="status">Загрузка…</div>
     <div class="card">
       <label>Admin API key (или оставь пустым если ADMIN_API_KEY не задан)</label>

@@ -314,6 +314,37 @@
     document.getElementById("register-form")?.addEventListener("submit", register);
     document.getElementById("login-form")?.addEventListener("submit", login);
     document.getElementById("reset-form")?.addEventListener("submit", forgot);
+    document.getElementById("promo-form")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const note = document.getElementById("promo-note");
+      const code = document.getElementById("promo-code")?.value.trim();
+      if (!code) return;
+      if (!token() && !userId()) {
+        openAuthModal("register");
+        if (note) note.textContent = "Najpierw załóż konto / zaloguj się, potem aktywuj kod.";
+        return;
+      }
+      const res = await fetch(`${API}/api/billing/promo`, {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify({ user_id: userId() || undefined, code }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const map = {
+          invalid_promo: "Nieprawidłowy kod.",
+          promo_already_used: "Ten kod już wykorzystano na tym koncie.",
+        };
+        if (note) note.textContent = map[data.detail] || data.detail || "Błąd aktywacji";
+        if (res.status === 401 || String(data.detail || "").includes("auth")) {
+          openAuthModal("login");
+        }
+        return;
+      }
+      if (note) note.textContent = data.message || "Kod aktywowany.";
+      refreshAuthUI();
+    });
+
     document.getElementById("pay-ai-account")?.addEventListener("click", (e) => {
       e.preventDefault();
       checkout("ai_subscription");
