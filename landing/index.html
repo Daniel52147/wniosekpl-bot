@@ -625,17 +625,130 @@
     }
 
     .panel,
-    .chat {
+    .chat,
+    .profile-rail {
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       overflow: hidden;
     }
+    .assist-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(240px, 0.7fr);
+      gap: 0.9rem;
+      align-items: start;
+    }
     .chat {
       display: grid;
       grid-template-rows: auto 1fr auto;
       min-height: 420px;
+    }
+    .profile-rail {
+      padding: 1rem 1.05rem 1.1rem;
+      position: sticky;
+      top: 4.4rem;
+      animation: rise 0.45s ease both;
+    }
+    .profile-rail h3 {
+      font-family: Syne, sans-serif;
+      letter-spacing: -0.03em;
+      margin: 0 0 0.25rem;
+      font-size: 1.2rem;
+    }
+    .profile-rail .rail-sub {
+      margin: 0 0 0.85rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+    .profile-block {
+      margin: 0 0 0.85rem;
+      padding-bottom: 0.85rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .profile-block:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+    .profile-block strong {
+      display: block;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--moss-deep);
+      margin-bottom: 0.45rem;
+    }
+    .profile-item {
+      display: grid;
+      gap: 0.35rem;
+      padding: 0.65rem 0.7rem;
+      border-radius: 12px;
+      background: rgba(20, 122, 97, 0.05);
+      margin-bottom: 0.45rem;
+    }
+    .profile-item:last-child { margin-bottom: 0; }
+    .profile-item p {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+    .profile-item .muted {
+      font-weight: 500;
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+    .profile-item .row-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+    .profile-item button,
+    .profile-item a {
+      font: inherit;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      border: 1px solid var(--line);
+      background: var(--white);
+      color: var(--ink);
+      border-radius: 9px;
+      padding: 0.35rem 0.65rem;
+    }
+    .profile-item a.primary,
+    .profile-item button.primary {
+      background: var(--moss-deep);
+      border-color: var(--moss-deep);
+      color: var(--white);
+    }
+    .profile-empty {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.4;
+      margin: 0;
+    }
+    .bubble-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.65rem;
+    }
+    .bubble-actions button {
+      font: inherit;
+      cursor: pointer;
+      border: 1px solid rgba(20, 122, 97, 0.28);
+      background: rgba(210, 239, 106, 0.35);
+      color: var(--moss-deep);
+      border-radius: 999px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+    .bubble-actions button:hover {
+      background: rgba(210, 239, 106, 0.55);
     }
     .chat-top {
       display: flex;
@@ -965,7 +1078,7 @@
     }
 
     @media (max-width: 900px) {
-      .hero, .docs, .pricing, .path { grid-template-columns: 1fr; }
+      .hero, .docs, .pricing, .path, .assist-layout { grid-template-columns: 1fr; }
       .hero { min-height: auto; padding-top: 1rem; gap: 1.4rem; }
       .hero-visual { min-height: 280px; }
       .nav-links { display: none; }
@@ -974,6 +1087,7 @@
       .auth-btn { padding: 0.48rem 0.72rem; font-size: 0.84rem; }
       .messages { max-height: 300px; }
       .chat { min-height: 360px; }
+      .profile-rail { position: static; }
     }
     @media (max-width: 560px) {
       .shell { width: min(100% - 1.25rem, 1080px); }
@@ -1125,19 +1239,37 @@
       <div class="section-head">
         <div>
           <h2 id="assistant-title">AI-asystent</h2>
-          <p id="assistant-sub">5 darmowych pytań dziennie. Napisz sytuację — dostaniesz konkretny plan.</p>
+          <p id="assistant-sub">Pytasz — dostajesz plan i przyciski. Niedokończone zostaje w profilu obok, nie na dole strony.</p>
         </div>
         <div class="status" id="usage">Ładowanie limitu…</div>
       </div>
-      <div class="chat">
-        <div class="chat-top">
-          <div class="chips" id="chips"></div>
+      <div class="assist-layout">
+        <div class="chat">
+          <div class="chat-top">
+            <div class="chips" id="chips"></div>
+          </div>
+          <div class="messages" id="messages" aria-live="polite"></div>
+          <form class="composer" id="ask-form">
+            <textarea id="question" rows="2" maxlength="2000" placeholder="Np. Jestem z Ukrainy, pracuję legalnie i chcę kartę pobytu"></textarea>
+            <button class="send" id="send" type="submit">Wyślij</button>
+          </form>
         </div>
-        <div class="messages" id="messages" aria-live="polite"></div>
-        <form class="composer" id="ask-form">
-          <textarea id="question" rows="2" maxlength="2000" placeholder="Np. Jestem z Ukrainy, pracuję legalnie i chcę kartę pobytu"></textarea>
-          <button class="send" id="send" type="submit">Wyślij</button>
-        </form>
+        <aside class="profile-rail" id="profile-rail" aria-label="Profil">
+          <h3 id="profile-title">Twój profil</h3>
+          <p class="rail-sub" id="profile-sub">Tu widać, co dokończyć po odpowiedzi AI.</p>
+          <div class="profile-block" id="profile-mos-block">
+            <strong id="profile-mos-label">MOS</strong>
+            <div id="profile-mos"></div>
+          </div>
+          <div class="profile-block" id="profile-todo-block">
+            <strong id="profile-todo-label">Do dokończenia</strong>
+            <div id="profile-todo"></div>
+          </div>
+          <div class="profile-block" id="profile-cal-block">
+            <strong id="profile-cal-label">Terminy</strong>
+            <div id="profile-cal"></div>
+          </div>
+        </aside>
       </div>
     </section>
 
@@ -1395,7 +1527,7 @@
 
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.</span>
-      <span>WniosekPL · v2.2.5 · <a href="/setup">Setup</a></span>
+      <span>WniosekPL · v2.2.6 · <a href="/setup">Setup</a></span>
     </footer>
   </div>
 
@@ -1415,7 +1547,17 @@
         visualTitle: "MOS 2.0, PESEL, meldunek",
         visualNote: "Najpierw checklista gotowości — potem oficjalny portal mos.cudzoziemcy.gov.pl.",
         assistantTitle: "AI-asystent",
-        assistantSub: "5 darmowych pytań dziennie. Napisz sytuację — dostaniesz konkretny plan.",
+        assistantSub: "Pytasz — dostajesz plan i przyciski. Niedokończone zostaje w profilu obok, nie na dole strony.",
+        profileTitle: "Twój profil",
+        profileSub: "Tu widać, co dokończyć po odpowiedzi AI.",
+        profileMos: "Następny krok MOS",
+        profileTodo: "Do dokończenia",
+        profileCal: "Terminy",
+        profileEmptyTodo: "Na razie pusto. Zapytaj AI — zadania pojawią się tutaj.",
+        profileEmptyCal: "Brak terminów. Dodaj datę końca pobytu w sekcji MOS.",
+        profileOpen: "Otwórz",
+        profileDone: "Gotowe",
+        profileLogin: "Zaloguj, by synchronizować",
         usage: (left, limit) => `Darmowe pytania dziś: ${left}/${limit}`,
         placeholder: "Np. Jestem z Ukrainy, pracuję legalnie i chcę kartę pobytu",
         send: "Wyślij",
@@ -1466,7 +1608,17 @@
         visualTitle: "MOS 2.0, PESEL, meldunek",
         visualNote: "Сначала checklist готовности — потом официальный портал mos.cudzoziemcy.gov.pl.",
         assistantTitle: "AI-ассистент",
-        assistantSub: "5 бесплатных вопросов в день. Опишите ситуацию — получите конкретный план.",
+        assistantSub: "Спрашиваешь — получаешь план и кнопки. Незаконченное остаётся в профиле справа, не внизу страницы.",
+        profileTitle: "Твой профиль",
+        profileSub: "Здесь видно, что доделать после ответа AI.",
+        profileMos: "Следующий шаг MOS",
+        profileTodo: "Незаконченное",
+        profileCal: "Сроки",
+        profileEmptyTodo: "Пока пусто. Спроси AI — задачи появятся здесь.",
+        profileEmptyCal: "Нет сроков. Добавь дату конца pobytu в секции MOS.",
+        profileOpen: "Открыть",
+        profileDone: "Готово",
+        profileLogin: "Войди, чтобы синхронизировать",
         usage: (left, limit) => `Бесплатных вопросов сегодня: ${left}/${limit}`,
         placeholder: "Напр. Я из Украины, работаю официально и хочу карту побыту",
         send: "Отправить",
@@ -1517,7 +1669,17 @@
         visualTitle: "MOS 2.0, PESEL, meldunek",
         visualNote: "Readiness checklist first — then the official mos.cudzoziemcy.gov.pl portal.",
         assistantTitle: "AI assistant",
-        assistantSub: "5 free questions per day. Describe your case — get a concrete plan.",
+        assistantSub: "Ask — get a plan and action buttons. Incomplete items stay in the profile beside chat, not at the bottom.",
+        profileTitle: "Your profile",
+        profileSub: "See what to finish after an AI answer.",
+        profileMos: "Next MOS step",
+        profileTodo: "To finish",
+        profileCal: "Deadlines",
+        profileEmptyTodo: "Nothing yet. Ask AI — tasks will appear here.",
+        profileEmptyCal: "No deadlines. Add your stay end date in the MOS section.",
+        profileOpen: "Open",
+        profileDone: "Done",
+        profileLogin: "Log in to sync",
         usage: (left, limit) => `Free questions today: ${left}/${limit}`,
         placeholder: "e.g. I am Ukrainian, legally employed, and need a residence card",
         send: "Send",
@@ -1568,7 +1730,17 @@
         visualTitle: "MOS 2.0, PESEL, meldunek",
         visualNote: "Спочатку чекліст готовності — потім офіційний портал mos.cudzoziemcy.gov.pl.",
         assistantTitle: "AI-асистент",
-        assistantSub: "5 безкоштовних питань на день. Опишіть ситуацію — отримаєте конкретний план.",
+        assistantSub: "Питаєш — отримуєш план і кнопки. Незакінчене лишається в профілі праворуч, не внизу сторінки.",
+        profileTitle: "Твій профіль",
+        profileSub: "Тут видно, що доробити після відповіді AI.",
+        profileMos: "Наступний крок MOS",
+        profileTodo: "Незакінчене",
+        profileCal: "Строки",
+        profileEmptyTodo: "Поки порожньо. Запитай AI — задачі з’являться тут.",
+        profileEmptyCal: "Немає строків. Додай дату кінця pobytu в секції MOS.",
+        profileOpen: "Відкрити",
+        profileDone: "Готово",
+        profileLogin: "Увійди, щоб синхронізувати",
         usage: (left, limit) => `Безкоштовних питань сьогодні: ${left}/${limit}`,
         placeholder: "Напр. Я з України, працюю офіційно і хочу карту побиту",
         send: "Надіслати",
@@ -1667,6 +1839,15 @@
       document.getElementById("visual-note").textContent = c.visualNote;
       document.getElementById("assistant-title").textContent = c.assistantTitle;
       document.getElementById("assistant-sub").textContent = c.assistantSub;
+      const setIf = (id, val) => {
+        const el = document.getElementById(id);
+        if (el && val != null) el.textContent = val;
+      };
+      setIf("profile-title", c.profileTitle);
+      setIf("profile-sub", c.profileSub);
+      setIf("profile-mos-label", c.profileMos);
+      setIf("profile-todo-label", c.profileTodo);
+      setIf("profile-cal-label", c.profileCal);
       document.getElementById("usage").textContent = c.usage(left, limit);
       document.getElementById("question").placeholder = c.placeholder;
       document.getElementById("send").textContent = c.send;
@@ -1828,6 +2009,15 @@
         a.download = `wniosekpl_${currentDocId}.pdf`;
         a.click();
         URL.revokeObjectURL(url);
+        const key = `open_doc:${currentDocId}`;
+        try {
+          const todos = JSON.parse(localStorage.getItem("wniosekpl_profile_todos") || "[]");
+          const next = todos.map((item) =>
+            item.key === key ? { ...item, done: true } : item
+          );
+          localStorage.setItem("wniosekpl_profile_todos", JSON.stringify(next));
+          if (window.wniosekplRefreshProfile) window.wniosekplRefreshProfile();
+        } catch (_) { /* ignore */ }
       } catch (err) {
         if (err.message !== "validation") alert(copy[lang].genError);
       } finally {
@@ -1844,6 +2034,29 @@
       });
       const data = await res.json();
       addBubble(data.created ? copy[lang].leadOk : copy[lang].leadDup, "bot");
+    }
+
+    function renderBubbleActions(bubble, actions) {
+      if (!actions || !actions.length) return;
+      const row = document.createElement("div");
+      row.className = "bubble-actions";
+      actions.forEach((action) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = action.label || action.id;
+        btn.addEventListener("click", () => {
+          if (window.wniosekplRunAction) window.wniosekplRunAction(action);
+          else if (action.type === "open_doc") openDoc(action.id);
+          else if (action.href) {
+            if (action.href.startsWith("#")) {
+              location.hash = action.href;
+              document.querySelector(action.href)?.scrollIntoView({ behavior: "smooth" });
+            } else window.open(action.href, "_blank", "noopener");
+          }
+        });
+        row.appendChild(btn);
+      });
+      bubble.appendChild(row);
     }
 
     async function askAssistant(text) {
@@ -1865,15 +2078,22 @@
         }
         if (!res.ok) throw new Error("ask");
         thinking.innerHTML = sanitize(data.answer);
+        renderBubbleActions(thinking, data.actions || []);
+        if (window.wniosekplPushTodos) window.wniosekplPushTodos(data.actions || [], data.topic);
+        if (window.wniosekplRefreshProfile) window.wniosekplRefreshProfile();
         left = data.free_questions_left;
         limit = data.limit;
         document.getElementById("usage").textContent = copy[lang].usage(left, limit);
+        messages.scrollTop = messages.scrollHeight;
       } catch (err) {
         thinking.textContent = copy[lang].error;
       } finally {
         send.disabled = false;
       }
     }
+
+    window.wniosekplOpenDoc = openDoc;
+    window.wniosekplCopy = copy;
 
     const messages = document.getElementById("messages");
     const chips = document.getElementById("chips");
@@ -1908,6 +2128,7 @@
         messages.innerHTML = "";
         addBubble(copy[lang].welcome, "bot");
         await Promise.all([loadDocs(), loadMeta().catch(() => {})]);
+        if (window.wniosekplRefreshProfile) window.wniosekplRefreshProfile();
       });
     });
 
@@ -1930,6 +2151,7 @@
     })();
   </script>
   <script src="/static/mos.js"></script>
+  <script src="/static/profile.js"></script>
   <script src="/static/platform.js"></script>
   <script src="/static/auth.js"></script>
 </body>

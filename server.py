@@ -107,7 +107,7 @@ from src.services_directory import search_services
 from src.validators import is_required, validate_field
 
 LANDING_DIR = ROOT / "landing"
-PRODUCT_VERSION = "2.2.5"
+PRODUCT_VERSION = "2.2.6"
 
 
 def telegram_configured() -> bool:
@@ -698,6 +698,7 @@ async def ask_assistant(payload: AssistantRequest, request: Request):
     return {
         "topic": result.topic,
         "answer": result.text,
+        "actions": list(result.actions),
         "free_questions_left": plan_after.get("ai_left"),
         "limit": plan_after.get("ai_limit") or AI_FREE_DAILY_LIMIT,
         "plan": plan_after,
@@ -857,6 +858,46 @@ async def cabinet(
         "uploads": await list_uploads(resolved),
         "ai_history": await recent_ai_questions(resolved),
         "karta": progress_view(await get_karta_progress(resolved)),
+        "mos": await get_mos_progress(resolved),
+    }
+
+
+@app.get("/api/resume")
+async def resume_snapshot(
+    lang: Literal["ru", "en", "ua", "pl"] = "pl",
+    user_id: int | None = Query(default=None),
+    authorization: str | None = Header(default=None),
+):
+    """Compact 'what to finish' snapshot for the chat-side profile rail."""
+    from src.mos_guide import guide_payload, next_action
+
+    resolved = None
+    mos_done: dict[str, bool] = {}
+    calendar: list = []
+    karta_left = 0
+    plan = {}
+    if authorization or user_id is not None:
+        try:
+            resolved = await _resolve_user(user_id, authorization)
+            mos_done = await get_mos_progress(resolved)
+            calendar = (await list_calendar_events(resolved))[:3]
+            karta_steps = progress_view(await get_karta_progress(resolved), lang)
+            karta_left = sum(1 for s in karta_steps if not s.get("done"))
+            plan = await user_plan(resolved)
+        except Exception:
+            resolved = None
+
+    nxt = next_action(mos_done, lang)
+    copy = guide_payload(lang, done=mos_done)["copy"]
+    session_user = await resolve_session(authorization)
+    return {
+        "user_id": resolved,
+        "plan": plan,
+        "mos_next": nxt,
+        "mos_label": copy.get("next_title"),
+        "calendar": calendar,
+        "karta_left": karta_left,
+        "logged_in": session_user is not None,
     }
 
 
