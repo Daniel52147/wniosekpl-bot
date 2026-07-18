@@ -615,6 +615,19 @@
       font-weight: 700;
       color: var(--moss-deep);
     }
+    .tg-link-banner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.85rem;
+      margin-bottom: 1rem;
+      padding: 0.95rem 1.05rem;
+      border-radius: 16px;
+      border: 1px solid rgba(20, 122, 97, 0.28);
+      background: linear-gradient(120deg, rgba(210, 239, 106, 0.28), rgba(255,255,255,0.7));
+    }
+    .tg-link-banner strong { display: block; font-size: 1.02rem; }
     .mos-tools {
       border-top: 1px solid var(--line);
       padding-top: 0.85rem;
@@ -1401,6 +1414,17 @@
           </div>
 
           <div id="now-workspace">
+          <div class="tg-link-banner" id="tg-link-banner" hidden>
+            <div>
+              <strong id="tg-banner-title">Jeden postęp: strona + Telegram</strong>
+              <p class="muted" id="tg-banner-body" style="margin:0.25rem 0 0">Połącz konta — checklista MOS, szkice PDF i terminy będą wspólne.</p>
+            </div>
+            <div class="mos-actions" style="margin:0">
+              <button type="button" class="cta" id="tg-banner-cta">Połącz Telegram</button>
+              <button type="button" class="ghost" id="tg-banner-dismiss">Później</button>
+            </div>
+          </div>
+
           <div class="mos-finale" id="mos-ready-finale" hidden>
             <h3 id="mos-finale-title">Wszystko gotowe</h3>
             <p class="mos-finale-sub" id="mos-finale-sub"></p>
@@ -1684,7 +1708,7 @@
 
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.</span>
-      <span>WniosekPL · v2.4.0 · <a href="/setup">Setup</a></span>
+      <span>WniosekPL · v2.4.1 · <a href="/setup">Setup</a></span>
     </footer>
   </div>
 
@@ -2502,7 +2526,6 @@
   <script src="/static/mos.js"></script>
   <script src="/static/profile.js"></script>
   <script src="/static/onboarding.js"></script>
-  <script src="/static/platform.js"></script>
   <script src="/static/auth.js"></script>
   <script src="/static/trust.js"></script>
   <script src="/static/account-link.js"></script>

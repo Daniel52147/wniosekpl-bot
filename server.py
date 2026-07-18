@@ -107,7 +107,7 @@ from src.services_directory import search_services
 from src.validators import is_required, validate_field
 
 LANDING_DIR = ROOT / "landing"
-PRODUCT_VERSION = "2.4.0"
+PRODUCT_VERSION = "2.4.1"
 
 
 def telegram_configured() -> bool:
@@ -424,11 +424,16 @@ async def ready():
         "documents_count": len(_docs()),
         "public_base_url": config.PUBLIC_BASE_URL,
         "stable_domain": stable_domain,
+        "shared_db_hint": (
+            "Run API+bot via scripts/start_render.sh (or docker compose) "
+            "so both share one SQLite file. Separate Render disks = two products."
+        ),
         "prod_checklist": {
             "stripe_webhook": stripe_webhook_configured(),
             "stable_domain": stable_domain,
             "db_backups": backup_count > 0,
             "telegram": telegram_configured(),
+            "not_cloudflare_tunnel": "trycloudflare.com" not in public,
         },
     }
 
@@ -1373,6 +1378,18 @@ async def admin(x_admin_key: str | None = Header(default=None)):
         "telegram": telegram_configured(),
     }
     return data
+
+
+@app.post("/api/admin/backup")
+async def admin_backup(x_admin_key: str | None = Header(default=None)):
+    """Copy SQLite to data/backups/ (cron or manual)."""
+    require_admin(x_admin_key)
+    from scripts.backup_db import backup_database
+
+    dest = backup_database()
+    if dest is None:
+        raise HTTPException(status_code=404, detail="database_not_found")
+    return {"ok": True, "path": str(dest), "name": dest.name}
 
 
 @app.get("/api/demo/seed-calendar/{user_id}")

@@ -72,9 +72,9 @@ _TOPIC_ACTIONS: dict[str, list[dict]] = {
             _L("Szablon odwołania", "Шаблон odwołanie", "Appeal template", "Шаблон odwołanie"),
         ),
         _goto(
-            "lawyers",
-            "#tools",
-            _L("Marketplace prawników", "Юристы", "Lawyer marketplace", "Юристи"),
+            "mos",
+            "#mos",
+            _L("Wróć do przewodnika MOS", "Вернись к гиду MOS", "Back to MOS guide", "Повернись до гіду MOS"),
         ),
     ],
     "praca": [
@@ -399,23 +399,23 @@ _TOPICS: dict[str, dict[str, list[str] | dict[str, str]]] = {
                 "<b>Отказ / odwołanie</b>\n\n"
                 "1. Найдите срок обжалования в решении (часто 14 дней).\n"
                 "2. Не пропускайте срок.\n"
-                "3. Черновик — кнопкой ниже; сложные дела — marketplace юристов."
+                "3. Черновик — кнопкой ниже; сложные дела — юрист или urząd (мы не подаём за тебя)."
             ),
             "en": (
                 "<b>Refusal / appeal</b>\n\n"
                 "1. Find the appeal deadline in the decision (often 14 days).\n"
                 "2. Do not miss it.\n"
-                "3. Draft with the button below; complex cases → lawyer marketplace."
+                "3. Draft with the button below; complex cases → a lawyer or the office (we do not file for you)."
             ),
             "ua": (
                 "<b>Відмова / odwołanie</b>\n\n"
-                "Перевірте строк у рішенні. Чернетка — кнопкою; складні справи — marketplace юристів."
+                "Перевір строк у рішенні. Чернетка — кнопкою; складні справи — юрист або urząd (ми не подаємо за тебе)."
             ),
             "pl": (
                 "<b>Odmowa / odwołanie</b>\n\n"
                 "1. Sprawdź termin w decyzji (często 14 dni).\n"
                 "2. Nie przegap terminu.\n"
-                "3. Szablon przyciskiem poniżej; trudne sprawy — marketplace prawników."
+                "3. Szablon przyciskiem poniżej; trudne sprawy — prawnik lub urząd (nie składamy za Ciebie)."
             ),
         },
     },

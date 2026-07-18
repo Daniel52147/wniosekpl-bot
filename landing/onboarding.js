@@ -198,7 +198,13 @@
     setWorkspaceVisible(true);
     if (window.wniosekplLoadMos) window.wniosekplLoadMos().catch(() => {});
     if (window.wniosekplRefreshProfile) window.wniosekplRefreshProfile();
+    if (window.wniosekplRefreshAccountLink) window.wniosekplRefreshAccountLink();
     document.getElementById("mos-next")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // Soft nudge: one account across phone + browser.
+    const banner = document.getElementById("tg-link-banner");
+    if (banner && localStorage.getItem("wniosekpl_tg_banner_dismissed") !== "1") {
+      banner.hidden = false;
+    }
   }
 
   function resetOnboarding() {

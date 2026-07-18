@@ -266,6 +266,7 @@
   window.wniosekplPushTodos = pushTodos;
   window.wniosekplRunAction = runAction;
   window.wniosekplRefreshProfile = refreshProfile;
+  window.wniosekplSetProfileTab = (tab) => setTab(tab || "now");
   window.wniosekplOpenProfileTab = (tab) => {
     setTab(tab || "now");
     window.scrollTo({ top: 0, behavior: "smooth" });

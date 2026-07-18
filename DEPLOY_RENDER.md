@@ -1,106 +1,78 @@
-# Деплой WniosekPL на Render
+# Деплой WniosekPL (прод без костылей)
 
-Основной продукт теперь можно запускать как **Web Service** (`server.py`) с REST API.
-Telegram-бот остаётся дополнительным каналом и работает через **Background Worker** (`python bot.py`).
+Цель: **один домен + одна SQLite + webhook Stripe + бот на том же диске**.
 
-## 1. Подготовка репозитория
-
-1. Создайте репозиторий на GitHub (например `wniosekpl`).
-2. Залейте папку `urzad-ai` (или весь `Project`, тогда укажите Root Directory ниже).
-3. **Никогда не коммитьте** файл `.env` — только `.env.example`.
-4. По желанию закоммитьте PDF в `templates/official/` — иначе бот скачает их при старте с gov.pl.
+## Рекомендуемый путь A — Docker (VPS)
 
 ```bash
-git init
-git add .
-git commit -m "WniosekPL bot"
-git remote add origin https://github.com/ВАШ_АККАУНТ/wniosekpl.git
-git push -u origin main
+cp .env.example .env
+# PUBLIC_BASE_URL=https://ваш-домен
+# STRIPE_* включая STRIPE_WEBHOOK_SECRET=whsec_...
+# BOT_TOKEN=...
+docker compose --profile bot up -d
 ```
 
-## 2. Создание сервиса на Render
+API и bot монтируют один volume `wniosekpl-data` → общий прогресс и связка сайт↔Telegram работают.
 
-### Вариант A — через Blueprint (проще)
+Cron бэкапа (на хосте):
 
-1. [dashboard.render.com](https://dashboard.render.com) → **New** → **Blueprint**.
-2. Подключите GitHub-репозиторий.
-3. Render подхватит `render.yaml` из корня репозитория.
-4. При создании введите секреты для Telegram worker:
-   - `BOT_TOKEN` — от [@BotFather](https://t.me/BotFather)
-   - `BOT_USERNAME` — без `@`, например `wniosekpl_bot`
-   - `ADMIN_TELEGRAM_IDS` — ваш ID от [@userinfobot](https://t.me/userinfobot)
+```bash
+0 3 * * * cd /opt/wniosekpl && docker compose exec -T api python -c "from scripts.backup_db import backup_database; print(backup_database())"
+```
 
-### Вариант B — вручную
+Проверка: `curl https://ваш-домен/ready` → `prod_checklist.stripe_webhook`, `stable_domain`, `db_backups`.
 
-1. **New** → **Web Service** для API.
-2. Подключите репозиторий.
-3. Настройки:
+---
 
-| Поле | Значение |
-|------|----------|
-| **Name** | `wniosekpl-api` |
-| **Region** | Frankfurt (ближе к Польше) |
-| **Branch** | `main` |
-| **Root Directory** | `urzad-ai` *(если репо = весь Project)* |
-| **Runtime** | Python 3 |
-| **Build Command** | `pip install -r requirements.txt` |
-| **Start Command** | `python -m uvicorn server:app --host 0.0.0.0 --port $PORT` |
+## Путь B — Render Blueprint
 
-4. **Environment Variables** (Environment):
+1. [dashboard.render.com](https://dashboard.render.com) → **New** → **Blueprint** → этот репозиторий.
+2. Подхватывается `render.yaml`: **один** web-сервис `wniosekpl`, старт `bash scripts/start_render.sh`.
+3. Задайте секреты:
+   - `PUBLIC_BASE_URL` = `https://<service>.onrender.com` (потом свой домен)
+   - `BOT_TOKEN`, `STRIPE_*`, особенно **`STRIPE_WEBHOOK_SECRET`**
+   - `ADMIN_API_KEY`
+4. Disk `/data` обязателен.
 
-| Key | Value |
-|-----|--------|
-| `DATABASE_PATH` | `/data/urzad.db` |
-| `DATABASE_URL` | *(опционально)* Postgres URL — схема в `scripts/postgres_schema.sql` |
-| `AI_FREE_DAILY_LIMIT` | `5` |
-| `WEB_CORS_ORIGINS` | `*` для MVP или домен сайта |
-| `PUBLIC_BASE_URL` | публичный URL web-сервиса |
-| `OPENAI_API_KEY` | прямой OpenAI (fallback) |
-| `OMNIROUTE_ENABLED` / `OMNIROUTE_BASE_URL` / `OMNIROUTE_API_KEY` | AI gateway ([OmniRoute](https://github.com/diegosouzapw/OmniRoute)) |
-| `GROQ_API_KEY` / `OPENROUTER_API_KEY` | бесплатные fallback LLM |
-| `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` / price IDs | для живых платежей |
-| `ADMIN_API_KEY` | для `/admin` и `/api/admin/overview` |
+Скрипт старта:
 
-5. **Disk** (важно для базы пользователей и лидов):
-   - Add disk → Mount path: `/data` → Size: 1 GB  
-   Без диска SQLite **сбрасывается** при каждом redeploy.
+- поднимает API;
+- если есть `BOT_TOKEN` — бота **в том же процессе/диске**;
+- делает стартовый backup и фоновый раз в 12ч.
 
-6. **Create Web Service** → дождитесь зелёного статуса **Live**.
+**Не добавляйте** отдельный Background Worker со своим диском — это ломает «один аккаунт».
 
-7. Если нужен Telegram-бот, создайте отдельный **Background Worker**:
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: `python bot.py`
-   - Env: `BOT_TOKEN`, `BOT_USERNAME`, `ADMIN_TELEGRAM_IDS`, `DATABASE_PATH=/data/urzad.db`
+### Stripe webhook на Render
 
-## 3. Проверка
+1. `/setup` → скопируйте URL `…/api/billing/webhook`
+2. Stripe Workbench → Webhooks → destination → Reveal `whsec_…`
+3. Вставьте в `STRIPE_WEBHOOK_SECRET` и Save
+4. Без `whsec` live checkout **заблокирован** (ошибка `stripe_webhook_required`)
 
-1. Web API: откройте `/health`, должно быть `{"status":"ok"}`.
-2. Документы: `/api/documents?lang=ru`.
-3. Telegram, если включён: `/start` у вашего бота.
-4. От вашего аккаунта: `/stats` (если ID в `ADMIN_TELEGRAM_IDS`).
+### Свой домен
 
-## 4. Обновление бота
+Render → Custom Domain → обновите `PUBLIC_BASE_URL` → перезапуск.  
+Cloudflare Tunnel (`*.trycloudflare.com`) годится только для демо: `/ready` пометит `stable_domain: false`.
 
-Каждый `git push` в `main` → Render пересобирает Worker автоматически (если включён Auto-Deploy).
+### Ручной backup
 
-## 5. Частые проблемы
+```bash
+curl -X POST https://ваш-домен/api/admin/backup -H "X-Admin-Key: $ADMIN_API_KEY"
+```
+
+---
+
+## Postgres
+
+`DATABASE_URL` и `scripts/postgres_schema.sql` — заготовка. Рантайм пока всегда SQLite.  
+Пока не переедем — держите один файл БД и бэкапы.
+
+## Частые проблемы
 
 | Проблема | Решение |
 |----------|---------|
-| API не отвечает | Проверьте `/health`, логи Web Service и `startCommand` |
-| Бот не отвечает | Проверьте `BOT_TOKEN`, логи Worker, статус Live |
-| Два инстанса | Остановите `python bot.py` на своём ПК — только один polling |
-| База обнулилась | Подключите Persistent Disk на `/data` |
-| API и бот видят разные данные | Для масштабирования переведите SQLite на общий Postgres |
-| SSL при скачивании PDF | Бот сам повторяет с fallback; смотрите логи |
-| Free tier засыпает | Worker на free **не спит** как Web; polling держит процесс активным |
-
-## 6. Стоимость
-
-- **Free Worker** — ограничения Render (может быть недоступен в некоторых регионах).
-- Для продакшена лучше **Starter Worker** (~$7/мес) + диск 1 GB.
-
-## 7. Локально vs Render
-
-- Локально: `.env` с теми же переменными.
-- На Render: только Environment Variables в панели, **не** файл `.env`.
+| Разный прогресс сайт/бот | Разные диски / разные `DATABASE_PATH` |
+| Checkout 400 `stripe_webhook_required` | Вставьте `whsec_…` в `/setup` |
+| База обнулилась | Нет Persistent Disk на `/data` |
+| Tunnel URL меняется | Поставьте постоянный домен |
+| Free tier спит | Платный инстанс или внешний ping `/health` |

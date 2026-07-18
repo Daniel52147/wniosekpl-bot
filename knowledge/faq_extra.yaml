@@ -105,3 +105,30 @@ articles:
         При роботі часто подаєте PIT раз на рік. Уточніть urząd skarbowy за адресою.
       pl: |
         Przy umowie zwykle składasz PIT raz w roku. US zależy od adresu.
+  - id: site_telegram_sync
+    tags: [telegram, sync, konto, link, progress]
+    title:
+      ru: "Сайт и Telegram — один прогресс"
+      en: "Website and Telegram — one progress"
+      ua: "Сайт і Telegram — один прогрес"
+      pl: "Strona i Telegram — jeden postęp"
+    body:
+      ru: |
+        В профиле (Konto → Связать Telegram) получи код или открой deep link.
+        В боте: /start link_КОД или /link КОД.
+        После связки общие: чеклист MOS, черновики PDF, календарь и активная подписка.
+        Официальную подачу всё равно делаешь только в MOS: https://mos.cudzoziemcy.gov.pl
+      en: |
+        In Account → Link Telegram, get a code or open the deep link.
+        In the bot: /start link_CODE or /link CODE.
+        Shared after linking: MOS checklist, PDF drafts, calendar, active subscription.
+        You still file only in MOS: https://mos.cudzoziemcy.gov.pl
+      ua: |
+        У Konto → Повʼязати Telegram отримай код або deep link.
+        У боті: /start link_КОД або /link КОД.
+        Спільне: чекліст MOS, чернетки PDF, календар, активна підписка.
+      pl: |
+        W Konto → Połącz Telegram wygeneruj kod lub otwórz deep link.
+        W bocie: /start link_KOD albo /link KOD.
+        Wspólne: checklista MOS, szkice PDF, kalendarz, aktywna subskrypcja.
+        Wniosek składasz tylko w MOS: https://mos.cudzoziemcy.gov.pl

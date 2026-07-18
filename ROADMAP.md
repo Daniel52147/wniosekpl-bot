@@ -1,35 +1,25 @@
 # WniosekPL — roadmap
 
-## Faza 1 — zaufanie ✅
-- [x] Pakiet Przeprowadzka
-- [x] Checklisty
-- [x] Podstawa prawna presets
-- [x] Wersja blanke
+## Done (through v2.4.1)
 
-## Faza 2 — skala ✅
-- [x] EL/ZPS/1
-- [x] Podgląd PDF
-- [x] Landing + web UI
-- [x] PL/EN/UA/RU
-- [x] Helper docs: pismo, upoważnienie, oświadczenie, karta prep
+- [x] MOS guide → finale (attachments + Open MOS + 5 portal steps)
+- [x] Onboarding (purpose / PESEL / deadline)
+- [x] Web PDF drafts + site↔Telegram link (MOS, drafts, calendar, subscription)
+- [x] Auth (email/password, OAuth hooks, magic link, RODO export/delete)
+- [x] Stripe checkout + webhook verification gate (`whsec` required for live)
+- [x] Single-disk deploy (`start_render.sh` / docker compose)
+- [x] `/ready` prod checklist + SQLite backups
+- [x] Trust / FAQ / gov.pl links
+- [x] AI + knowledge; helper PDFs; cabinet Teraz/Dokumenty/Konto
 
-## Faza 3 — biznes ✅ (v1.0 foundation)
-- [x] AI assistant + knowledge base
-- [x] LLM hook (OPENAI_API_KEY)
-- [x] Billing checkout (Stripe or mock)
-- [x] Human review + AI subscription entitlements
-- [x] Personal cabinet
-- [x] Karta pobytu checklist wizard
-- [x] Calendar reminders
-- [x] Upload/analyze documents
-- [x] Letter generator
-- [x] Services directory
-- [x] Admin overview API
+## Secondary (keep, don’t expand on main path)
 
-## Faza 4 — perfection (next)
-- [ ] Real Stripe webhook signature verification in production
-- [ ] Tesseract OCR for photos
-- [ ] Postgres shared DB for web+bot
-- [ ] Full auth (email/magic link) beyond numeric user_id
-- [ ] Partner law-firm marketplace
-- [ ] Multi-country packs (DE/CZ/NL)
+- OCR uploads, lawyer marketplace APIs, multi-city services catalog
+- These stay as API/bot extras — not the default cabinet journey
+
+## Next (real prod calm)
+
+- [ ] Stable custom domain (user/ops) + monitoring alerts on `/ready`
+- [ ] Wire Postgres (`DATABASE_URL`) for horizontal scale — schema stub exists
+- [ ] Deeper account merge (onboarding plan server-side, payment identity remap)
+- [ ] Optional multi-country packs after MOS path is rock-solid

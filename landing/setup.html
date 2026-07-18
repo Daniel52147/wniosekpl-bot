@@ -35,6 +35,7 @@
         <li>Events on your account → выбери события → тип: <b>Webhook endpoint</b></li>
         <li>URL возьми из блока статуса ниже (<code>.../api/billing/webhook</code>)</li>
         <li>Signing secret → Reveal → вставь <code>whsec_...</code> в поле STRIPE_WEBHOOK_SECRET</li>
+        <li><b>Без whsec checkout в проде заблокирован</b> — подписка иначе ненадёжна</li>
       </ol>
     </div>
     <div class="card" id="status">Загрузка…</div>

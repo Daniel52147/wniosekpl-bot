@@ -30,6 +30,7 @@ def test_trust_payload_has_faq_and_gov_links():
     data = trust_payload("en")
     assert "not a government" in data["copy"]["title"].lower() or "government" in data["copy"]["title"].lower()
     assert len(data["faq"]) == 5
+    assert any(item["id"] == "sync" for item in data["faq"])
     assert any("mos.cudzoziemcy.gov.pl" in g["url"] for g in data["gov_links"])
     assert "@" in data["contact_email"]
 

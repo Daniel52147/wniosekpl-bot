@@ -448,7 +448,7 @@
         <p class="lead" id="hero-sub">AI-pomocnik dla cudzoziemców w Polsce. Pomaga z MOS 2.0, PESEL, meldunkiem i dokumentami — zanim wejdziesz na oficjalny portal.</p>
         <div class="cta-row">
           <a class="cta" id="cta-profile" href="/profile">Otwórz profil</a>
-          <a class="ghost" id="cta-tg" href="https://t.me/wniosekpl_bot">Telegram bot</a>
+          <a class="ghost" id="cta-tg" href="/profile?tab=account&link=1">Połącz Telegram</a>
         </div>
         <p class="tg-status" id="tg-status"></p>
       </div>
@@ -522,7 +522,7 @@
 
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna.</span>
-      <span>WniosekPL · v2.4.0 · <a href="/profile">Profil</a> · <a href="/setup">Setup</a></span>
+      <span>WniosekPL · v2.4.1 · <a href="/profile">Profil</a> · <a href="/setup">Setup</a></span>
     </footer>
   </div>
 
@@ -569,7 +569,7 @@
         profile: "Profil",
         heroSub: "AI-pomocnik dla cudzoziemców w Polsce. Pomaga z MOS 2.0, PESEL, meldunkiem i dokumentami — zanim wejdziesz na oficjalny portal.",
         ctaProfile: "Otwórz profil",
-        ctaTg: "Telegram bot",
+        ctaTg: "Połącz Telegram",
         kicker: "Co umie bot",
         visualTitle: "Praktyczna pomoc, nie urząd",
         canDo: [
@@ -594,7 +594,7 @@
         profile: "Профиль",
         heroSub: "AI-помощник для иностранцев в Польше. MOS 2.0, PESEL, meldunek и документы — до входа на официальный портал.",
         ctaProfile: "Открыть профиль",
-        ctaTg: "Telegram-бот",
+        ctaTg: "Связать Telegram",
         kicker: "Что умеет бот",
         visualTitle: "Практическая помощь, не urząd",
         canDo: [
@@ -619,7 +619,7 @@
         profile: "Profile",
         heroSub: "AI helper for foreigners in Poland. MOS 2.0, PESEL, address registration and documents — before the official portal.",
         ctaProfile: "Open profile",
-        ctaTg: "Telegram bot",
+        ctaTg: "Link Telegram",
         kicker: "What the bot can do",
         visualTitle: "Practical help, not a government office",
         canDo: [
@@ -644,7 +644,7 @@
         profile: "Профіль",
         heroSub: "AI-помічник для іноземців у Польщі. MOS 2.0, PESEL, meldunek і документи — до офіційного порталу.",
         ctaProfile: "Відкрити профіль",
-        ctaTg: "Telegram-бот",
+        ctaTg: "Повʼязати Telegram",
         kicker: "Що вміє бот",
         visualTitle: "Практична допомога, не urząd",
         canDo: [
@@ -742,9 +742,9 @@
         const data = await res.json();
         const tg = document.getElementById("tg-status");
         if (data.telegram_configured) {
-          tg.textContent = lang === "ru" ? "Telegram-бот готов" : lang === "en" ? "Telegram bot ready" : lang === "ua" ? "Telegram-бот готовий" : "Telegram bot gotowy";
+          tg.textContent = lang === "ru" ? "Telegram готов — свяжи с сайтом в профиле" : lang === "en" ? "Telegram ready — link it in your profile" : lang === "ua" ? "Telegram готовий — повʼяжи в профілі" : "Telegram gotowy — połącz w profilu";
           tg.className = "tg-status ok";
-          document.getElementById("cta-tg").href = `https://t.me/${data.telegram_username || BOT}`;
+          document.getElementById("cta-tg").href = "/profile?tab=account&link=1";
         }
       } catch (_) { /* ignore */ }
     })();

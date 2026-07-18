@@ -38,6 +38,18 @@ def stripe_webhook_configured() -> bool:
     return bool((config.STRIPE_WEBHOOK_SECRET or "").strip())
 
 
+def stripe_live_checkout_allowed() -> bool:
+    """Live Stripe checkout needs webhook secret, unless explicitly overridden."""
+    import os
+
+    if not stripe_configured():
+        return False
+    if stripe_webhook_configured():
+        return True
+    flag = (os.getenv("ALLOW_STRIPE_WITHOUT_WEBHOOK") or "").strip().lower()
+    return flag in {"1", "true", "yes", "on"}
+
+
 def mock_billing_allowed() -> bool:
     """Mock unlock is only for demos without Stripe (or explicit opt-in)."""
     import os
@@ -60,13 +72,16 @@ def price_id_for(product: str) -> str:
 
 def billing_status() -> dict:
     modes = []
-    if stripe_configured():
+    if stripe_live_checkout_allowed():
         modes.append("stripe")
+    elif stripe_configured() and not stripe_webhook_configured():
+        modes.append("stripe_needs_webhook")
     if mock_billing_allowed():
         modes.append("mock")
     return {
         "stripe_configured": stripe_configured(),
         "stripe_webhook_configured": stripe_webhook_configured(),
+        "stripe_live_checkout_allowed": stripe_live_checkout_allowed(),
         "mock_billing_allowed": mock_billing_allowed(),
         "publishable_key": config.STRIPE_PUBLISHABLE_KEY or None,
         "prices": PLAN_PRICES,
@@ -75,6 +90,11 @@ def billing_status() -> dict:
             "human_review": bool(config.STRIPE_PRICE_HUMAN_REVIEW),
         },
         "modes": modes or ["unavailable"],
+        "hint": (
+            None
+            if stripe_webhook_configured() or not stripe_configured()
+            else "Add STRIPE_WEBHOOK_SECRET (whsec_…) in /setup before live checkout."
+        ),
     }
 
 
@@ -118,6 +138,12 @@ async def create_checkout_session(user_id: int, product: str) -> dict:
     if stripe_configured():
         if not price_id_for(product):
             raise ValueError("missing_stripe_price")
+        if not stripe_live_checkout_allowed():
+            raise ValueError(
+                "stripe_webhook_required:"
+                "Set STRIPE_WEBHOOK_SECRET (whsec_…) in /setup — "
+                "without it paid subscriptions are unreliable."
+            )
         try:
             return await _stripe_checkout(user_id, product)
         except Exception as exc:

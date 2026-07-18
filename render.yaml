@@ -1,13 +1,17 @@
 # One-click Render Blueprint for WniosekPL
 # https://dashboard.render.com/select-repo?type=blueprint
+#
+# IMPORTANT: API + bot must share ONE SQLite file.
+# This blueprint runs both in a single web service via scripts/start_render.sh.
+# Do NOT add a second worker with its own disk — that splits accounts/progress.
 services:
   - type: web
-    name: wniosekpl-api
+    name: wniosekpl
     runtime: python
     plan: free
     region: frankfurt
     buildCommand: pip install -r requirements.txt
-    startCommand: python -m uvicorn server:app --host 0.0.0.0 --port $PORT
+    startCommand: bash scripts/start_render.sh
     healthCheckPath: /health
     envVars:
       - key: WEB_CORS_ORIGINS
@@ -48,34 +52,9 @@ services:
         sync: false
       - key: FACEBOOK_APP_SECRET
         sync: false
+      - key: ALLOW_STRIPE_WITHOUT_WEBHOOK
+        value: "false"
     disk:
-      name: wniosekpl-api-data
-      mountPath: /data
-      sizeGB: 1
-
-  - type: worker
-    name: wniosekpl-bot
-    runtime: python
-    plan: free
-    region: frankfurt
-    buildCommand: pip install -r requirements.txt
-    startCommand: python bot.py
-    envVars:
-      - key: BOT_TOKEN
-        sync: false
-      - key: BOT_USERNAME
-        value: wniosekpl_bot
-      - key: ADMIN_TELEGRAM_IDS
-        sync: false
-      - key: DATABASE_PATH
-        value: /data/urzad.db
-      - key: PUBLIC_BASE_URL
-        sync: false
-      - key: OPENAI_API_KEY
-        sync: false
-      - key: STRIPE_SECRET_KEY
-        sync: false
-    disk:
-      name: wniosekpl-bot-data
+      name: wniosekpl-data
       mountPath: /data
       sizeGB: 1

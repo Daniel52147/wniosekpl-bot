@@ -181,10 +181,10 @@ async def cmd_start(message: Message, state: FSMContext, command: CommandObject)
         if result.get("ok"):
             await message.answer(
                 {
-                    "pl": "✓ Konto strony powiązane. Postęp MOS i szkice są wspólne.",
-                    "ru": "✓ Аккаунт сайта связан. Прогресс MOS и черновики общие.",
-                    "en": "✓ Website account linked. MOS progress and drafts are shared.",
-                    "ua": "✓ Акаунт сайту повʼязано. Прогрес MOS і чернетки спільні.",
+                    "pl": "✓ Konto strony powiązane. Wspólne: MOS, szkice PDF, terminy i subskrypcja.",
+                    "ru": "✓ Аккаунт сайта связан. Общее: MOS, черновики PDF, сроки и подписка.",
+                    "en": "✓ Website linked. Shared: MOS, PDF drafts, deadlines and subscription.",
+                    "ua": "✓ Акаунт сайту повʼязано. Спільне: MOS, чернетки PDF, строки і підписка.",
                 }.get(lang, "✓ Linked.")
             )
         else:
@@ -228,10 +228,10 @@ async def cmd_link(message: Message, command: CommandObject) -> None:
     if result.get("ok"):
         await message.answer(
             {
-                "pl": "✓ Konto strony powiązane. Postęp MOS i szkice są wspólne.",
-                "ru": "✓ Аккаунт сайта связан. Прогресс MOS и черновики общие.",
-                "en": "✓ Website account linked. MOS progress and drafts are shared.",
-                "ua": "✓ Акаунт сайту повʼязано. Прогрес MOS і чернетки спільні.",
+                "pl": "✓ Konto strony powiązane. Wspólne: MOS, szkice PDF, terminy i subskrypcja.",
+                "ru": "✓ Аккаунт сайта связан. Общее: MOS, черновики PDF, сроки и подписка.",
+                "en": "✓ Website linked. Shared: MOS, PDF drafts, deadlines and subscription.",
+                "ua": "✓ Акаунт сайту повʼязано. Спільне: MOS, чернетки PDF, строки і підписка.",
             }.get(lang, "✓ Linked.")
         )
     else:

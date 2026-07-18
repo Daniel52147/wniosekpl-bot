@@ -1,51 +1,71 @@
-# WniosekPL Platform v2.2
+# WniosekPL Platform v2.4
 
-AI-помощник для иностранцев в Польше: **web + Telegram + auth + Stripe + OmniRoute**.
+AI-помощник для иностранцев в Польше: **гид в MOS 2.0**, не клон urzędu.
 
-**Pomocnik, nie urząd** — не юридическая консультация.
+**Pomocnik, nie urząd** — не юридическая консультация. Официальный wniosek — только на [mos.cudzoziemcy.gov.pl](https://mos.cudzoziemcy.gov.pl).
 
-## Что умеет v2.2
+## Главный сценарий (то, ради чего продукт)
 
-- Регистрация: email/пароль, Google/Facebook OAuth, magic link, RODO export/delete
-- AI-чат: rules + knowledge + OmniRoute/LLM cascade
-- PDF: PESEL, meldunek, umowa, pismo, upoważnienie, oświadczenie, odwołanie, zaświadczenie, karta prep
-- Пакет «Przeprowadzka» → ZIP из 3 PDF
-- OCR PDF/фото (Tesseract), письма, checklist karty, календарь
-- Marketplace юристов, каталог urzędów (Warszawa/Kraków/Wrocław/Gdańsk/Poznań)
-- Оплата: Stripe checkout/portal/invoices/webhooks или mock
-- Setup wizard `/setup` для ключей без правки кода
-- Telegram-бот как канал
+1. Короткий onboarding (цель / PESEL / срок pobytu)
+2. Чеклист готовности → экран «всё готово»
+3. Что приложить + **Открыть MOS** + 5 шагов в портале (логин → wniosek → pliki → podpis → UPO)
+4. PDF-черновики на сайте (поля сохраняются)
+5. Один прогресс: сайт ↔ Telegram (`/profile?tab=account&link=1`)
 
-## Быстрый старт
+Всё остальное (OCR, marketplace юристов, OAuth) — вторично и не в главном пути кабинета.
+
+## Каналы
+
+| | |
+|--|--|
+| Сайт | `/` маркетинг · `/profile` кабинет (Teraz / Dokumenty / Konto) |
+| Telegram | `@wniosekpl_bot` — тот же прогресс после связки |
+| Setup | `/setup` — Stripe `whsec_…`, OAuth, PUBLIC_BASE_URL |
+| Health | `/health` · `/ready` (prod checklist) |
+
+## Быстрый старт (локально)
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
-# BOT_TOKEN обязателен для бота
+# BOT_TOKEN — для бота; без Stripe — mock billing
 python -m uvicorn server:app --reload --host 0.0.0.0 --port 8000
-# отдельно:
+# отдельно (та же DATABASE_PATH!):
 python bot.py
-# опционально AI gateway:
-bash scripts/start_omniroute.sh
 ```
 
 Сайт: `http://127.0.0.1:8000` · Setup: `/setup` · Admin: `/admin`
 
-## Docker
+## Прод без костылей
+
+**Рекомендуется: Docker Compose** — API + bot на одном volume SQLite:
 
 ```bash
-docker compose up -d
 docker compose --profile bot up -d
 ```
 
-## Документация
+**Render:** Blueprint `render.yaml` поднимает **один** web-сервис через `scripts/start_render.sh` (API + bot + периодический backup на одном диске).  
+Не создавайте отдельный worker со своим диском — получите два разных прогресса.
 
-- `docs/AUTH_BILLING.md` — auth + Stripe
-- `docs/OMNIROUTE.md` — AI gateway
-- `DEPLOY_RENDER.md` — Render Blueprint (`render.yaml`)
-- `THIRD_PARTY.md` — OmniRoute attribution
+Обязательно:
+
+1. Постоянный `PUBLIC_BASE_URL` (не `*.trycloudflare.com`)
+2. `STRIPE_WEBHOOK_SECRET=whsec_…` в `/setup` — без него live checkout блокируется
+3. Persistent disk `/data` + бэкапы (`python -m scripts.backup_db` или `POST /api/admin/backup`)
+4. Смотрите `/ready` → `prod_checklist`
+
+Подробнее: [DEPLOY_RENDER.md](./DEPLOY_RENDER.md)
+
+> `DATABASE_URL` / Postgres: схема в `scripts/postgres_schema.sql` — **пока не подключена** к рантайму. Прод сегодня = SQLite + бэкапы на общем диске.
+
+## Стек
+
+- FastAPI + aiogram + SQLite (`aiosqlite`)
+- Stripe checkout / portal / webhooks (нужен `whsec`)
+- OmniRoute / OpenAI cascade для AI
+- Официальные PDF-шаблоны + helper-формы
 
 ## Тесты
 
@@ -55,4 +75,4 @@ python -m pytest tests/ -q
 
 ## Версия
 
-`GET /health` → `"version": "2.2.0"`
+`PRODUCT_VERSION` в `server.py` → **2.4.1**. См. [CHANGELOG.md](./CHANGELOG.md).

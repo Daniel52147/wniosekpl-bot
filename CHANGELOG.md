@@ -1,5 +1,34 @@
 # Changelog
 
+## 2.4.1 — 2026-07-18
+
+### Prod hardening
+- Live Stripe checkout blocked without `STRIPE_WEBHOOK_SECRET` (`whsec_…`)
+- Single-process deploy: `scripts/start_render.sh` + updated `render.yaml` (API+bot one disk)
+- `/ready` prod checklist + shared-DB hint; `POST /api/admin/backup`
+- Backup prune (keep 14); deploy docs rewritten
+
+### One product (web ↔ Telegram)
+- Link banner on Teraz; landing CTA → `/profile?tab=account&link=1`
+- On link: sync MOS progress, PDF drafts, calendar events, active subscription
+
+### Focus
+- Removed dead `platform.js` from cabinet main path
+- AI odwołanie actions point back to MOS, not lawyer marketplace
+- Trust FAQ: sync scope; README aligned to v2.4 main scenario
+
+## 2.4.0 — 2026-07-18
+
+- MOS finale screen (attachments + Open MOS + 5 portal steps)
+- Web PDF form drafts (localStorage + API)
+- Account link codes / Telegram `/link`
+- Trust block + FAQ on landing and Konto
+
+## 2.3.0 — 2026-07-18
+
+- 3-question onboarding → personalized next MOS step
+- Cabinet simplified to Teraz / Dokumenty / Konto
+
 ## 2.2.0 — 2026-07-17
 
 ### Product
