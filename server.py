@@ -105,7 +105,7 @@ from src.services_directory import search_services
 from src.validators import is_required, validate_field
 
 LANDING_DIR = ROOT / "landing"
-PRODUCT_VERSION = "2.2.2"
+PRODUCT_VERSION = "2.2.3"
 
 
 def telegram_configured() -> bool:
@@ -865,6 +865,13 @@ async def calendar_done(event_id: int, user_id: int):
     if not ok:
         raise HTTPException(status_code=404, detail="event_not_found")
     return {"ok": True}
+
+
+@app.get("/api/mos/guide")
+async def mos_guide_api(lang: Literal["ru", "en", "ua", "pl"] = "pl"):
+    from src.mos_guide import guide_payload
+
+    return guide_payload(lang)
 
 
 @app.get("/api/karta/{user_id}")

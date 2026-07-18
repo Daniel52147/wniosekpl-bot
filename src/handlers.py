@@ -305,12 +305,41 @@ async def cmd_premium(message: Message) -> None:
     await message.answer(
         f"Plan: <b>{plan['plan']}</b>\n"
         f"Web checkout: {PUBLIC_BASE_URL}\n"
+        f"/mos — przewodnik MOS 2.0 (pobyt online)\n"
         f"/promo WAKACJE — 1 miesiąc AI gratis\n"
         f"/review — human check 29 zł\n"
         f"AI unlimited — 19 zł/mies (site checkout)\n"
         f"/lawyers — marketplace\n"
         f"/countries — roadmap krajów",
     )
+
+
+@router.message(Command("mos"))
+async def cmd_mos(message: Message) -> None:
+    from src.mos_guide import MOS_INFO_URL, MOS_PORTAL_URL, guide_payload
+
+    lang = await _register_user(message)
+    data = guide_payload(lang if lang in {"pl", "ru", "en", "ua"} else "pl")
+    copy = data["copy"]
+    lines = [
+        f"<b>{copy['title']}</b>",
+        copy["sub"],
+        "",
+        "<b>Kroki:</b>",
+    ]
+    for step in data["journey"]:
+        lines.append(f"{step['id']}. {step['title']}")
+    lines.extend(
+        [
+            "",
+            f"🌐 MOS: {MOS_PORTAL_URL}",
+            f"ℹ️ Info: {MOS_INFO_URL}",
+            f"Checklist online: {PUBLIC_BASE_URL}/#mos",
+            "",
+            copy["disclaimer"],
+        ]
+    )
+    await message.answer("\n".join(lines))
 
 
 @router.message(Command("promo"))

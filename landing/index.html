@@ -380,6 +380,95 @@
       margin-right: 0.35rem;
     }
 
+    .mos-banner {
+      display: grid;
+      gap: 1rem;
+      padding: 1.15rem 1.2rem;
+      border-radius: 18px;
+      border: 1px solid rgba(20, 122, 97, 0.22);
+      background:
+        linear-gradient(135deg, rgba(20, 122, 97, 0.10), rgba(210, 239, 106, 0.12)),
+        var(--white);
+      box-shadow: var(--shadow);
+      margin-bottom: 1rem;
+    }
+    .mos-banner p { margin: 0.35rem 0 0; color: var(--muted); max-width: 54ch; line-height: 1.5; }
+    .mos-journey {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.55rem;
+      margin: 1rem 0;
+    }
+    .mos-journey article {
+      padding: 0.85rem;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: var(--white);
+    }
+    .mos-journey strong {
+      display: block;
+      font-family: Syne, sans-serif;
+      font-size: 0.95rem;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.25rem;
+    }
+    .mos-journey span { color: var(--muted); font-size: 0.86rem; line-height: 1.4; }
+    .mos-ready {
+      display: grid;
+      gap: 0.55rem;
+      margin: 0.8rem 0 1.2rem;
+    }
+    .mos-ready label {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.7rem;
+      align-items: start;
+      padding: 0.85rem 1rem;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: var(--white);
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .mos-ready label:hover { border-color: rgba(20, 122, 97, 0.35); }
+    .mos-ready label.done {
+      border-color: rgba(20, 122, 97, 0.4);
+      background: rgba(20, 122, 97, 0.06);
+    }
+    .mos-ready input { margin-top: 0.2rem; width: 1.05rem; height: 1.05rem; }
+    .mos-ready .title { font-weight: 700; }
+    .mos-ready .hint { display: block; color: var(--muted); font-size: 0.9rem; margin-top: 0.2rem; line-height: 1.4; }
+    .mos-progress {
+      font-weight: 700;
+      color: var(--moss-deep);
+      margin: 0.4rem 0 0.8rem;
+    }
+    .mos-purposes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
+    .mos-purposes button {
+      text-align: left;
+      font: inherit;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      background: var(--white);
+      border-radius: 14px;
+      padding: 0.9rem 1rem;
+      font-weight: 700;
+    }
+    .mos-purposes button.active {
+      border-color: rgba(20, 122, 97, 0.45);
+      background: rgba(20, 122, 97, 0.08);
+      color: var(--moss-deep);
+    }
+    .mos-purpose-items {
+      margin-top: 0.8rem;
+      padding: 1rem;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fbfdfc;
+    }
+    .mos-purpose-items ul { margin: 0.4rem 0 0; padding-left: 1.1rem; color: var(--muted); line-height: 1.5; }
+    .mos-cta-row { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1rem; }
+
     section {
       padding: 0.4rem 0 2.6rem;
     }
@@ -745,7 +834,7 @@
     }
 
     @media (max-width: 900px) {
-      .hero, .docs, .pricing, .path { grid-template-columns: 1fr; }
+      .hero, .docs, .pricing, .path, .mos-journey, .mos-purposes { grid-template-columns: 1fr; }
       .hero { min-height: auto; padding-top: 1rem; gap: 1.4rem; }
       .hero-visual { min-height: 280px; }
       .nav-links { display: none; }
@@ -770,6 +859,7 @@
       <div class="top-right">
         <nav class="nav-links" aria-label="Sekcje">
           <a href="#assistant">AI</a>
+          <a href="#mos">MOS</a>
           <a href="#documents">Dokumenty</a>
           <a href="#pricing">Taryfy</a>
           <a href="#account">Konto</a>
@@ -798,8 +888,9 @@
         <h1 id="hero-title">WniosekPL</h1>
         <p id="hero-sub">AI-pomocnik dla cudzoziemców w Polsce. Pytasz po swoim języku — dostajesz checklistę, wyjaśnienie i gotowy kierunek.</p>
         <div class="cta-row">
-          <a class="cta" id="cta-chat" href="#assistant">Zapytaj AI</a>
-          <a class="ghost" id="cta-tg" href="https://t.me/wniosekpl_bot">Otwórz w Telegram</a>
+          <a class="cta" id="cta-mos" href="#mos">Przygotuj do MOS</a>
+          <a class="ghost" id="cta-chat" href="#assistant">Zapytaj AI</a>
+          <a class="ghost" id="cta-tg" href="https://t.me/wniosekpl_bot">Telegram</a>
         </div>
         <p class="tg-status" id="tg-status"></p>
       </div>
@@ -810,9 +901,9 @@
             <h2 class="visual-title" id="visual-title">PESEL, meldunek, karta pobytu</h2>
             <div class="doc-preview">
               <ul>
-                <li><i></i> Zapytaj o swoją sytuację</li>
-                <li><i></i> Wypełnij dokument</li>
-                <li><i></i> Pobierz PDF przed urzędem</li>
+                <li><i></i> Przygotuj checklistę do MOS 2.0</li>
+                <li><i></i> Zbierz PESEL, PZ i załączniki</li>
+                <li><i></i> Złóż wniosek na mos.cudzoziemcy.gov.pl</li>
               </ul>
             </div>
           </div>
@@ -822,10 +913,31 @@
     </section>
 
     <nav class="path" aria-label="Jak zacząć">
-      <a href="#assistant"><strong><em>1</em>Zapytaj AI</strong><span>Opisz sprawę swoim językiem</span></a>
-      <a href="#documents"><strong><em>2</em>Wypełnij dokument</strong><span>PESEL, meldunek, pisma, pakiety</span></a>
-      <a href="#pricing"><strong><em>3</em>Pobierz / upgrade</strong><span>PDF za darmo albo AI bez limitu</span></a>
+      <a href="#mos"><strong><em>1</em>Przygotuj MOS</strong><span>Checklist przed oficjalnym wnioskiem</span></a>
+      <a href="#assistant"><strong><em>2</em>Zapytaj AI</strong><span>Opisz sprawę swoim językiem</span></a>
+      <a href="#documents"><strong><em>3</em>Dokumenty PDF</strong><span>PESEL, meldunek, pisma</span></a>
     </nav>
+
+    <section id="mos">
+      <div class="mos-banner">
+        <div>
+          <h2 id="mos-title" style="margin:0;font-family:Syne,sans-serif;letter-spacing:-0.03em">Przygotowanie do MOS 2.0</h2>
+          <p id="mos-sub">Oficjalny wniosek o pobyt składasz w portalu państwa. My przeprowadzimy Cię krok po kroku — zanim się zalogujesz.</p>
+        </div>
+        <div class="mos-cta-row">
+          <a class="cta" id="mos-open" href="https://mos.cudzoziemcy.gov.pl" target="_blank" rel="noopener">Otwórz oficjalny MOS</a>
+          <a class="ghost" id="mos-info" href="https://www.gov.pl/web/udsc/info-mos" target="_blank" rel="noopener">Info UdSC</a>
+        </div>
+      </div>
+      <div class="mos-journey" id="mos-journey"></div>
+      <h3 id="mos-ready-title" style="font-family:Syne,sans-serif;margin:0 0 0.2rem">Czy jesteś gotowy?</h3>
+      <p class="mos-progress" id="mos-progress">0 / 0</p>
+      <div class="mos-ready" id="mos-ready"></div>
+      <h3 id="mos-purpose-title" style="font-family:Syne,sans-serif;margin:1rem 0 0.5rem">Załączniki według celu</h3>
+      <div class="mos-purposes" id="mos-purposes"></div>
+      <div class="mos-purpose-items" id="mos-purpose-items" hidden></div>
+      <p class="muted" id="mos-disclaimer" style="margin-top:1rem;max-width:60ch;line-height:1.5"></p>
+    </section>
 
     <section id="assistant">
       <div class="section-head">
@@ -1101,7 +1213,7 @@
 
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.</span>
-      <span>WniosekPL · v2.2.2 · <a href="/setup">Setup</a></span>
+      <span>WniosekPL · v2.2.3 · <a href="/setup">Setup</a></span>
     </footer>
   </div>
 
@@ -1113,12 +1225,13 @@
 
     const copy = {
       pl: {
-        heroSub: "AI-pomocnik dla cudzoziemców w Polsce. Pytasz po swoim języku — dostajesz checklistę, wyjaśnienie i gotowy kierunek.",
+        heroSub: "Przewodnik do MOS 2.0 i dokumentów w Polsce. Przygotujesz checklistę, PESEL/meldunek i wejdziesz do oficjalnego wniosku online.",
+        ctaMos: "Przygotuj do MOS",
         ctaChat: "Zapytaj AI",
-        ctaTg: "Otwórz w Telegram",
-        visualKicker: "Pomocnik, nie urząd",
-        visualTitle: "PESEL, meldunek, pisma, upoważnienia",
-        visualNote: "Jedno miejsce na dokumenty, pisma i szybkie odpowiedzi przed wizytą w urzędzie.",
+        ctaTg: "Telegram",
+        visualKicker: "Przewodnik, nie urząd",
+        visualTitle: "MOS 2.0, PESEL, meldunek",
+        visualNote: "Najpierw checklista gotowości — potem oficjalny portal mos.cudzoziemcy.gov.pl.",
         assistantTitle: "AI-asystent",
         assistantSub: "5 darmowych pytań dziennie. Napisz sytuację — dostaniesz konkretny plan.",
         usage: (left, limit) => `Darmowe pytania dziś: ${left}/${limit}`,
@@ -1156,19 +1269,20 @@
         reviewBtn: "Chcę sprawdzenie",
         foot: "Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.",
         chips: [
-          "Chcę kartę pobytu",
+          "Jak złożyć wniosek w MOS 2.0?",
           "Jak dostać PESEL?",
+          "Chcę kartę pobytu",
           "Napisz pismo do urzędu",
-          "Potrzebuję oświadczenie o dochodach",
         ],
       },
       ru: {
-        heroSub: "AI-помощник для иностранцев в Польше. Спрашиваете на своём языке — получаете чеклист, объяснение и следующий шаг.",
+        heroSub: "Проводник в MOS 2.0 и документы в Польше. Соберишь чеклист, PESEL/meldunek и подашь официальный wniosek online.",
+        ctaMos: "Подготовка к MOS",
         ctaChat: "Спросить AI",
-        ctaTg: "Открыть в Telegram",
-        visualKicker: "Помощник, не urząd",
-        visualTitle: "PESEL, meldunek, письма, доверенности",
-        visualNote: "Одно место для документов, писем и быстрых ответов перед визитом в ужонд.",
+        ctaTg: "Telegram",
+        visualKicker: "Проводник, не urząd",
+        visualTitle: "MOS 2.0, PESEL, meldunek",
+        visualNote: "Сначала checklist готовности — потом официальный портал mos.cudzoziemcy.gov.pl.",
         assistantTitle: "AI-ассистент",
         assistantSub: "5 бесплатных вопросов в день. Опишите ситуацию — получите конкретный план.",
         usage: (left, limit) => `Бесплатных вопросов сегодня: ${left}/${limit}`,
@@ -1206,19 +1320,20 @@
         reviewBtn: "Хочу проверку",
         foot: "Мы не urząd. Это не юридическая консультация. Проверьте данные перед подачей.",
         chips: [
-          "Хочу карту побыту",
+          "Как подать wniosek в MOS 2.0?",
           "Как получить PESEL?",
+          "Хочу карту побыту",
           "Нужно письмо в urząd",
-          "Нужно заявление о доходах",
         ],
       },
       en: {
-        heroSub: "AI assistant for foreigners in Poland. Ask in your language — get a checklist, plain explanation, and next step.",
+        heroSub: "Your guide to MOS 2.0 and Polish documents. Build a checklist, sort PESEL/meldunek, then file on the official portal.",
+        ctaMos: "Prepare for MOS",
         ctaChat: "Ask AI",
-        ctaTg: "Open in Telegram",
-        visualKicker: "Helper, not a government office",
-        visualTitle: "PESEL, meldunek, letters, authorizations",
-        visualNote: "One place for documents, office letters, and quick answers before your visit.",
+        ctaTg: "Telegram",
+        visualKicker: "Guide, not a government office",
+        visualTitle: "MOS 2.0, PESEL, meldunek",
+        visualNote: "Readiness checklist first — then the official mos.cudzoziemcy.gov.pl portal.",
         assistantTitle: "AI assistant",
         assistantSub: "5 free questions per day. Describe your case — get a concrete plan.",
         usage: (left, limit) => `Free questions today: ${left}/${limit}`,
@@ -1256,19 +1371,20 @@
         reviewBtn: "I want review",
         foot: "We are not a government office. This is not legal advice. Verify data before submitting.",
         chips: [
-          "I need a residence card",
+          "How do I file in MOS 2.0?",
           "How do I get PESEL?",
+          "I need a residence card",
           "Write a letter to the office",
-          "I need an income declaration",
         ],
       },
       ua: {
-        heroSub: "AI-помічник для іноземців у Польщі. Питаєте своєю мовою — отримуєте чекліст, пояснення і наступний крок.",
+        heroSub: "Провідник до MOS 2.0 і документів у Польщі. Збереш чекліст, PESEL/meldunek і подаси офіційний wniosek online.",
+        ctaMos: "Підготовка до MOS",
         ctaChat: "Запитати AI",
-        ctaTg: "Відкрити в Telegram",
-        visualKicker: "Помічник, не urząd",
-        visualTitle: "PESEL, meldunek, листи, довіреності",
-        visualNote: "Одне місце для документів, листів і швидких відповідей перед візитом до urzędu.",
+        ctaTg: "Telegram",
+        visualKicker: "Провідник, не urząd",
+        visualTitle: "MOS 2.0, PESEL, meldunek",
+        visualNote: "Спочатку чекліст готовності — потім офіційний портал mos.cudzoziemcy.gov.pl.",
         assistantTitle: "AI-асистент",
         assistantSub: "5 безкоштовних питань на день. Опишіть ситуацію — отримаєте конкретний план.",
         usage: (left, limit) => `Безкоштовних питань сьогодні: ${left}/${limit}`,
@@ -1306,10 +1422,10 @@
         reviewBtn: "Хочу перевірку",
         foot: "Ми не urząd. Це не юридична консультація. Перевірте дані перед подачею.",
         chips: [
-          "Хочу карту побиту",
+          "Як подати wniosek у MOS 2.0?",
           "Як отримати PESEL?",
+          "Хочу карту побиту",
           "Потрібен лист до urzędu",
-          "Потрібна заява про доходи",
         ],
       },
     };
@@ -1361,6 +1477,8 @@
       document.documentElement.lang = lang;
       document.getElementById("hero-sub").textContent = c.heroSub;
       document.getElementById("cta-chat").textContent = c.ctaChat;
+      const ctaMos = document.getElementById("cta-mos");
+      if (ctaMos && c.ctaMos) ctaMos.textContent = c.ctaMos;
       document.getElementById("cta-tg").textContent = c.ctaTg;
       document.getElementById("visual-kicker").textContent = c.visualKicker;
       document.getElementById("visual-title").textContent = c.visualTitle;
@@ -1388,6 +1506,7 @@
       document.getElementById("foot").textContent = c.foot;
       document.getElementById("modal-generate").textContent = c.generate;
       document.getElementById("modal-close").textContent = c.close;
+      if (window.wniosekplLoadMos) window.wniosekplLoadMos().catch(() => {});
 
       document.querySelectorAll(".langs button").forEach((btn) => {
         btn.classList.toggle("active", btn.dataset.lang === lang);
@@ -1628,6 +1747,7 @@
       }
     })();
   </script>
+  <script src="/static/mos.js"></script>
   <script src="/static/platform.js"></script>
   <script src="/static/auth.js"></script>
 </body>
