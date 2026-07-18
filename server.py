@@ -107,7 +107,7 @@ from src.services_directory import search_services
 from src.validators import is_required, validate_field
 
 LANDING_DIR = ROOT / "landing"
-PRODUCT_VERSION = "2.2.7"
+PRODUCT_VERSION = "2.2.8"
 
 
 def telegram_configured() -> bool:
@@ -308,6 +308,16 @@ async def landing_page():
     return {"name": "WniosekPL", "version": PRODUCT_VERSION}
 
 
+@app.get("/profile", include_in_schema=False)
+@app.get("/app", include_in_schema=False)
+async def profile_app_page():
+    """Logged-in workspace: AI, MOS, documents, billing — separate from marketing landing."""
+    page = LANDING_DIR / "app.html"
+    if page.exists():
+        return FileResponse(page)
+    raise HTTPException(status_code=404, detail="profile_ui_missing")
+
+
 @app.get("/admin", include_in_schema=False)
 async def admin_page():
     page = LANDING_DIR / "admin.html"
@@ -479,7 +489,7 @@ async def auth_verify_email(token: str):
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     session = await issue_session(user_id, label="email_verified")
     return RedirectResponse(
-        f"/?auth=verified&user_id={user_id}&token={session['token']}#account",
+        f"/profile?auth=verified&user_id={user_id}&token={session['token']}&tab=overview",
         status_code=302,
     )
 
@@ -517,7 +527,7 @@ async def auth_google_callback(code: str | None = None, state: str | None = None
     tok = result["session"]["token"]
     uid = result["user"]["user_id"]
     return RedirectResponse(
-        f"/?auth=ok&provider=google&user_id={uid}&token={tok}#account",
+        f"/profile?auth=ok&provider=google&user_id={uid}&token={tok}&tab=overview",
         status_code=302,
     )
 
@@ -545,7 +555,7 @@ async def auth_facebook_callback(code: str | None = None, state: str | None = No
     tok = result["session"]["token"]
     uid = result["user"]["user_id"]
     return RedirectResponse(
-        f"/?auth=ok&provider=facebook&user_id={uid}&token={tok}#account",
+        f"/profile?auth=ok&provider=facebook&user_id={uid}&token={tok}&tab=overview",
         status_code=302,
     )
 
@@ -591,7 +601,7 @@ async def auth_claim(token: str):
     await set_user_email(user_id, row.get("email") or "")
     session = await issue_session(user_id, days=SESSION_DAYS, label="magic")
     return RedirectResponse(
-        f"/?auth=ok&user_id={user_id}&token={session['token']}#account",
+        f"/profile?auth=ok&user_id={user_id}&token={session['token']}&tab=overview",
         status_code=302,
     )
 
@@ -778,7 +788,7 @@ async def billing_mock_complete(user_id: int, product: str):
         subject="WniosekPL payment (demo)",
         body=f"Product {product} activated for user {user_id}.",
     )
-    return RedirectResponse(f"/?billing=success&product={product}&user_id={user_id}#account")
+    return RedirectResponse(f"/profile?billing=success&product={product}&user_id={user_id}&tab=billing")
 
 
 @app.post("/api/billing/portal")

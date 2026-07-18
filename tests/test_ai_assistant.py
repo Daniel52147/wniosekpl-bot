@@ -58,7 +58,7 @@ def test_assistant_api_returns_actions(tmp_path, monkeypatch):
         resume = client.get("/api/resume", params={"lang": "pl", "user_id": 77})
         assert resume.status_code == 200
         assert "mos_next" in resume.json()
-        html = client.get("/").text
+        html = client.get("/profile").text
         assert 'id="profile"' in html
         assert "profile-tabs" in html
         assert "profile.js" in html

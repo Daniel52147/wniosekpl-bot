@@ -37,12 +37,15 @@ def test_ai_upgrade_keyboard_records_subscription_interest():
 
 
 def test_landing_exposes_paid_review_plan():
-    html = (Path(__file__).resolve().parent.parent / "landing" / "index.html").read_text(encoding="utf-8")
+    root = Path(__file__).resolve().parent.parent / "landing"
+    home = (root / "index.html").read_text(encoding="utf-8")
+    app = (root / "app.html").read_text(encoding="utf-8")
 
-    assert "29 zł" in html
-    assert "19 zł" in html
-    assert "AI-asystent" in html
-    assert "/api/assistant/ask" in html
-    assert "/api/documents/" in html
-    assert "Sprawdzenie przez człowieka" in html
-    assert "tg-status" in html
+    assert "29 zł" in home
+    assert "19 zł" in home
+    assert 'href="/profile"' in home
+    assert "tg-status" in home
+    assert "AI-asystent" in app
+    assert "/api/assistant/ask" in app
+    assert "/api/documents/" in app
+    assert "Sprawdzenie przez człowieka" in app

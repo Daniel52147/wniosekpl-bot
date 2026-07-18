@@ -57,14 +57,21 @@
     document.querySelectorAll("[data-profile-panel]").forEach((panel) => {
       panel.hidden = panel.getAttribute("data-profile-panel") !== id;
     });
-    if (updateHash && location.hash.startsWith("#profile")) {
-      history.replaceState(null, "", `#profile?tab=${id}`);
+    if (updateHash && (location.pathname === "/profile" || location.pathname === "/app")) {
+      const url = new URL(location.href);
+      url.searchParams.set("tab", id);
+      if (!url.hash || url.hash.startsWith("#profile")) url.hash = "";
+      history.replaceState(null, "", url.pathname + url.search + (url.hash || "#profile"));
     }
   }
 
   function tabFromLocation() {
+    const search = new URLSearchParams(location.search || "");
+    if (search.get("tab")) return search.get("tab");
     const hash = location.hash || "";
-    if (hash.startsWith("#account")) return localStorage.getItem(TAB_KEY) || "account";
+    if (hash.startsWith("#account")) return "account";
+    if (hash.startsWith("#assistant")) return "overview";
+    if (hash.startsWith("#mos")) return "mos";
     if (!hash.startsWith("#profile")) return localStorage.getItem(TAB_KEY) || "overview";
     const q = hash.includes("?") ? hash.split("?")[1] : "";
     const params = new URLSearchParams(q);
@@ -404,7 +411,6 @@
   window.wniosekplRefreshProfile = refreshProfile;
   window.wniosekplOpenProfileTab = (tab) => {
     setTab(tab || "overview");
-    location.hash = `#profile?tab=${tab || "overview"}`;
     document.getElementById("profile")?.scrollIntoView({ behavior: "smooth" });
   };
 

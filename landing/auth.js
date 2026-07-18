@@ -71,8 +71,10 @@
     if (chip) {
       chip.textContent = label;
       chip.title = label || "Profil";
-      chip.href = "#profile";
+      chip.href = "/profile";
     }
+    const entry = document.getElementById("profile-entry-label");
+    if (entry && label) entry.textContent = label.split("@")[0] || label;
   }
 
   async function logout() {
@@ -174,9 +176,18 @@
     );
     await refreshAuthUI();
     closeAuthModal();
-    if (window.wniosekplOpenProfileTab) window.wniosekplOpenProfileTab("overview");
-    else location.hash = "#profile";
-    if (window.wniosekplRefreshProfile) window.wniosekplRefreshProfile();
+    goToProfileApp("overview");
+  }
+
+  function goToProfileApp(tab = "overview") {
+    const onApp = location.pathname === "/profile" || location.pathname === "/app";
+    if (onApp) {
+      if (window.wniosekplOpenProfileTab) window.wniosekplOpenProfileTab(tab);
+      else location.hash = "#profile";
+      if (window.wniosekplRefreshProfile) window.wniosekplRefreshProfile();
+      return;
+    }
+    location.href = `/profile?tab=${encodeURIComponent(tab)}`;
   }
 
   async function login(ev) {
@@ -198,9 +209,7 @@
     setNote("Zalogowano.");
     await refreshAuthUI();
     closeAuthModal();
-    if (window.wniosekplOpenProfileTab) window.wniosekplOpenProfileTab("overview");
-    else location.hash = "#profile";
-    if (window.wniosekplRefreshProfile) window.wniosekplRefreshProfile();
+    goToProfileApp("overview");
   }
 
   async function checkout(product) {

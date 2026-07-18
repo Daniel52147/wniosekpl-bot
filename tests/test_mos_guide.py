@@ -42,7 +42,7 @@ def test_mos_guide_api(tmp_path, monkeypatch):
         assert body["ready"][0]["title"]
         assert body["next_action"]["id"] == "pesel"
         assert body["walkthrough"][0]["body"]
-        html = client.get("/").text
+        html = client.get("/profile").text
         assert 'id="mos"' in html
         assert "mos.js" in html
         assert "mos-mark-done" in html

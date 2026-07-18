@@ -111,8 +111,11 @@ def test_landing_page_serves_product_ui(tmp_path, monkeypatch):
 
     with TestClient(server.app) as client:
         page = client.get("/")
+        app = client.get("/profile")
 
     assert page.status_code == 200
-    assert "AI-asystent" in page.text
-    assert "/api/documents/" in page.text
-    assert "generate" in page.text
+    assert 'href="/profile"' in page.text
+    assert app.status_code == 200
+    assert "AI-asystent" in app.text or "assistant" in app.text
+    assert "/api/documents/" in app.text
+    assert "generate" in app.text
