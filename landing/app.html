@@ -830,6 +830,13 @@
       background: rgba(20, 122, 97, 0.06);
       border-color: rgba(20, 122, 97, 0.28);
     }
+    #onboarding.ob-compact {
+      padding: 0.85rem 1rem;
+    }
+    #onboarding.ob-compact h3 {
+      font-size: 1.05rem;
+      margin: 0 !important;
+    }
     .bubble-actions {
       display: flex;
       flex-wrap: wrap;
@@ -1256,6 +1263,40 @@
 
         <!-- NOW -->
         <div class="profile-tab-panel" data-profile-panel="now" id="panel-now">
+          <div class="mos-panel" id="onboarding" style="margin-bottom:1rem">
+            <p class="mos-panel-label" id="ob-kicker">Start</p>
+            <h3 id="ob-title" style="margin:0 0 0.4rem">3 pytania — Twój plan</h3>
+            <p class="mos-hint" id="ob-sub">Od razu wiemy, od czego zacząć.</p>
+            <div id="ob-step-1">
+              <p style="font-weight:700;margin:0.8rem 0 0.5rem" id="ob-q1">Jaki jest cel pobytu?</p>
+              <div class="mos-purposes" id="ob-purposes"></div>
+            </div>
+            <div id="ob-step-2" hidden>
+              <p style="font-weight:700;margin:0.8rem 0 0.5rem" id="ob-q2">Masz już numer PESEL?</p>
+              <div class="mos-actions">
+                <button type="button" class="cta" id="ob-pesel-yes">Tak</button>
+                <button type="button" class="ghost" id="ob-pesel-no">Nie / nie wiem</button>
+              </div>
+            </div>
+            <div id="ob-step-3" hidden>
+              <p style="font-weight:700;margin:0.8rem 0 0.35rem" id="ob-q3">Do kiedy masz legalny pobyt?</p>
+              <p class="muted" id="ob-q3-hint" style="margin:0 0 0.55rem">Jeśli nie wiesz — pomiń.</p>
+              <form id="ob-deadline-form" class="mos-deadline-form">
+                <input id="ob-deadline-date" type="date" />
+                <button class="cta" type="submit" id="ob-deadline-next">Dalej</button>
+                <button type="button" class="ghost" id="ob-deadline-skip">Nie wiem — pomiń</button>
+              </form>
+            </div>
+            <div id="ob-done" hidden>
+              <ul id="ob-summary" style="margin:0.6rem 0 0.9rem;padding-left:1.1rem;color:var(--muted);line-height:1.5"></ul>
+              <div class="mos-actions">
+                <button type="button" class="cta" id="ob-start">Zaczynam</button>
+                <button type="button" class="ghost" id="ob-restart">Zmień odpowiedzi</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="now-workspace">
           <div class="mos-panel" id="mos-next" style="margin-bottom:1rem">
             <p class="mos-panel-label" id="mos-next-label">Twój następny krok</p>
             <div class="mos-meter" aria-hidden="true">
@@ -1355,6 +1396,7 @@
             <div class="mos-tab-panel" data-mos-panel="employer" hidden></div>
             <div class="mos-tab-panel" data-mos-panel="deadline" hidden></div>
           </div>
+          </div><!-- /now-workspace -->
         </div>
 
         <!-- DOCS -->
@@ -1491,7 +1533,7 @@
 
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.</span>
-      <span>WniosekPL · v2.2.9 · <a href="/setup">Setup</a></span>
+      <span>WniosekPL · v2.3.0 · <a href="/setup">Setup</a></span>
     </footer>
   </div>
 
@@ -2232,6 +2274,7 @@
   </script>
   <script src="/static/mos.js"></script>
   <script src="/static/profile.js"></script>
+  <script src="/static/onboarding.js"></script>
   <script src="/static/platform.js"></script>
   <script src="/static/auth.js"></script>
 </body>

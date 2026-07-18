@@ -107,7 +107,7 @@ from src.services_directory import search_services
 from src.validators import is_required, validate_field
 
 LANDING_DIR = ROOT / "landing"
-PRODUCT_VERSION = "2.2.9"
+PRODUCT_VERSION = "2.3.0"
 
 
 def telegram_configured() -> bool:
@@ -234,6 +234,14 @@ class MosDeadlineRequest(BaseModel):
     user_id: int | None = None
     due_at: str = Field(..., min_length=8, max_length=32)
     days_before: int = 14
+
+
+class OnboardingRequest(BaseModel):
+    user_id: int | None = None
+    purpose: Literal["work", "study", "family", "business"] = "work"
+    has_pesel: bool = False
+    due_at: str | None = None
+    lang: Literal["ru", "en", "ua", "pl"] = "pl"
 
 
 class SessionRequest(BaseModel):
@@ -953,6 +961,82 @@ async def mos_guide_api(
         payload["user_id"] = resolved
         payload["saved_progress"] = done
     return payload
+
+
+@app.post("/api/onboarding")
+async def onboarding_api(
+    payload: OnboardingRequest,
+    authorization: str | None = Header(default=None),
+):
+    """Apply 3-question onboarding: purpose + PESEL + optional stay deadline."""
+    from src.mos_guide import next_action
+    from src.onboarding import build_plan
+
+    plan = build_plan(payload.purpose, payload.has_pesel, payload.due_at, payload.lang)
+    steps: dict[str, bool] = {}
+    event_id = None
+    reminder_id = None
+    resolved = None
+    if authorization or payload.user_id is not None:
+        try:
+            resolved = await _resolve_user(payload.user_id, authorization)
+            await upsert_user(resolved, None, None, payload.lang)
+            steps = await get_mos_progress(resolved)
+            if payload.has_pesel:
+                steps["pesel"] = True
+            if payload.due_at:
+                due = payload.due_at.strip()[:32]
+                event_id = await add_calendar_event(
+                    resolved,
+                    title="Koniec legalnego pobytu — złóż MOS",
+                    due_at=due,
+                    kind="mos_deadline",
+                    notes=f"Onboarding: koniec legalnego pobytu ({due}).",
+                )
+                steps["legal_stay"] = True
+                try:
+                    from datetime import date as date_cls, timedelta
+
+                    end = date_cls.fromisoformat(due[:10])
+                    remind = end - timedelta(days=14)
+                    if remind >= date_cls.today():
+                        reminder_id = await add_calendar_event(
+                            resolved,
+                            title="Za 14 dni koniec pobytu — przygotuj MOS",
+                            due_at=remind.isoformat(),
+                            kind="mos_reminder",
+                            notes="Onboarding reminder",
+                        )
+                except Exception:
+                    reminder_id = None
+            await set_mos_progress(resolved, steps)
+        except Exception:
+            resolved = None
+            steps = {"pesel": True} if payload.has_pesel else {}
+            if payload.due_at:
+                steps["legal_stay"] = True
+    else:
+        if payload.has_pesel:
+            steps["pesel"] = True
+        if payload.due_at:
+            steps["legal_stay"] = True
+
+    return {
+        "ok": True,
+        "plan": plan,
+        "steps": steps,
+        "next_action": next_action(steps, payload.lang),
+        "user_id": resolved,
+        "event_id": event_id,
+        "reminder_id": reminder_id,
+    }
+
+
+@app.get("/api/onboarding/copy")
+async def onboarding_copy_api(lang: Literal["ru", "en", "ua", "pl"] = "pl"):
+    from src.onboarding import copy_for
+
+    return {"lang": lang, "copy": copy_for(lang)}
 
 
 @app.post("/api/mos/step")
