@@ -314,32 +314,69 @@ async def cmd_premium(message: Message) -> None:
     )
 
 
-@router.message(Command("mos"))
-async def cmd_mos(message: Message) -> None:
-    from src.mos_guide import MOS_INFO_URL, MOS_PORTAL_URL, guide_payload
+async def _send_mos_guide(message: Message, user_id: int, lang: str) -> None:
+    from src.database import get_mos_progress
+    from src.keyboards import mos_checklist_keyboard
+    from src.mos_guide import MOS_INFO_URL, MOS_PORTAL_URL, guide_payload, next_action
 
-    lang = await _register_user(message)
-    data = guide_payload(lang if lang in {"pl", "ru", "en", "ua"} else "pl")
+    lang = lang if lang in {"pl", "ru", "en", "ua"} else "pl"
+    done = await get_mos_progress(user_id)
+    data = guide_payload(lang, done=done)
     copy = data["copy"]
+    nxt = next_action(done, lang)
     lines = [
         f"<b>{copy['title']}</b>",
         copy["sub"],
         "",
-        "<b>Kroki:</b>",
+        f"<b>{copy['next_title']}</b>",
+        f"→ {nxt['title']}",
+        nxt["hint"],
+        "",
+        f"Postęp: {nxt['done_count']}/{nxt['total']}",
+        f"🌐 {MOS_PORTAL_URL}",
+        f"ℹ️ {MOS_INFO_URL}",
+        f"Web: {PUBLIC_BASE_URL}/#mos",
+        "",
+        "Odznaczaj punkty poniżej:",
     ]
-    for step in data["journey"]:
-        lines.append(f"{step['id']}. {step['title']}")
-    lines.extend(
-        [
-            "",
-            f"🌐 MOS: {MOS_PORTAL_URL}",
-            f"ℹ️ Info: {MOS_INFO_URL}",
-            f"Checklist online: {PUBLIC_BASE_URL}/#mos",
-            "",
-            copy["disclaimer"],
-        ]
+    await message.answer(
+        "\n".join(lines),
+        reply_markup=mos_checklist_keyboard(lang, done),
     )
-    await message.answer("\n".join(lines))
+
+
+@router.message(Command("mos"))
+async def cmd_mos(message: Message) -> None:
+    lang = await _register_user(message)
+    assert message.from_user
+    await _send_mos_guide(message, message.from_user.id, lang)
+
+
+@router.callback_query(F.data.startswith("mos:toggle:"))
+async def mos_toggle_step(callback: CallbackQuery) -> None:
+    from src.database import get_mos_progress, set_mos_progress
+    from src.keyboards import mos_checklist_keyboard
+    from src.mos_guide import READY_STEPS, next_action
+
+    assert callback.from_user and callback.data and callback.message
+    lang = await get_language(callback.from_user.id)
+    lang = lang if lang in {"pl", "ru", "en", "ua"} else "pl"
+    step_id = callback.data.split(":", 2)[-1]
+    valid = {s["id"] for s in READY_STEPS}
+    if step_id not in valid:
+        await callback.answer("?")
+        return
+    done = await get_mos_progress(callback.from_user.id)
+    done[step_id] = not bool(done.get(step_id))
+    await set_mos_progress(callback.from_user.id, done)
+    nxt = next_action(done, lang)
+    try:
+        await callback.message.edit_reply_markup(
+            reply_markup=mos_checklist_keyboard(lang, done)
+        )
+    except Exception:
+        pass
+    await callback.answer(f"{nxt['done_count']}/{nxt['total']} · {nxt['title'][:40]}")
 
 
 @router.message(Command("promo"))
@@ -571,6 +608,14 @@ async def action_use_profile(callback: CallbackQuery, state: FSMContext) -> None
 async def action_guide(callback: CallbackQuery) -> None:
     lang = await get_language(callback.from_user.id)
     await callback.message.answer(t("guide_text", lang))
+    await callback.answer()
+
+
+@router.callback_query(F.data == "action:mos")
+async def action_mos(callback: CallbackQuery) -> None:
+    assert callback.message and callback.from_user
+    lang = await get_language(callback.from_user.id)
+    await _send_mos_guide(callback.message, callback.from_user.id, lang)
     await callback.answer()
 
 

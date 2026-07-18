@@ -183,6 +183,15 @@ async def init_db() -> None:
         )
         await db.execute(
             """
+            CREATE TABLE IF NOT EXISTS mos_progress (
+                telegram_id INTEGER PRIMARY KEY,
+                steps_json TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+            """
+        )
+        await db.execute(
+            """
             CREATE TABLE IF NOT EXISTS sessions (
                 token_hash TEXT PRIMARY KEY,
                 telegram_id INTEGER NOT NULL,
@@ -394,6 +403,7 @@ async def delete_user_data(telegram_id: int) -> None:
             "calendar_events",
             "uploads",
             "karta_progress",
+            "mos_progress",
             "lawyer_leads",
             "sessions",
             "magic_links",
@@ -902,6 +912,33 @@ async def set_karta_progress(telegram_id: int, steps: dict[str, bool]) -> None:
         await db.execute(
             """
             INSERT INTO karta_progress (telegram_id, steps_json, updated_at)
+            VALUES (?, ?, ?)
+            ON CONFLICT(telegram_id) DO UPDATE SET
+                steps_json = excluded.steps_json,
+                updated_at = excluded.updated_at
+            """,
+            (telegram_id, json.dumps(steps, ensure_ascii=False), _now()),
+        )
+        await db.commit()
+
+
+async def get_mos_progress(telegram_id: int) -> dict[str, bool]:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cur = await db.execute(
+            "SELECT steps_json FROM mos_progress WHERE telegram_id = ?",
+            (telegram_id,),
+        )
+        row = await cur.fetchone()
+        if not row:
+            return {}
+        return json.loads(row[0])
+
+
+async def set_mos_progress(telegram_id: int, steps: dict[str, bool]) -> None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            """
+            INSERT INTO mos_progress (telegram_id, steps_json, updated_at)
             VALUES (?, ?, ?)
             ON CONFLICT(telegram_id) DO UPDATE SET
                 steps_json = excluded.steps_json,

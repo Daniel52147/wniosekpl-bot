@@ -252,11 +252,158 @@ PURPOSES = [
 ]
 
 
-def _pick(row: dict, lang: str, key: str, fallback: str = "pl") -> str:
-    return row.get(f"{key}_{lang}") or row.get(lang) or row.get(f"{key}_{fallback}") or row.get(fallback) or ""
+WALKTHROUGH = [
+    {
+        "id": "pesel_step",
+        "pl": "PESEL",
+        "ru": "PESEL",
+        "en": "PESEL",
+        "ua": "PESEL",
+        "body_pl": "Jeśli nie masz PESEL — złóż wniosek w gminie albo zamelduj się (często PESEL nadają z urzędu). U nas jest oficjalny PDF PESEL.",
+        "body_ru": "Нет PESEL — подай wniosek в gminie или сделай meldunek (часто дают с urzędu). У нас есть официальный PDF PESEL.",
+        "body_en": "No PESEL — apply at the commune or register address (often issued automatically). We have the official PESEL PDF.",
+        "body_ua": "Немає PESEL — подай wniosek у gminie або зроби meldunek. У нас є офіційний PDF PESEL.",
+        "cta_pl": "Wypełnij PESEL",
+        "cta_ru": "Заполнить PESEL",
+        "cta_en": "Fill PESEL",
+        "cta_ua": "Заповнити PESEL",
+        "href": "/#documents",
+    },
+    {
+        "id": "pz_step",
+        "pl": "Profil Zaufany",
+        "ru": "Profil Zaufany",
+        "en": "Trusted profile",
+        "ua": "Profil Zaufany",
+        "body_pl": "Załóż Profil Zaufany (bank / e-dowód / urzędnik). Bez tego nie podpiszesz wniosku w MOS przez login.gov.pl.",
+        "body_ru": "Сделай Profil Zaufany (банк / e-dowód / urząd). Без него не подпишешь wniosek в MOS через login.gov.pl.",
+        "body_en": "Create a trusted profile (bank / e-ID / office). Without it you cannot sign in MOS via login.gov.pl.",
+        "body_ua": "Зроби Profil Zaufany (банк / e-dowód / urząd). Без нього не підпишеш wniosek у MOS.",
+        "cta_pl": "Jak założyć PZ",
+        "cta_ru": "Как сделать PZ",
+        "cta_en": "How to get PZ",
+        "cta_ua": "Як зробити PZ",
+        "href": "https://www.gov.pl/web/gov/zaloz-profil-zaufany",
+    },
+    {
+        "id": "files_step",
+        "pl": "Załączniki",
+        "ru": "Приложения",
+        "en": "Attachments",
+        "ua": "Додатки",
+        "body_pl": "Skan całego paszportu, zdjęcie, opłaty, dokumenty celu (praca/studia/rodzina). Przy pracy — email pracodawcy do e-podpisu.",
+        "body_ru": "Скан всего паспорта, фото, оплаты, документы цели. При работе — email работодателя для e-подписи.",
+        "body_en": "Full passport scan, photo, fees, purpose docs. For work — employer email for e-signature.",
+        "body_ua": "Скан усього паспорта, фото, оплати, документи мети. Для роботи — email роботодавця для e-підпису.",
+        "cta_pl": "Zobacz listę według celu",
+        "cta_ru": "Смотри список по цели",
+        "cta_en": "See list by purpose",
+        "cta_ua": "Дивись список за метою",
+        "href": "#mos-purposes",
+    },
+    {
+        "id": "mos_step",
+        "pl": "Konto MOS + wniosek",
+        "ru": "Аккаунт MOS + wniosek",
+        "en": "MOS account + application",
+        "ua": "Акаунт MOS + wniosek",
+        "body_pl": "Załóż NOWE konto w MOS (stare nie przeniesiono), zaloguj przez login.gov.pl, wypełnij, dołącz pliki, wyślij — pobierz UPO.",
+        "body_ru": "Создай НОВЫЙ аккаунт в MOS (старые не перенесли), войди через login.gov.pl, заполни, приложи файлы, отправь — скачай UPO.",
+        "body_en": "Create a NEW MOS account (old ones were not migrated), log in via login.gov.pl, fill, attach, submit — download UPO.",
+        "body_ua": "Створи НОВИЙ акаунт у MOS (старі не перенесли), увійди через login.gov.pl, заповни, додай файли, надішли — завантаж UPO.",
+        "cta_pl": "Otwórz MOS",
+        "cta_ru": "Открыть MOS",
+        "cta_en": "Open MOS",
+        "cta_ua": "Відкрити MOS",
+        "href": MOS_PORTAL_URL,
+    },
+]
+
+EMPLOYER_HELPER = {
+    "pl": {
+        "title": "Szablon do pracodawcy / uczelni",
+        "body": "Wyślij to osobie, która musi e-podpisać załącznik w MOS:",
+        "message": (
+            "Dzień dobry,\n\n"
+            "Składam wniosek o pobyt przez MOS 2.0 (mos.cudzoziemcy.gov.pl). "
+            "System wyśle Państwu link e-mail z załącznikiem do wypełnienia i podpisu elektronicznego "
+            "(Profil Zaufany / podpis kwalifikowany). Proszę o szybkie podpisanie — bez tego nie złożę wniosku.\n\n"
+            "Dziękuję!"
+        ),
+    },
+    "ru": {
+        "title": "Текст для работодателя / вуза",
+        "body": "Отправь человеку, который должен e-подписать załącznik в MOS:",
+        "message": (
+            "Добрый день,\n\n"
+            "Подаю заявление о pobyt через MOS 2.0 (mos.cudzoziemcy.gov.pl). "
+            "Система пришлёт вам email со ссылкой на załącznik для заполнения и электронной подписи "
+            "(Profil Zaufany / квалифицированная подпись). Пожалуйста, подпишите быстрее — без этого я не подам wniosek.\n\n"
+            "Спасибо!"
+        ),
+    },
+    "en": {
+        "title": "Message for employer / university",
+        "body": "Send this to the person who must e-sign the MOS attachment:",
+        "message": (
+            "Hello,\n\n"
+            "I am filing a residence application via MOS 2.0 (mos.cudzoziemcy.gov.pl). "
+            "The system will email you a link to complete and electronically sign an attachment "
+            "(trusted profile / qualified signature). Please sign quickly — I cannot submit without it.\n\n"
+            "Thank you!"
+        ),
+    },
+    "ua": {
+        "title": "Текст для роботодавця / вишу",
+        "body": "Надішли людині, яка має e-підписати załącznik у MOS:",
+        "message": (
+            "Добрий день,\n\n"
+            "Подаю заяву про pobyt через MOS 2.0 (mos.cudzoziemcy.gov.pl). "
+            "Система надішле вам email з лінком на załącznik для заповнення та електронного підпису "
+            "(Profil Zaufany / кваліфікований підпис). Прошу підписати швидко — без цього не подам wniosek.\n\n"
+            "Дякую!"
+        ),
+    },
+}
 
 
-def guide_payload(lang: str = "pl") -> dict:
+def next_action(done: dict[str, bool] | None, lang: str = "pl") -> dict:
+    """Return the first incomplete readiness step as the next action."""
+    lang = lang if lang in {"pl", "ru", "en", "ua"} else "pl"
+    state = done or {}
+    for step in READY_STEPS:
+        if not state.get(step["id"]):
+            return {
+                "id": step["id"],
+                "title": step.get(lang, step["pl"]),
+                "hint": step.get(f"hint_{lang}", step["hint_pl"]),
+                "link": step.get("link") or "#mos",
+                "done_count": sum(1 for s in READY_STEPS if state.get(s["id"])),
+                "total": len(READY_STEPS),
+                "complete": False,
+            }
+    return {
+        "id": "open_mos",
+        "title": {
+            "pl": "Wszystko gotowe — otwórz MOS i złóż wniosek",
+            "ru": "Всё готово — открой MOS и подай wniosek",
+            "en": "All set — open MOS and file",
+            "ua": "Усе готово — відкрий MOS і подай wniosek",
+        }[lang],
+        "hint": {
+            "pl": "Załóż nowe konto, zaloguj login.gov.pl, dołącz pliki i pobierz UPO.",
+            "ru": "Создай новый аккаунт, войди login.gov.pl, приложи файлы и скачай UPO.",
+            "en": "Create a new account, log in via login.gov.pl, attach files, download UPO.",
+            "ua": "Створи новий акаунт, увійди login.gov.pl, додай файли і завантаж UPO.",
+        }[lang],
+        "link": MOS_PORTAL_URL,
+        "done_count": len(READY_STEPS),
+        "total": len(READY_STEPS),
+        "complete": True,
+    }
+
+
+def guide_payload(lang: str = "pl", done: dict[str, bool] | None = None) -> dict:
     lang = (lang or "pl").lower()
     if lang not in {"pl", "ru", "en", "ua"}:
         lang = "pl"
@@ -296,6 +443,12 @@ def guide_payload(lang: str = "pl") -> dict:
             "info": "Informacja UdSC o MOS",
             "ready_title": "Czy jesteś gotowy?",
             "purpose_title": "Załączniki według celu",
+            "walk_title": "Ścieżka przewodnika",
+            "next_title": "Twój następny krok",
+            "deadline_title": "Przypomnienie o końcu legalnego pobytu",
+            "deadline_btn": "Dodaj przypomnienie",
+            "deadline_hint": "Na 14 dni przed datą przypomnimy w kalendarzu konta.",
+            "copy_employer": "Kopiuj wiadomość",
             "disclaimer": "WniosekPL nie jest urzędem i nie składa wniosku za Ciebie. Od 27.04.2026 pobyt czasowy/stały/rezydent UE — zasadniczo tylko online w MOS.",
             "open_mos": "Przejdź do mos.cudzoziemcy.gov.pl",
         },
@@ -306,6 +459,12 @@ def guide_payload(lang: str = "pl") -> dict:
             "info": "Информация UdSC о MOS",
             "ready_title": "Ты готов?",
             "purpose_title": "Приложения по цели",
+            "walk_title": "Путь проводника",
+            "next_title": "Твой следующий шаг",
+            "deadline_title": "Напоминание о конце легального pobytu",
+            "deadline_btn": "Добавить напоминание",
+            "deadline_hint": "За 14 дней до даты напомним в календаре аккаунта.",
+            "copy_employer": "Скопировать текст",
             "disclaimer": "WniosekPL — не urząd и не подаёт заявление за тебя. С 27.04.2026 pobyt — в основном только online в MOS.",
             "open_mos": "Перейти на mos.cudzoziemcy.gov.pl",
         },
@@ -316,6 +475,12 @@ def guide_payload(lang: str = "pl") -> dict:
             "info": "UdSC information about MOS",
             "ready_title": "Are you ready?",
             "purpose_title": "Attachments by purpose",
+            "walk_title": "Guide path",
+            "next_title": "Your next step",
+            "deadline_title": "Reminder: legal stay end date",
+            "deadline_btn": "Add reminder",
+            "deadline_hint": "We will remind you 14 days before in your account calendar.",
+            "copy_employer": "Copy message",
             "disclaimer": "WniosekPL is not a government office and does not file for you. Since 27 Apr 2026 residence permits are mostly online-only via MOS.",
             "open_mos": "Go to mos.cudzoziemcy.gov.pl",
         },
@@ -326,10 +491,28 @@ def guide_payload(lang: str = "pl") -> dict:
             "info": "Інформація UdSC про MOS",
             "ready_title": "Чи готовий ти?",
             "purpose_title": "Додатки за метою",
+            "walk_title": "Шлях провідника",
+            "next_title": "Твій наступний крок",
+            "deadline_title": "Нагадування про кінець легального pobytu",
+            "deadline_btn": "Додати нагадування",
+            "deadline_hint": "За 14 днів до дати нагадаємо в календарі акаунта.",
+            "copy_employer": "Скопіювати текст",
             "disclaimer": "WniosekPL — не urząd і не подає заяву за тебе. З 27.04.2026 pobyt здебільшого тільки online в MOS.",
             "open_mos": "Перейти на mos.cudzoziemcy.gov.pl",
         },
     }
+
+    walkthrough = []
+    for step in WALKTHROUGH:
+        walkthrough.append(
+            {
+                "id": step["id"],
+                "title": step.get(lang, step["pl"]),
+                "body": step.get(f"body_{lang}", step["body_pl"]),
+                "cta": step.get(f"cta_{lang}", step["cta_pl"]),
+                "href": step.get("href"),
+            }
+        )
 
     return {
         "portal_url": MOS_PORTAL_URL,
@@ -339,4 +522,7 @@ def guide_payload(lang: str = "pl") -> dict:
         "journey": journey,
         "ready": ready,
         "purposes": purposes,
+        "walkthrough": walkthrough,
+        "employer_helper": EMPLOYER_HELPER[lang],
+        "next_action": next_action(done, lang),
     }

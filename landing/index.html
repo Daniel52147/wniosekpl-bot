@@ -468,6 +468,45 @@
     }
     .mos-purpose-items ul { margin: 0.4rem 0 0; padding-left: 1.1rem; color: var(--muted); line-height: 1.5; }
     .mos-cta-row { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1rem; }
+    .mos-next {
+      margin: 0 0 1rem;
+      padding: 1rem 1.1rem;
+      border-radius: 16px;
+      border: 1px solid rgba(20, 122, 97, 0.28);
+      background: linear-gradient(135deg, rgba(210, 239, 106, 0.22), rgba(255,255,255,0.95));
+    }
+    .mos-next strong { font-family: Syne, sans-serif; letter-spacing: -0.02em; }
+    .mos-walk {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.65rem;
+      margin-bottom: 0.5rem;
+    }
+    .mos-walk article {
+      padding: 0.95rem 1rem;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: var(--white);
+    }
+    .mos-walk strong {
+      display: block;
+      font-family: Syne, sans-serif;
+      margin-bottom: 0.35rem;
+      letter-spacing: -0.02em;
+    }
+    .mos-walk p { margin: 0 0 0.7rem; color: var(--muted); line-height: 1.45; font-size: 0.94rem; }
+    .mos-helper {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: var(--white);
+    }
+    .mos-helper pre {
+      white-space: pre-wrap;
+      max-height: 180px;
+      overflow: auto;
+    }
 
     section {
       padding: 0.4rem 0 2.6rem;
@@ -834,7 +873,7 @@
     }
 
     @media (max-width: 900px) {
-      .hero, .docs, .pricing, .path, .mos-journey, .mos-purposes { grid-template-columns: 1fr; }
+      .hero, .docs, .pricing, .path, .mos-journey, .mos-purposes, .mos-walk { grid-template-columns: 1fr; }
       .hero { min-height: auto; padding-top: 1rem; gap: 1.4rem; }
       .hero-visual { min-height: 280px; }
       .nav-links { display: none; }
@@ -929,13 +968,35 @@
           <a class="ghost" id="mos-info" href="https://www.gov.pl/web/udsc/info-mos" target="_blank" rel="noopener">Info UdSC</a>
         </div>
       </div>
+      <div class="mos-next" id="mos-next" hidden>
+        <strong id="mos-next-title">Twój następny krok</strong>
+        <p id="mos-next-body" style="margin:0.35rem 0 0.7rem;color:var(--muted);line-height:1.45"></p>
+        <a class="cta" id="mos-next-cta" href="#mos">Dalej</a>
+      </div>
       <div class="mos-journey" id="mos-journey"></div>
-      <h3 id="mos-ready-title" style="font-family:Syne,sans-serif;margin:0 0 0.2rem">Czy jesteś gotowy?</h3>
+      <h3 id="mos-walk-title" style="font-family:Syne,sans-serif;margin:0.4rem 0 0.6rem">Ścieżka przewodnika</h3>
+      <div class="mos-walk" id="mos-walk"></div>
+      <h3 id="mos-ready-title" style="font-family:Syne,sans-serif;margin:1.2rem 0 0.2rem">Czy jesteś gotowy?</h3>
       <p class="mos-progress" id="mos-progress">0 / 0</p>
       <div class="mos-ready" id="mos-ready"></div>
       <h3 id="mos-purpose-title" style="font-family:Syne,sans-serif;margin:1rem 0 0.5rem">Załączniki według celu</h3>
       <div class="mos-purposes" id="mos-purposes"></div>
       <div class="mos-purpose-items" id="mos-purpose-items" hidden></div>
+      <div class="mos-helper" id="mos-employer">
+        <strong id="mos-employer-title">Szablon do pracodawcy</strong>
+        <p id="mos-employer-body" class="muted" style="margin:0.35rem 0"></p>
+        <pre id="mos-employer-msg" class="checklist-box"></pre>
+        <button type="button" class="ghost" id="mos-employer-copy">Kopiuj wiadomość</button>
+      </div>
+      <div class="mos-helper" id="mos-deadline-box">
+        <strong id="mos-deadline-title">Przypomnienie o końcu legalnego pobytu</strong>
+        <p id="mos-deadline-hint" class="muted" style="margin:0.35rem 0 0.7rem"></p>
+        <form id="mos-deadline-form" class="row-form" style="margin:0">
+          <input id="mos-deadline-date" type="date" required />
+          <button class="cta" type="submit" id="mos-deadline-btn">Dodaj przypomnienie</button>
+        </form>
+        <p id="mos-deadline-note" class="muted" style="margin:0.5rem 0 0"></p>
+      </div>
       <p class="muted" id="mos-disclaimer" style="margin-top:1rem;max-width:60ch;line-height:1.5"></p>
     </section>
 
@@ -1213,7 +1274,7 @@
 
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.</span>
-      <span>WniosekPL · v2.2.3 · <a href="/setup">Setup</a></span>
+      <span>WniosekPL · v2.2.4 · <a href="/setup">Setup</a></span>
     </footer>
   </div>
 

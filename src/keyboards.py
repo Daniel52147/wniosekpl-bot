@@ -37,6 +37,7 @@ def quick_keyboard(lang: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text=t("ai_ask_btn", lang), callback_data="action:ask_ai")],
+            [InlineKeyboardButton(text="🛂 MOS 2.0", callback_data="action:mos")],
             [
                 InlineKeyboardButton(text=pkg.title(lang), callback_data="package:przeprowadzka"),
                 InlineKeyboardButton(text=t("quick_pesel", lang), callback_data="doc:pesel"),
@@ -265,3 +266,28 @@ def main_reply_keyboard(lang: str) -> ReplyKeyboardMarkup:
         ],
         resize_keyboard=True,
     )
+
+
+def mos_checklist_keyboard(lang: str, done: dict[str, bool] | None = None) -> InlineKeyboardMarkup:
+    from src.mos_guide import MOS_PORTAL_URL, READY_STEPS
+
+    state = done or {}
+    rows = []
+    for step in READY_STEPS:
+        mark = "✅" if state.get(step["id"]) else "⬜"
+        title = step.get(lang, step["pl"])
+        rows.append(
+            [
+                InlineKeyboardButton(
+                    text=f"{mark} {title}",
+                    callback_data=f"mos:toggle:{step['id']}",
+                )
+            ]
+        )
+    rows.append(
+        [InlineKeyboardButton(text="🌐 MOS portal", url=MOS_PORTAL_URL)]
+    )
+    rows.append(
+        [InlineKeyboardButton(text=t("menu", lang), callback_data="action:menu")]
+    )
+    return InlineKeyboardMarkup(inline_keyboard=rows)

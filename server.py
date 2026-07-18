@@ -49,6 +49,7 @@ from src.database import (
     delete_user_data,
     export_user_bundle,
     get_karta_progress,
+    get_mos_progress,
     get_subscription,
     init_db,
     join_waitlist,
@@ -63,6 +64,7 @@ from src.database import (
     save_lawyer_lead,
     save_upload,
     set_karta_progress,
+    set_mos_progress,
     set_referral,
     set_user_email,
     set_user_profile_fields,
@@ -105,7 +107,7 @@ from src.services_directory import search_services
 from src.validators import is_required, validate_field
 
 LANDING_DIR = ROOT / "landing"
-PRODUCT_VERSION = "2.2.3"
+PRODUCT_VERSION = "2.2.4"
 
 
 def telegram_configured() -> bool:
@@ -220,6 +222,18 @@ class KartaUpdate(BaseModel):
     user_id: int
     step_id: str
     done: bool = True
+
+
+class MosStepUpdate(BaseModel):
+    user_id: int | None = None
+    step_id: str
+    done: bool = True
+
+
+class MosDeadlineRequest(BaseModel):
+    user_id: int | None = None
+    due_at: str = Field(..., min_length=8, max_length=32)
+    days_before: int = 14
 
 
 class SessionRequest(BaseModel):
@@ -868,10 +882,87 @@ async def calendar_done(event_id: int, user_id: int):
 
 
 @app.get("/api/mos/guide")
-async def mos_guide_api(lang: Literal["ru", "en", "ua", "pl"] = "pl"):
+async def mos_guide_api(
+    lang: Literal["ru", "en", "ua", "pl"] = "pl",
+    user_id: int | None = Query(default=None),
+    authorization: str | None = Header(default=None),
+):
     from src.mos_guide import guide_payload
 
-    return guide_payload(lang)
+    done: dict[str, bool] = {}
+    resolved = None
+    if authorization or user_id:
+        try:
+            resolved = await _resolve_user(user_id, authorization)
+            done = await get_mos_progress(resolved)
+        except Exception:
+            done = {}
+    payload = guide_payload(lang, done=done)
+    if resolved:
+        payload["user_id"] = resolved
+        payload["saved_progress"] = done
+    return payload
+
+
+@app.post("/api/mos/step")
+async def mos_step_api(
+    payload: MosStepUpdate,
+    authorization: str | None = Header(default=None),
+):
+    from src.mos_guide import READY_STEPS, next_action
+
+    user_id = await _resolve_user(payload.user_id, authorization)
+    valid = {s["id"] for s in READY_STEPS}
+    if payload.step_id not in valid:
+        raise HTTPException(status_code=400, detail="unknown_step")
+    steps = await get_mos_progress(user_id)
+    steps[payload.step_id] = payload.done
+    await set_mos_progress(user_id, steps)
+    return {"ok": True, "steps": steps, "next_action": next_action(steps, "pl")}
+
+
+@app.post("/api/mos/deadline")
+async def mos_deadline_api(
+    payload: MosDeadlineRequest,
+    authorization: str | None = Header(default=None),
+):
+    user_id = await _resolve_user(payload.user_id, authorization)
+    await upsert_user(user_id, None, None, None)
+    due = payload.due_at.strip()[:32]
+    event_id = await add_calendar_event(
+        user_id,
+        title="Koniec legalnego pobytu — złóż MOS",
+        due_at=due,
+        kind="mos_deadline",
+        notes=f"Przypomnienie: złóż wniosek w MOS przed końcem legalnego pobytu ({due}).",
+    )
+    # Mark readiness step + add a prep reminder days_before if still in the future.
+    steps = await get_mos_progress(user_id)
+    steps["legal_stay"] = True
+    await set_mos_progress(user_id, steps)
+    reminder_id = None
+    try:
+        from datetime import date as date_cls, timedelta
+
+        end = date_cls.fromisoformat(due[:10])
+        remind = end - timedelta(days=max(1, min(payload.days_before, 60)))
+        if remind >= date_cls.today():
+            reminder_id = await add_calendar_event(
+                user_id,
+                title="Za 14 dni koniec pobytu — przygotuj MOS",
+                due_at=remind.isoformat(),
+                kind="mos_reminder",
+                notes="Sprawdź checklistę MOS, załączniki i Profil Zaufany.",
+            )
+    except Exception:
+        reminder_id = None
+    return {
+        "ok": True,
+        "event_id": event_id,
+        "reminder_id": reminder_id,
+        "due_at": due,
+        "steps": steps,
+    }
 
 
 @app.get("/api/karta/{user_id}")
