@@ -200,6 +200,11 @@
     if (window.wniosekplRefreshProfile) window.wniosekplRefreshProfile();
     if (window.wniosekplRefreshAccountLink) window.wniosekplRefreshAccountLink();
     if (window.wniosekplLoadGuide) window.wniosekplLoadGuide().catch(() => {});
+    // Keep the path card, but collapse it so the next step stays #1.
+    const journey = document.getElementById("journey-card");
+    if (journey) journey.hidden = true;
+    const how = document.getElementById("how-card");
+    if (how && localStorage.getItem("wniosekpl_how_dismissed") === "1") how.hidden = true;
     document.getElementById("mos-next")?.scrollIntoView({ behavior: "smooth", block: "start" });
     // Soft nudge: one account across phone + browser.
     const banner = document.getElementById("tg-link-banner");

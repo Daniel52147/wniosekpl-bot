@@ -726,6 +726,103 @@
       margin-top: 0.1rem;
     }
     .profile-tabs button.active .tab-hint { color: rgba(11, 79, 64, 0.72); }
+    .mos-hero {
+      margin-bottom: 1rem;
+      padding: 1.25rem 1.3rem 1.35rem;
+      border-radius: 20px;
+      border: 1px solid rgba(20, 122, 97, 0.28);
+      background:
+        radial-gradient(ellipse 70% 80% at 0% 0%, rgba(210, 239, 106, 0.35), transparent 55%),
+        linear-gradient(165deg, #fff 0%, #f3faf6 100%);
+      box-shadow: 0 14px 36px rgba(10, 40, 34, 0.08);
+    }
+    .mos-hero .mos-panel-label {
+      font-size: 0.78rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      font-weight: 750;
+      color: var(--moss);
+      margin: 0 0 0.45rem;
+    }
+    .mos-hero h3 {
+      margin: 0 0 0.4rem;
+      font-size: clamp(1.45rem, 3.2vw, 1.85rem);
+      line-height: 1.2;
+      font-family: Syne, sans-serif;
+    }
+    .mos-hero .mos-hint { font-size: 1.02rem; margin: 0 0 0.35rem; }
+    .mos-hero .mos-time {
+      margin: 0 0 0.85rem;
+      font-size: 0.9rem;
+      font-weight: 650;
+      color: var(--moss-deep);
+    }
+    .mos-hero .mos-left {
+      margin: 0.15rem 0 0.85rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .mos-hero .mos-actions { gap: 0.55rem; }
+    .mos-hero .cta {
+      font-size: 1.05rem;
+      padding: 0.85rem 1.25rem;
+    }
+    .mos-attach-near {
+      margin: 0 0 1rem;
+      padding: 0.85rem 1rem;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.7);
+    }
+    .mos-attach-near strong { display: block; margin-bottom: 0.35rem; }
+    .mos-attach-near ul {
+      margin: 0.35rem 0 0;
+      padding-left: 1.1rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .do-dont {
+      display: grid;
+      gap: 0.75rem;
+      grid-template-columns: 1fr 1fr;
+      margin: 0 0 1rem;
+    }
+    @media (max-width: 640px) {
+      .do-dont { grid-template-columns: 1fr; }
+    }
+    .do-dont article {
+      padding: 0.75rem 0.85rem;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.65);
+    }
+    .do-dont strong { display: block; margin-bottom: 0.35rem; font-size: 0.92rem; }
+    .do-dont ul {
+      margin: 0;
+      padding-left: 1.05rem;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.4;
+    }
+    .docs-back-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      margin-bottom: 0.85rem;
+      padding: 0.75rem 0.9rem;
+      border-radius: 14px;
+      border: 1px solid rgba(20, 122, 97, 0.22);
+      background: rgba(210, 239, 106, 0.18);
+    }
+    details.mos-more > summary {
+      cursor: pointer;
+      font-weight: 700;
+      list-style: none;
+    }
+    details.mos-more > summary::-webkit-details-marker { display: none; }
     .mos-tools {
       border-top: 1px solid var(--line);
       padding-top: 0.85rem;
@@ -1561,17 +1658,19 @@
             </div>
           </div>
 
-          <div class="mos-panel" id="mos-next" style="margin-bottom:1rem">
-            <p class="mos-panel-label" id="mos-next-label">Twój następny krok</p>
+          <div class="mos-hero mos-panel" id="mos-next">
+            <p class="mos-panel-label" id="mos-next-label">Dziś zrób to</p>
             <div class="mos-meter" aria-hidden="true">
               <div class="mos-meter-row">
-                <span id="mos-progress">0 / 0</span>
-                <span id="mos-progress-pct">0%</span>
+                <span id="mos-ready-pct-label">Gotowość do MOS</span>
+                <span><span id="mos-progress">0 / 0</span> · <span id="mos-progress-pct">0%</span></span>
               </div>
               <div class="mos-meter-track"><div class="mos-meter-fill" id="mos-progress-fill"></div></div>
             </div>
+            <p class="mos-left" id="mos-next-left"></p>
             <h3 id="mos-next-title">Ładowanie…</h3>
             <p class="mos-hint" id="mos-next-body"></p>
+            <p class="mos-time" id="mos-next-time"></p>
             <div class="mos-actions">
               <a class="cta" id="mos-next-cta" href="#mos-ready">Zrób ten krok</a>
               <button type="button" class="ghost" id="mos-mark-done">Mam to — dalej</button>
@@ -1580,62 +1679,75 @@
             <p class="mos-sync" id="mos-sync"></p>
           </div>
 
-          <div class="profile-grid" style="margin-bottom:1rem" id="mos-checklist-wrap">
-            <article class="profile-card">
-              <strong class="card-title" id="now-checklist-title">Checklist MOS</strong>
-              <div class="mos-ready" id="mos-ready" style="margin:0.5rem 0 0"></div>
-              <div class="profile-mos-list" id="profile-mos-list" hidden></div>
-            </article>
-            <article class="profile-card">
-              <strong class="card-title" id="now-side-title">Po drodze</strong>
-              <div id="profile-todo" style="margin-bottom:0.75rem"></div>
-              <div id="profile-todo-preview" hidden></div>
-              <div id="profile-mos" hidden></div>
-              <strong class="card-title" style="margin-top:0.5rem" id="now-deadline-title">Koniec legalnego pobytu</strong>
-              <p id="mos-deadline-hint" class="muted" style="margin:0.35rem 0 0.55rem"></p>
-              <form id="mos-deadline-form" class="mos-deadline-form">
-                <input id="mos-deadline-date" type="date" required />
-                <button class="cta" type="submit" id="mos-deadline-btn">Przypomnij</button>
-              </form>
-              <p id="mos-deadline-note" class="mos-sync"></p>
-              <div id="profile-cal" style="margin-top:0.6rem"></div>
-              <div id="profile-cal-preview" hidden></div>
-              <div id="calendar-list" hidden></div>
-                          </article>
+          <div class="mos-attach-near" id="mos-attach-near">
+            <strong id="mos-attach-near-title">Na później — typowe załączniki</strong>
+            <p class="muted" id="mos-attach-near-purpose" style="margin:0"></p>
+            <ul id="mos-attach-near-list"></ul>
+            <div class="mos-purposes" id="mos-purposes" style="margin-top:0.65rem"></div>
           </div>
 
-          <details class="profile-card" style="margin-bottom:1rem" id="mos-helpers">
-            <summary style="cursor:pointer;font-weight:700" id="mos-helpers-summary">Załączniki / pracodawca</summary>
-            <div style="margin-top:0.8rem">
-              <p class="mos-helper-copy" id="mos-purpose-title"></p>
-              <div class="mos-purposes" id="mos-purposes"></div>
+          <div class="do-dont" id="do-dont">
+            <article>
+              <strong id="do-title">Co robimy</strong>
+              <ul id="do-list"></ul>
+            </article>
+            <article>
+              <strong id="dont-title">Czego nie robimy</strong>
+              <ul id="dont-list"></ul>
+            </article>
+          </div>
+
+          <details class="profile-card mos-more" style="margin-bottom:1rem" id="mos-more-details">
+            <summary id="mos-more-summary">Więcej: checklista i terminy</summary>
+            <div class="profile-grid" style="margin-top:0.85rem" id="mos-checklist-wrap">
+              <article class="profile-card" style="box-shadow:none;border:0;padding:0;background:transparent">
+                <strong class="card-title" id="now-checklist-title">Checklist MOS</strong>
+                <div class="mos-ready" id="mos-ready" style="margin:0.5rem 0 0"></div>
+                <div class="profile-mos-list" id="profile-mos-list" hidden></div>
+              </article>
+              <article class="profile-card" style="box-shadow:none;border:0;padding:0;background:transparent">
+                <strong class="card-title" id="now-side-title">Po drodze</strong>
+                <div id="profile-todo" style="margin-bottom:0.75rem"></div>
+                <div id="profile-todo-preview" hidden></div>
+                <div id="profile-mos" hidden></div>
+                <strong class="card-title" style="margin-top:0.5rem" id="now-deadline-title">Koniec legalnego pobytu</strong>
+                <p id="mos-deadline-hint" class="muted" style="margin:0.35rem 0 0.55rem"></p>
+                <form id="mos-deadline-form" class="mos-deadline-form">
+                  <input id="mos-deadline-date" type="date" required />
+                  <button class="cta" type="submit" id="mos-deadline-btn">Przypomnij</button>
+                </form>
+                <p id="mos-deadline-note" class="mos-sync"></p>
+                <div id="profile-cal" style="margin-top:0.6rem"></div>
+                <div id="profile-cal-preview" hidden></div>
+                <div id="calendar-list" hidden></div>
+              </article>
+            </div>
+            <div style="margin-top:0.9rem" id="mos-helpers">
+              <strong id="mos-helpers-summary">Szablon do pracodawcy</strong>
+              <p class="mos-helper-copy" id="mos-purpose-title" hidden></p>
               <div class="mos-purpose-items" id="mos-purpose-items" hidden></div>
-              <div style="margin-top:0.9rem">
-                <strong id="mos-employer-title">Szablon do pracodawcy</strong>
-                <p id="mos-employer-body" class="mos-helper-copy"></p>
-                <pre id="mos-employer-msg" class="checklist-box"></pre>
-                <button type="button" class="ghost" id="mos-employer-copy">Kopiuj</button>
-              </div>
+              <strong id="mos-employer-title" style="display:block;margin-top:0.65rem">Szablon</strong>
+              <p id="mos-employer-body" class="mos-helper-copy"></p>
+              <pre id="mos-employer-msg" class="checklist-box"></pre>
+              <button type="button" class="ghost" id="mos-employer-copy">Kopiuj</button>
             </div>
           </details>
 
-          <div class="section-head" style="margin-bottom:0.6rem">
-            <div>
-              <h2 id="assistant-title" style="font-size:1.35rem;margin:0">Zapytaj AI</h2>
-              <p id="assistant-sub" style="margin:0.25rem 0 0">Krótko opisz sprawę — dostaniesz plan i przyciski.</p>
+          <details class="profile-card mos-more" style="margin-bottom:1rem" id="ai-more">
+            <summary id="assistant-title">Zapytaj AI (opcjonalnie)</summary>
+            <p id="assistant-sub" class="muted" style="margin:0.45rem 0 0.65rem">Krótko opisz sprawę — dostaniesz plan i przyciski.</p>
+            <div class="status" id="usage" style="margin-bottom:0.55rem">…</div>
+            <div class="chat" style="min-height:280px">
+              <div class="chat-top">
+                <div class="chips" id="chips"></div>
+              </div>
+              <div class="messages" id="messages" aria-live="polite"></div>
+              <form class="composer" id="ask-form">
+                <textarea id="question" rows="2" maxlength="2000" placeholder="Np. Chcę kartę pobytu, pracuję legalnie"></textarea>
+                <button class="send" id="send" type="submit">Wyślij</button>
+              </form>
             </div>
-            <div class="status" id="usage">…</div>
-          </div>
-          <div class="chat" style="min-height:340px">
-            <div class="chat-top">
-              <div class="chips" id="chips"></div>
-            </div>
-            <div class="messages" id="messages" aria-live="polite"></div>
-            <form class="composer" id="ask-form">
-              <textarea id="question" rows="2" maxlength="2000" placeholder="Np. Chcę kartę pobytu, pracuję legalnie"></textarea>
-              <button class="send" id="send" type="submit">Wyślij</button>
-            </form>
-          </div>
+          </details>
           <p class="mos-foot-note" id="mos-disclaimer" style="margin-top:1rem"></p>
           <!-- hidden hooks for mos.js -->
           <span id="mos-title" hidden></span>
@@ -1665,11 +1777,12 @@
 
         <!-- DOCS -->
         <div class="profile-tab-panel" data-profile-panel="docs" id="panel-docs" hidden>
-          <div class="section-head" style="margin-bottom:0.75rem">
+          <div class="docs-back-bar">
             <div>
-              <h2 id="docs-title" style="margin:0;font-size:1.35rem">Dokumenty</h2>
-              <p id="docs-sub" style="margin:0.25rem 0 0">Wybierz formularz → PDF. Potem wróć do zakładki Teraz.</p>
+              <strong id="docs-title" style="display:block">Dokumenty PDF</strong>
+              <p id="docs-sub" class="muted" style="margin:0.2rem 0 0">Wypełnij → pola zapisują się. Potem wróć do kroku.</p>
             </div>
+            <button type="button" class="cta" id="docs-back-now">← Wróć do następnego kroku</button>
           </div>
           <div class="docs" id="docs"></div>
         </div>
@@ -1823,7 +1936,7 @@
 
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.</span>
-      <span>WniosekPL · v2.4.2 · <a href="/setup">Setup</a></span>
+      <span>WniosekPL · v2.4.3 · <a href="/setup">Setup</a></span>
     </footer>
   </div>
 

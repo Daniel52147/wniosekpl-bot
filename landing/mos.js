@@ -44,22 +44,32 @@
   }
 
   function computeNext(steps, portalUrl) {
+    const serverNext = guideData && guideData.next_action;
     const incomplete = (steps || []).find((s) => !readyState[s.id]);
     if (incomplete) {
+      const doneCount = Object.values(readyState).filter(Boolean).length;
+      const total = (steps || []).length || 1;
       return {
         id: incomplete.id,
         complete: false,
-        title: incomplete.title,
+        title: incomplete.action || incomplete.title,
         hint: incomplete.hint,
+        time: incomplete.time || "",
         link: incomplete.link || "#mos-ready",
+        doc_id: incomplete.doc_id,
+        left:
+          (serverNext && !serverNext.complete && serverNext.left) ||
+          `${doneCount} / ${total}`,
       };
     }
     return {
       id: "open_mos",
       complete: true,
-      title: uiCopy.open_mos || "Otwórz MOS",
-      hint: (guideData && guideData.next_action && guideData.next_action.hint) || "",
+      title: (serverNext && serverNext.title) || uiCopy.open_mos_btn || "Otwórz MOS",
+      hint: (serverNext && serverNext.hint) || "",
+      time: (serverNext && serverNext.time) || "",
       link: portalUrl || "https://mos.cudzoziemcy.gov.pl",
+      left: (serverNext && serverNext.left) || uiCopy.next_done || "",
     };
   }
 
@@ -80,15 +90,36 @@
       : uiCopy.sync_local || "";
   }
 
+  function renderDoDont() {
+    setText("do-title", uiCopy.do_title);
+    setText("dont-title", uiCopy.dont_title);
+    const fill = (id, items) => {
+      const ul = document.getElementById(id);
+      if (!ul) return;
+      ul.innerHTML = "";
+      (items || []).forEach((line) => {
+        const li = document.createElement("li");
+        li.textContent = line;
+        ul.appendChild(li);
+      });
+    };
+    fill("do-list", uiCopy.do_items);
+    fill("dont-list", uiCopy.dont_items);
+  }
+
   function renderFinale(next) {
     const finale = document.getElementById("mos-ready-finale");
-    const checklistWrap = document.getElementById("mos-checklist-wrap");
+    const more = document.getElementById("mos-more-details");
+    const attachNear = document.getElementById("mos-attach-near");
+    const doDont = document.getElementById("do-dont");
     const nextBox = document.getElementById("mos-next");
     if (!finale) return;
     const show = !!(next && next.complete && guideData && guideData.finale);
     finale.hidden = !show;
-    if (checklistWrap) checklistWrap.hidden = show;
     if (nextBox) nextBox.hidden = show;
+    if (attachNear) attachNear.hidden = show;
+    if (doDont) doDont.hidden = show;
+    if (more && show) more.open = false;
     if (!show) return;
 
     const f = guideData.finale;
@@ -130,13 +161,12 @@
     if (toggle) {
       toggle.textContent = uiCopy.finale_show_checklist || "Checklist";
       toggle.onclick = () => {
-        if (!checklistWrap) return;
-        const open = checklistWrap.hidden;
-        checklistWrap.hidden = !open;
-        toggle.textContent = open
+        if (!more) return;
+        more.open = !more.open;
+        toggle.textContent = more.open
           ? uiCopy.finale_hide_checklist || "Hide"
           : uiCopy.finale_show_checklist || "Checklist";
-        if (open) checklistWrap.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        if (more.open) more.scrollIntoView({ behavior: "smooth", block: "nearest" });
       };
     }
     const purposeBtns = document.getElementById("mos-finale-purposes");
@@ -168,22 +198,30 @@
     const box = document.getElementById("mos-next");
     const title = document.getElementById("mos-next-title");
     const body = document.getElementById("mos-next-body");
+    const timeEl = document.getElementById("mos-next-time");
+    const leftEl = document.getElementById("mos-next-left");
     const cta = document.getElementById("mos-next-cta");
     const mark = document.getElementById("mos-mark-done");
     const label = document.getElementById("mos-next-label");
+    const open = document.getElementById("mos-open");
     if (!box || !next) return;
     if (label) {
       label.textContent = next.complete
-        ? uiCopy.next_done || uiCopy.next_title || ""
-        : uiCopy.next_title || "";
+        ? uiCopy.next_done || uiCopy.today_label || ""
+        : uiCopy.today_label || uiCopy.next_title || "";
     }
+    setText("mos-ready-pct-label", uiCopy.ready_pct_label || "");
     if (title) title.textContent = next.title || "";
     if (body) body.textContent = next.hint || "";
+    if (timeEl) timeEl.textContent = next.time || "";
+    if (leftEl) leftEl.textContent = next.left || "";
+    if (open) open.textContent = uiCopy.cta_mos || uiCopy.cta || open.textContent;
     if (cta) {
       cta.href = next.link || "#mos-ready";
       cta.textContent = next.complete
         ? uiCopy.open_mos_btn || uiCopy.cta || "MOS"
-        : uiCopy.do_step || "Dalej";
+        : uiCopy.cta_do || uiCopy.do_step || "Dalej";
+      cta.dataset.docId = next.doc_id || "";
       if ((next.link || "").startsWith("http")) {
         cta.target = "_blank";
         cta.rel = "noopener";
@@ -207,16 +245,12 @@
   }
 
   function renderPurposeItems(purpose) {
-    const box = document.getElementById("mos-purpose-items");
-    if (!box || !purpose) {
-      if (box) box.hidden = true;
-      return;
-    }
-    box.hidden = false;
-    box.innerHTML = "<strong></strong><ul></ul>";
-    box.querySelector("strong").textContent = purpose.title;
-    const ul = box.querySelector("ul");
-    (purpose.items || []).forEach((item) => {
+    setText("mos-attach-near-title", uiCopy.attach_near || "");
+    setText("mos-attach-near-purpose", purpose ? purpose.title : "");
+    const ul = document.getElementById("mos-attach-near-list");
+    if (!ul) return;
+    ul.innerHTML = "";
+    (purpose?.items || []).forEach((item) => {
       const li = document.createElement("li");
       li.textContent = item;
       ul.appendChild(li);
@@ -279,19 +313,59 @@
       const stepId = mark.dataset.stepId;
       if (!stepId || !guideData) return;
       if (stepId === "legal_stay") {
+        const more = document.getElementById("mos-more-details");
+        if (more) more.open = true;
         document.getElementById("mos-deadline-date")?.focus();
         document.getElementById("mos-deadline-date")?.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
       if (stepId === "employer_ready") {
-        const helpers = document.getElementById("mos-helpers");
-        if (helpers) helpers.open = true;
+        const more = document.getElementById("mos-more-details");
+        if (more) more.open = true;
         document.getElementById("mos-employer-copy")?.focus();
         return;
       }
       applyStepChange(stepId, true, guideData.ready || []);
-      const nextLabel = document.querySelector("#mos-ready label.current");
-      nextLabel?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      document.getElementById("mos-next")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
+  function wireHeroCta() {
+    const cta = document.getElementById("mos-next-cta");
+    if (!cta || cta.dataset.wired) return;
+    cta.dataset.wired = "1";
+    cta.addEventListener("click", (e) => {
+      const href = cta.getAttribute("href") || "";
+      const docId = cta.dataset.docId;
+      if (docId && window.wniosekplOpenDoc) {
+        e.preventDefault();
+        if (window.wniosekplSetProfileTab) window.wniosekplSetProfileTab("docs");
+        window.wniosekplOpenDoc(docId);
+        return;
+      }
+      if (href.startsWith("/profile?tab=docs")) {
+        e.preventDefault();
+        if (window.wniosekplSetProfileTab) window.wniosekplSetProfileTab("docs");
+        return;
+      }
+      if (href === "#mos-deadline-date" || href === "#mos-helpers" || href === "#mos-ready") {
+        e.preventDefault();
+        const more = document.getElementById("mos-more-details");
+        if (more) more.open = true;
+        const target = document.querySelector(href);
+        target?.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (href === "#mos-deadline-date") target?.focus?.();
+      }
+    });
+  }
+
+  function wireDocsBack() {
+    const btn = document.getElementById("docs-back-now");
+    if (!btn || btn.dataset.wired) return;
+    btn.dataset.wired = "1";
+    btn.addEventListener("click", () => {
+      if (window.wniosekplSetProfileTab) window.wniosekplSetProfileTab("now");
+      document.getElementById("mos-next")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }
 
@@ -351,6 +425,9 @@
     setText("mos-tab-employer", uiCopy.tab_employer);
     setText("mos-tab-deadline", uiCopy.tab_deadline);
     setText("mos-deadline-account", uiCopy.deadline_calendar);
+    setText("mos-more-summary", uiCopy.more_details);
+    setText("docs-back-now", uiCopy.back_to_step);
+    renderDoDont();
 
     const open = document.getElementById("mos-open");
     if (open) {
@@ -446,6 +523,8 @@
   function wire() {
     wireTabs();
     wireMarkDone();
+    wireHeroCta();
+    wireDocsBack();
     wireDeadline();
     loadMosGuide().catch(() => {});
   }

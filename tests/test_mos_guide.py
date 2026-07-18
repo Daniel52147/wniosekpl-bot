@@ -21,12 +21,20 @@ def test_next_action_points_to_first_incomplete():
     nxt = next_action({}, "en")
     assert nxt["id"] == "pesel"
     assert nxt["complete"] is False
+    assert "PESEL" in nxt["title"]
+    assert nxt["left"]
+    assert nxt["time"]
     nxt2 = next_action({"pesel": True, "trusted_profile": True}, "en")
     assert nxt2["id"] == "legal_stay"
     done_map = {step["id"]: True for step in guide_payload("pl")["ready"]}
     assert next_action(done_map, "pl")["complete"] is True
     assert next_action(done_map, "pl")["id"] == "open_mos"
+    assert next_action(done_map, "pl")["pct"] == 100
     assert EMPLOYER_HELPER["pl"]["title"]
+    payload = guide_payload("pl")
+    assert payload["copy"]["today_label"]
+    assert payload["copy"]["do_items"]
+    assert payload["ready"][0]["action"]
 
 
 def test_mos_guide_api(tmp_path, monkeypatch):

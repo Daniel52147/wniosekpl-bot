@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.4.3 — 2026-07-18
+
+### 10-second Now tab
+- Hero “Do this today” with human action titles, time estimate, readiness %
+- Purpose attachments + do/don’t next to the step
+- Checklist / AI collapsed under “More”
+- Documents tab: back to next step CTA; PESEL step opens PDF
+
 ## 2.4.2 — 2026-07-18
 
 ### New-user UX + official tone
