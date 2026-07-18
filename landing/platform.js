@@ -46,11 +46,9 @@
     const data = await res.json();
     const plan = data.plan || {};
     box.innerHTML = `
-      <div class="plan featured">
-        <strong>Plan: ${plan.plan || "free"}</strong>
-        <p>AI today: ${plan.ai_used_today || 0}${plan.unlimited ? " (unlimited)" : ` / ${plan.ai_limit || 5}`}</p>
-        <p>Payments: ${(data.payments || []).length} · Uploads: ${(data.uploads || []).length} · Calendar: ${(data.calendar || []).length}</p>
-      </div>
+      <strong style="display:block;margin-bottom:0.25rem">Kabinet · plan: ${plan.plan || "free"}</strong>
+      <span>AI dziś: ${plan.ai_used_today || 0}${plan.unlimited ? " (bez limitu)" : ` / ${plan.ai_limit || 5}`}</span><br/>
+      <span>Płatności: ${(data.payments || []).length} · Upload: ${(data.uploads || []).length} · Kalendarz: ${(data.calendar || []).length}</span>
     `;
     const karta = document.getElementById("karta-steps");
     if (karta) {
@@ -132,10 +130,13 @@
       el.querySelector("strong").textContent = `${item.name} · od ${item.price_from_pln} zł`;
       el.querySelector("p").textContent = `${item.city} · ${item.specialties.join(", ")} · ${item.bio}`;
       const btn = el.querySelector("button");
-      btn.textContent = `Wybierz: ${item.id}`;
+      btn.textContent = "Napisz do specjalisty";
       btn.addEventListener("click", () => {
         const input = document.getElementById("lawyer-id");
+        const label = document.getElementById("lawyer-selected");
         if (input) input.value = item.id;
+        if (label) label.textContent = `Wybrano: ${item.name}`;
+        document.getElementById("lawyer-message")?.focus();
       });
       box.appendChild(el);
     });
@@ -252,7 +253,28 @@
       : "Link wysłany na email (SMTP).";
   }
 
+  function openToolsIfNeeded() {
+    const tools = document.getElementById("tools");
+    if (!tools) return;
+    const hash = (location.hash || "").replace("#", "");
+    const toolIds = new Set([
+      "tools",
+      "packages",
+      "karta",
+      "letters",
+      "upload",
+      "calendar",
+      "services",
+      "lawyers",
+      "countries",
+    ]);
+    if (toolIds.has(hash)) tools.open = true;
+  }
+
   function wire() {
+    openToolsIfNeeded();
+    window.addEventListener("hashchange", openToolsIfNeeded);
+
     document.getElementById("pay-ai")?.addEventListener("click", (e) => {
       e.preventDefault();
       checkout("ai_subscription");
