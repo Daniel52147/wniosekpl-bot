@@ -635,8 +635,8 @@
     }
     .assist-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.45fr) minmax(240px, 0.7fr);
-      gap: 0.9rem;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.75rem;
       align-items: start;
     }
     .chat {
@@ -644,54 +644,120 @@
       grid-template-rows: auto 1fr auto;
       min-height: 420px;
     }
-    .profile-rail {
-      padding: 1rem 1.05rem 1.1rem;
-      position: sticky;
-      top: 4.4rem;
-      animation: rise 0.45s ease both;
+    .profile-teaser {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+      border-radius: 14px;
+      border: 1px solid rgba(20, 122, 97, 0.2);
+      background: linear-gradient(135deg, rgba(210, 239, 106, 0.18), rgba(255,255,255,0.95));
     }
-    .profile-rail h3 {
-      font-family: Syne, sans-serif;
-      letter-spacing: -0.03em;
-      margin: 0 0 0.25rem;
-      font-size: 1.2rem;
-    }
-    .profile-rail .rail-sub {
-      margin: 0 0 0.85rem;
+    .profile-teaser p {
+      margin: 0.15rem 0 0;
       color: var(--muted);
       font-size: 0.9rem;
-      line-height: 1.4;
     }
-    .profile-block {
-      margin: 0 0 0.85rem;
-      padding-bottom: 0.85rem;
+    .profile-teaser strong {
+      font-family: Syne, sans-serif;
+      letter-spacing: -0.02em;
+    }
+    .profile-page {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--white);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .profile-page-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: end;
+      padding: 1.15rem 1.2rem 1rem;
+      background:
+        linear-gradient(135deg, rgba(20, 122, 97, 0.08), rgba(210, 239, 106, 0.14)),
+        #fbfdfc;
       border-bottom: 1px solid var(--line);
     }
-    .profile-block:last-child {
-      margin-bottom: 0;
-      padding-bottom: 0;
-      border-bottom: 0;
+    .profile-page-head h2 {
+      font-family: Syne, sans-serif;
+      letter-spacing: -0.035em;
+      margin: 0 0 0.3rem;
+      font-size: clamp(1.55rem, 3vw, 2rem);
     }
-    .profile-block strong {
+    .profile-page-head p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 48ch;
+    }
+    .profile-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--line);
+      background: #f7fbf9;
+    }
+    .profile-tabs button {
+      font: inherit;
+      cursor: pointer;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 0.5rem 0.9rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    .profile-tabs button:hover {
+      background: rgba(20, 122, 97, 0.08);
+      color: var(--ink);
+    }
+    .profile-tabs button.active {
+      background: var(--moss-deep);
+      color: var(--white);
+    }
+    .profile-tab-panel {
+      padding: 1.1rem 1.2rem 1.35rem;
+      min-height: 220px;
+    }
+    .profile-tab-panel[hidden] { display: none !important; }
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .profile-card {
+      padding: 1rem;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fbfdfc;
+    }
+    .profile-card h3,
+    .profile-card > strong.card-title {
       display: block;
-      font-size: 0.78rem;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: var(--moss-deep);
-      margin-bottom: 0.45rem;
+      font-family: Syne, sans-serif;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.45rem;
+      font-size: 1.05rem;
     }
+    .profile-card .muted { color: var(--muted); line-height: 1.45; }
     .profile-item {
       display: grid;
       gap: 0.35rem;
-      padding: 0.65rem 0.7rem;
+      padding: 0.75rem 0.8rem;
       border-radius: 12px;
       background: rgba(20, 122, 97, 0.05);
-      margin-bottom: 0.45rem;
+      margin-bottom: 0.5rem;
     }
     .profile-item:last-child { margin-bottom: 0; }
     .profile-item p {
       margin: 0;
-      font-size: 0.92rem;
+      font-size: 0.95rem;
       line-height: 1.4;
       font-weight: 600;
     }
@@ -706,9 +772,11 @@
       gap: 0.35rem;
     }
     .profile-item button,
-    .profile-item a {
+    .profile-item a,
+    .profile-card .row-actions a,
+    .profile-card .row-actions button {
       font: inherit;
-      font-size: 0.84rem;
+      font-size: 0.86rem;
       font-weight: 700;
       cursor: pointer;
       text-decoration: none;
@@ -716,19 +784,51 @@
       background: var(--white);
       color: var(--ink);
       border-radius: 9px;
-      padding: 0.35rem 0.65rem;
+      padding: 0.4rem 0.7rem;
+      display: inline-flex;
+      align-items: center;
     }
     .profile-item a.primary,
-    .profile-item button.primary {
+    .profile-item button.primary,
+    .profile-card .row-actions a.primary,
+    .profile-card .row-actions button.primary {
       background: var(--moss-deep);
       border-color: var(--moss-deep);
       color: var(--white);
     }
     .profile-empty {
       color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.4;
+      font-size: 0.95rem;
+      line-height: 1.45;
       margin: 0;
+    }
+    .profile-stack { display: grid; gap: 0.85rem; }
+    .profile-forms { display: grid; gap: 0.65rem; max-width: 28rem; }
+    .profile-forms input {
+      font: inherit;
+      padding: 0.7rem 0.85rem;
+      border-radius: 11px;
+      border: 1px solid var(--line);
+      background: var(--white);
+    }
+    .profile-mos-list {
+      display: grid;
+      gap: 0.4rem;
+    }
+    .profile-mos-list label {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.6rem;
+      align-items: start;
+      padding: 0.65rem 0.75rem;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      cursor: pointer;
+    }
+    .profile-mos-list label.done {
+      background: rgba(20, 122, 97, 0.06);
+      border-color: rgba(20, 122, 97, 0.28);
     }
     .bubble-actions {
       display: flex;
@@ -1078,7 +1178,7 @@
     }
 
     @media (max-width: 900px) {
-      .hero, .docs, .pricing, .path, .assist-layout { grid-template-columns: 1fr; }
+      .hero, .docs, .pricing, .path, .assist-layout, .profile-grid { grid-template-columns: 1fr; }
       .hero { min-height: auto; padding-top: 1rem; gap: 1.4rem; }
       .hero-visual { min-height: 280px; }
       .nav-links { display: none; }
@@ -1087,7 +1187,6 @@
       .auth-btn { padding: 0.48rem 0.72rem; font-size: 0.84rem; }
       .messages { max-height: 300px; }
       .chat { min-height: 360px; }
-      .profile-rail { position: static; }
     }
     @media (max-width: 560px) {
       .shell { width: min(100% - 1.25rem, 1080px); }
@@ -1107,7 +1206,7 @@
           <a href="#mos">MOS</a>
           <a href="#documents">Dokumenty</a>
           <a href="#pricing">Taryfy</a>
-          <a href="#account">Konto</a>
+          <a href="#profile">Profil</a>
         </nav>
         <div class="langs" id="langs">
           <button type="button" data-lang="pl" class="active">PL</button>
@@ -1121,7 +1220,7 @@
             <button type="button" class="auth-btn solid" id="btn-open-register">Załóż konto</button>
           </div>
           <div class="auth-session hidden" id="auth-session">
-            <a class="auth-user" id="auth-user-chip" href="#account" title="Konto"></a>
+            <a class="auth-user" id="auth-user-chip" href="#profile" title="Profil"></a>
             <button type="button" class="auth-btn ghost" id="btn-top-logout">Wyloguj</button>
           </div>
         </div>
@@ -1225,7 +1324,7 @@
             <form id="mos-deadline-form" class="mos-deadline-form">
               <input id="mos-deadline-date" type="date" required />
               <button class="cta" type="submit" id="mos-deadline-btn">Dodaj przypomnienie</button>
-              <a class="ghost" id="mos-deadline-account" href="#account" hidden>Kalendarz konta</a>
+              <a class="ghost" id="mos-deadline-account" href="#profile?tab=calendar" hidden>Kalendarz w profilu</a>
             </form>
             <p id="mos-deadline-note" class="mos-sync"></p>
           </div>
@@ -1239,7 +1338,7 @@
       <div class="section-head">
         <div>
           <h2 id="assistant-title">AI-asystent</h2>
-          <p id="assistant-sub">Pytasz — dostajesz plan i przyciski. Niedokończone zostaje w profilu obok, nie na dole strony.</p>
+          <p id="assistant-sub">Pytasz — dostajesz plan i przyciski. Wszystko niedokończone znajdziesz w Profilu (zakładki).</p>
         </div>
         <div class="status" id="usage">Ładowanie limitu…</div>
       </div>
@@ -1254,22 +1353,13 @@
             <button class="send" id="send" type="submit">Wyślij</button>
           </form>
         </div>
-        <aside class="profile-rail" id="profile-rail" aria-label="Profil">
-          <h3 id="profile-title">Twój profil</h3>
-          <p class="rail-sub" id="profile-sub">Tu widać, co dokończyć po odpowiedzi AI.</p>
-          <div class="profile-block" id="profile-mos-block">
-            <strong id="profile-mos-label">MOS</strong>
-            <div id="profile-mos"></div>
+        <div class="profile-teaser" id="profile-teaser">
+          <div>
+            <strong id="profile-teaser-title">Twój profil</strong>
+            <p id="profile-teaser-body">0 zadań · otwórz zakładki: MOS, terminy, płatności</p>
           </div>
-          <div class="profile-block" id="profile-todo-block">
-            <strong id="profile-todo-label">Do dokończenia</strong>
-            <div id="profile-todo"></div>
-          </div>
-          <div class="profile-block" id="profile-cal-block">
-            <strong id="profile-cal-label">Terminy</strong>
-            <div id="profile-cal"></div>
-          </div>
-        </aside>
+          <a class="cta" id="profile-teaser-cta" href="#profile">Otwórz profil</a>
+        </div>
       </div>
     </section>
 
@@ -1448,48 +1538,136 @@
       </div>
     </details>
 
-    <section id="account">
-      <div class="section-head">
-        <div>
-          <h2>Konto</h2>
-          <p>Zaloguj się u góry po prawej. Tu widać plan, faktury i kabinet.</p>
+    <section id="profile">
+      <div class="profile-page" id="account">
+        <div class="profile-page-head">
+          <div>
+            <h2 id="profile-title">Profil</h2>
+            <p id="profile-sub">Tu jest wszystko: zadania, MOS, terminy, płatności i konto — w zakładkach.</p>
+          </div>
+          <div id="auth-user-box" class="status"></div>
         </div>
-        <div id="auth-user-box" class="status"></div>
-      </div>
-      <div class="pricing">
-        <article class="plan featured">
-          <strong>Sesja</strong>
-          <p class="muted">Wejście zawsze w prawym górnym rogu.</p>
-          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.4rem">
-            <button type="button" class="cta" id="btn-account-login">Zaloguj</button>
-            <button type="button" class="ghost" id="btn-account-register">Załóż konto</button>
+        <div class="profile-tabs" role="tablist" aria-label="Profil">
+          <button type="button" class="active" data-profile-tab="overview" id="tab-overview">Przegląd</button>
+          <button type="button" data-profile-tab="tasks" id="tab-tasks">Zadania</button>
+          <button type="button" data-profile-tab="mos" id="tab-mos">MOS</button>
+          <button type="button" data-profile-tab="calendar" id="tab-calendar">Terminy</button>
+          <button type="button" data-profile-tab="billing" id="tab-billing">Płatności</button>
+          <button type="button" data-profile-tab="account" id="tab-account">Konto</button>
+        </div>
+
+        <div class="profile-tab-panel" data-profile-panel="overview" id="panel-overview">
+          <div class="profile-grid">
+            <article class="profile-card">
+              <strong class="card-title" id="overview-plan-title">Plan</strong>
+              <div id="cabinet-box" class="muted">Ładowanie…</div>
+              <div class="row-actions" style="margin-top:0.75rem">
+                <a class="primary" href="#assistant" id="overview-ask">Zapytaj AI</a>
+                <a href="#mos" id="overview-mos-link">Przewodnik MOS</a>
+              </div>
+            </article>
+            <article class="profile-card">
+              <strong class="card-title" id="overview-next-title">Następny krok</strong>
+              <div id="profile-mos"></div>
+            </article>
+            <article class="profile-card">
+              <strong class="card-title" id="overview-tasks-title">Otwarte zadania</strong>
+              <div id="profile-todo-preview"></div>
+              <div class="row-actions" style="margin-top:0.75rem">
+                <button type="button" class="primary" data-goto-tab="tasks" id="overview-all-tasks">Wszystkie zadania</button>
+              </div>
+            </article>
+            <article class="profile-card">
+              <strong class="card-title" id="overview-cal-title">Najbliższy termin</strong>
+              <div id="profile-cal-preview"></div>
+              <div class="row-actions" style="margin-top:0.75rem">
+                <button type="button" data-goto-tab="calendar" id="overview-all-cal">Wszystkie terminy</button>
+              </div>
+            </article>
           </div>
-          <p id="magic-note" class="muted" style="margin-top:0.6rem"></p>
-          <div id="cabinet-box" class="muted" style="margin-top:0.6rem">Ładowanie kabinetu…</div>
-        </article>
-        <article class="plan">
-          <strong>Płatności</strong>
-          <p id="billing-status-line" class="muted">Ładowanie…</p>
-          <div style="display:grid;gap:0.5rem;margin-top:0.4rem">
-            <a class="cta" href="#" id="pay-ai-account">Kup AI 19 zł</a>
-            <a class="ghost" href="#" id="pay-review-account">Human review 29 zł</a>
-            <a class="ghost" href="#" id="btn-portal">Zarządzaj subskrypcją</a>
-            <a class="ghost" href="#" id="btn-cancel-sub">Anuluj subskrypcję</a>
+        </div>
+
+        <div class="profile-tab-panel" data-profile-panel="tasks" id="panel-tasks" hidden>
+          <p class="profile-empty" id="tasks-hint" style="margin-bottom:0.85rem">Zadania z odpowiedzi AI — otwórz albo oznacz jako gotowe.</p>
+          <div id="profile-todo"></div>
+        </div>
+
+        <div class="profile-tab-panel" data-profile-panel="mos" id="panel-mos" hidden>
+          <div class="profile-stack">
+            <div class="profile-card">
+              <strong class="card-title" id="mos-tab-title">Checklist MOS</strong>
+              <p class="muted" id="mos-tab-hint" style="margin:0 0 0.7rem">Odznaczaj punkty — postęp synci się z przewodnikiem na stronie.</p>
+              <div class="profile-mos-list" id="profile-mos-list"></div>
+              <div class="row-actions" style="margin-top:0.85rem">
+                <a class="primary" href="#mos">Pełny przewodnik MOS</a>
+                <a href="https://mos.cudzoziemcy.gov.pl" target="_blank" rel="noopener">Oficjalny MOS</a>
+              </div>
+            </div>
           </div>
-          <div id="invoices-box" class="muted" style="margin-top:0.7rem"></div>
-        </article>
-        <article class="plan">
-          <strong>Hasło / magic link</strong>
-          <form id="magic-form" style="display:grid;gap:0.55rem;margin-top:0.5rem">
-            <input id="magic-email" type="email" placeholder="Magic link email" required />
-            <button class="cta" type="submit">Wyślij link</button>
-          </form>
-          <form id="reset-form" style="display:grid;gap:0.55rem;margin-top:0.7rem">
-            <input id="reset-email" type="email" placeholder="Reset hasła — email" required />
-            <button class="ghost" type="submit">Wyślij reset</button>
-            <p id="reset-note" class="muted"></p>
-          </form>
-        </article>
+        </div>
+
+        <div class="profile-tab-panel" data-profile-panel="calendar" id="panel-calendar" hidden>
+          <div class="profile-stack">
+            <div class="profile-card">
+              <strong class="card-title" id="cal-tab-title">Terminy i przypomnienia</strong>
+              <div id="profile-cal"></div>
+              <div id="calendar-list" hidden></div>
+              <form id="profile-cal-form" class="profile-forms" style="margin-top:0.9rem">
+                <input id="profile-cal-title" placeholder="Np. Koniec wizy" required />
+                <input id="profile-cal-due" type="date" required />
+                <button class="cta" type="submit" id="profile-cal-btn">Dodaj termin</button>
+              </form>
+              <p id="profile-cal-note" class="muted" style="margin:0.5rem 0 0"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-tab-panel" data-profile-panel="billing" id="panel-billing" hidden>
+          <div class="profile-grid">
+            <article class="profile-card">
+              <strong class="card-title">Płatności</strong>
+              <p id="billing-status-line" class="muted">Ładowanie…</p>
+              <div class="row-actions" style="margin-top:0.75rem;display:flex;flex-wrap:wrap;gap:0.45rem">
+                <a class="primary" href="#" id="pay-ai-account">Kup AI 19 zł</a>
+                <a href="#" id="pay-review-account">Human review 29 zł</a>
+                <a href="#" id="btn-portal">Zarządzaj subskrypcją</a>
+                <a href="#" id="btn-cancel-sub">Anuluj subskrypcję</a>
+              </div>
+              <div id="invoices-box" class="muted" style="margin-top:0.85rem"></div>
+            </article>
+            <article class="profile-card">
+              <strong class="card-title">Kod promocyjny</strong>
+              <p class="muted" style="margin:0 0 0.6rem">Np. WAKACJE — miesiąc AI gratis.</p>
+              <p class="muted"><a href="#pricing">Aktywuj na stronie Taryfy</a> albo w Telegram: /promo WAKACJE</p>
+            </article>
+          </div>
+        </div>
+
+        <div class="profile-tab-panel" data-profile-panel="account" id="panel-account" hidden>
+          <div class="profile-grid">
+            <article class="profile-card">
+              <strong class="card-title">Sesja</strong>
+              <p class="muted" style="margin:0 0 0.65rem">Zaloguj się, żeby synchronizować MOS, terminy i płatności.</p>
+              <div class="row-actions" style="display:flex;flex-wrap:wrap;gap:0.45rem">
+                <button type="button" class="primary" id="btn-account-login">Zaloguj</button>
+                <button type="button" id="btn-account-register">Załóż konto</button>
+              </div>
+              <p id="magic-note" class="muted" style="margin-top:0.7rem"></p>
+            </article>
+            <article class="profile-card">
+              <strong class="card-title">Magic link / reset hasła</strong>
+              <form id="magic-form" class="profile-forms">
+                <input id="magic-email" type="email" placeholder="Magic link — email" required />
+                <button class="cta" type="submit">Wyślij link</button>
+              </form>
+              <form id="reset-form" class="profile-forms" style="margin-top:0.85rem">
+                <input id="reset-email" type="email" placeholder="Reset hasła — email" required />
+                <button class="ghost" type="submit">Wyślij reset</button>
+                <p id="reset-note" class="muted" style="margin:0"></p>
+              </form>
+            </article>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1527,7 +1705,7 @@
 
     <footer class="foot">
       <span id="foot">Nie jesteśmy urzędem. To nie porada prawna. Sprawdź dane przed złożeniem.</span>
-      <span>WniosekPL · v2.2.6 · <a href="/setup">Setup</a></span>
+      <span>WniosekPL · v2.2.7 · <a href="/setup">Setup</a></span>
     </footer>
   </div>
 
@@ -1547,17 +1725,39 @@
         visualTitle: "MOS 2.0, PESEL, meldunek",
         visualNote: "Najpierw checklista gotowości — potem oficjalny portal mos.cudzoziemcy.gov.pl.",
         assistantTitle: "AI-asystent",
-        assistantSub: "Pytasz — dostajesz plan i przyciski. Niedokończone zostaje w profilu obok, nie na dole strony.",
-        profileTitle: "Twój profil",
-        profileSub: "Tu widać, co dokończyć po odpowiedzi AI.",
+        assistantSub: "Pytasz — dostajesz plan i przyciski. Wszystko niedokończone znajdziesz w Profilu (zakładki).",
+        profileTitle: "Profil",
+        profileSub: "Tu jest wszystko: zadania, MOS, terminy, płatności i konto — w zakładkach.",
         profileMos: "Następny krok MOS",
         profileTodo: "Do dokończenia",
         profileCal: "Terminy",
-        profileEmptyTodo: "Na razie pusto. Zapytaj AI — zadania pojawią się tutaj.",
-        profileEmptyCal: "Brak terminów. Dodaj datę końca pobytu w sekcji MOS.",
+        profileEmptyTodo: "Na razie pusto. Zapytaj AI — zadania pojawią się w zakładce Zadania.",
+        profileEmptyCal: "Brak terminów. Dodaj datę w zakładce Terminy albo w sekcji MOS.",
         profileOpen: "Otwórz",
         profileDone: "Gotowe",
         profileLogin: "Zaloguj, by synchronizować",
+        profileTeaserBody: "{n} zadań · MOS, terminy, płatności w zakładkach",
+        profileOpenFull: "Otwórz profil",
+        tabOverview: "Przegląd",
+        tabTasks: "Zadania",
+        tabMos: "MOS",
+        tabCalendar: "Terminy",
+        tabBilling: "Płatności",
+        tabAccount: "Konto",
+        overviewPlan: "Plan",
+        overviewNext: "Następny krok",
+        overviewTasks: "Otwarte zadania",
+        overviewCal: "Najbliższy termin",
+        overviewAsk: "Zapytaj AI",
+        overviewMos: "Przewodnik MOS",
+        overviewAllTasks: "Wszystkie zadania",
+        overviewAllCal: "Wszystkie terminy",
+        tasksHint: "Zadania z odpowiedzi AI — otwórz albo oznacz jako gotowe.",
+        mosTabTitle: "Checklist MOS",
+        mosTabHint: "Odznaczaj punkty — postęp synci się z przewodnikiem na stronie.",
+        calTabTitle: "Terminy i przypomnienia",
+        calAddBtn: "Dodaj termin",
+        calAdded: "Dodano termin.",
         usage: (left, limit) => `Darmowe pytania dziś: ${left}/${limit}`,
         placeholder: "Np. Jestem z Ukrainy, pracuję legalnie i chcę kartę pobytu",
         send: "Wyślij",
@@ -1608,17 +1808,39 @@
         visualTitle: "MOS 2.0, PESEL, meldunek",
         visualNote: "Сначала checklist готовности — потом официальный портал mos.cudzoziemcy.gov.pl.",
         assistantTitle: "AI-ассистент",
-        assistantSub: "Спрашиваешь — получаешь план и кнопки. Незаконченное остаётся в профиле справа, не внизу страницы.",
-        profileTitle: "Твой профиль",
-        profileSub: "Здесь видно, что доделать после ответа AI.",
+        assistantSub: "Спрашиваешь — получаешь план и кнопки. Всё незаконченное — во вкладках Профиля.",
+        profileTitle: "Профиль",
+        profileSub: "Здесь всё: задачи, MOS, сроки, оплата и аккаунт — во вкладках.",
         profileMos: "Следующий шаг MOS",
         profileTodo: "Незаконченное",
         profileCal: "Сроки",
-        profileEmptyTodo: "Пока пусто. Спроси AI — задачи появятся здесь.",
-        profileEmptyCal: "Нет сроков. Добавь дату конца pobytu в секции MOS.",
+        profileEmptyTodo: "Пока пусто. Спроси AI — задачи появятся во вкладке «Задачи».",
+        profileEmptyCal: "Нет сроков. Добавь дату во вкладке «Сроки» или в секции MOS.",
         profileOpen: "Открыть",
         profileDone: "Готово",
         profileLogin: "Войди, чтобы синхронизировать",
+        profileTeaserBody: "{n} задач · MOS, сроки, оплата во вкладках",
+        profileOpenFull: "Открыть профиль",
+        tabOverview: "Обзор",
+        tabTasks: "Задачи",
+        tabMos: "MOS",
+        tabCalendar: "Сроки",
+        tabBilling: "Оплата",
+        tabAccount: "Аккаунт",
+        overviewPlan: "План",
+        overviewNext: "Следующий шаг",
+        overviewTasks: "Открытые задачи",
+        overviewCal: "Ближайший срок",
+        overviewAsk: "Спросить AI",
+        overviewMos: "Гид MOS",
+        overviewAllTasks: "Все задачи",
+        overviewAllCal: "Все сроки",
+        tasksHint: "Задачи из ответов AI — открой или отметь готовым.",
+        mosTabTitle: "Чеклист MOS",
+        mosTabHint: "Отмечай пункты — прогресс синхронизируется с гидом на сайте.",
+        calTabTitle: "Сроки и напоминания",
+        calAddBtn: "Добавить срок",
+        calAdded: "Срок добавлен.",
         usage: (left, limit) => `Бесплатных вопросов сегодня: ${left}/${limit}`,
         placeholder: "Напр. Я из Украины, работаю официально и хочу карту побыту",
         send: "Отправить",
@@ -1669,17 +1891,39 @@
         visualTitle: "MOS 2.0, PESEL, meldunek",
         visualNote: "Readiness checklist first — then the official mos.cudzoziemcy.gov.pl portal.",
         assistantTitle: "AI assistant",
-        assistantSub: "Ask — get a plan and action buttons. Incomplete items stay in the profile beside chat, not at the bottom.",
-        profileTitle: "Your profile",
-        profileSub: "See what to finish after an AI answer.",
+        assistantSub: "Ask — get a plan and action buttons. Everything unfinished is in Profile tabs.",
+        profileTitle: "Profile",
+        profileSub: "Everything here: tasks, MOS, deadlines, billing and account — in tabs.",
         profileMos: "Next MOS step",
         profileTodo: "To finish",
         profileCal: "Deadlines",
-        profileEmptyTodo: "Nothing yet. Ask AI — tasks will appear here.",
-        profileEmptyCal: "No deadlines. Add your stay end date in the MOS section.",
+        profileEmptyTodo: "Nothing yet. Ask AI — tasks appear in the Tasks tab.",
+        profileEmptyCal: "No deadlines. Add a date in the Deadlines tab or MOS section.",
         profileOpen: "Open",
         profileDone: "Done",
         profileLogin: "Log in to sync",
+        profileTeaserBody: "{n} tasks · MOS, deadlines, billing in tabs",
+        profileOpenFull: "Open profile",
+        tabOverview: "Overview",
+        tabTasks: "Tasks",
+        tabMos: "MOS",
+        tabCalendar: "Deadlines",
+        tabBilling: "Billing",
+        tabAccount: "Account",
+        overviewPlan: "Plan",
+        overviewNext: "Next step",
+        overviewTasks: "Open tasks",
+        overviewCal: "Next deadline",
+        overviewAsk: "Ask AI",
+        overviewMos: "MOS guide",
+        overviewAllTasks: "All tasks",
+        overviewAllCal: "All deadlines",
+        tasksHint: "Tasks from AI answers — open or mark done.",
+        mosTabTitle: "MOS checklist",
+        mosTabHint: "Tick items — progress syncs with the on-page guide.",
+        calTabTitle: "Deadlines and reminders",
+        calAddBtn: "Add deadline",
+        calAdded: "Deadline added.",
         usage: (left, limit) => `Free questions today: ${left}/${limit}`,
         placeholder: "e.g. I am Ukrainian, legally employed, and need a residence card",
         send: "Send",
@@ -1730,17 +1974,39 @@
         visualTitle: "MOS 2.0, PESEL, meldunek",
         visualNote: "Спочатку чекліст готовності — потім офіційний портал mos.cudzoziemcy.gov.pl.",
         assistantTitle: "AI-асистент",
-        assistantSub: "Питаєш — отримуєш план і кнопки. Незакінчене лишається в профілі праворуч, не внизу сторінки.",
-        profileTitle: "Твій профіль",
-        profileSub: "Тут видно, що доробити після відповіді AI.",
+        assistantSub: "Питаєш — отримуєш план і кнопки. Усе незакінчене — у вкладках Профілю.",
+        profileTitle: "Профіль",
+        profileSub: "Тут усе: задачі, MOS, строки, оплата і акаунт — у вкладках.",
         profileMos: "Наступний крок MOS",
         profileTodo: "Незакінчене",
         profileCal: "Строки",
-        profileEmptyTodo: "Поки порожньо. Запитай AI — задачі з’являться тут.",
-        profileEmptyCal: "Немає строків. Додай дату кінця pobytu в секції MOS.",
+        profileEmptyTodo: "Поки порожньо. Запитай AI — задачі з’являться у вкладці «Задачі».",
+        profileEmptyCal: "Немає строків. Додай дату у вкладці «Строки» або в секції MOS.",
         profileOpen: "Відкрити",
         profileDone: "Готово",
         profileLogin: "Увійди, щоб синхронізувати",
+        profileTeaserBody: "{n} задач · MOS, строки, оплата у вкладках",
+        profileOpenFull: "Відкрити профіль",
+        tabOverview: "Огляд",
+        tabTasks: "Задачі",
+        tabMos: "MOS",
+        tabCalendar: "Строки",
+        tabBilling: "Оплата",
+        tabAccount: "Акаунт",
+        overviewPlan: "План",
+        overviewNext: "Наступний крок",
+        overviewTasks: "Відкриті задачі",
+        overviewCal: "Найближчий строк",
+        overviewAsk: "Запитати AI",
+        overviewMos: "Гід MOS",
+        overviewAllTasks: "Усі задачі",
+        overviewAllCal: "Усі строки",
+        tasksHint: "Задачі з відповідей AI — відкрий або познач готовим.",
+        mosTabTitle: "Чекліст MOS",
+        mosTabHint: "Відмічай пункти — прогрес синхронізується з гідом на сайті.",
+        calTabTitle: "Строки і нагадування",
+        calAddBtn: "Додати строк",
+        calAdded: "Строк додано.",
         usage: (left, limit) => `Безкоштовних питань сьогодні: ${left}/${limit}`,
         placeholder: "Напр. Я з України, працюю офіційно і хочу карту побиту",
         send: "Надіслати",

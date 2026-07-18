@@ -336,6 +336,8 @@
       });
     }
 
+    window.wniosekplRefreshCabinet = refreshCabinet;
+
     ensureSession().then(() => {
       refreshCabinet();
       loadServices();

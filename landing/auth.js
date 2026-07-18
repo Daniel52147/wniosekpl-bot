@@ -70,7 +70,8 @@
     if (session) session.classList.toggle("hidden", !loggedIn);
     if (chip) {
       chip.textContent = label;
-      chip.title = label || "Konto";
+      chip.title = label || "Profil";
+      chip.href = "#profile";
     }
   }
 
@@ -173,6 +174,9 @@
     );
     await refreshAuthUI();
     closeAuthModal();
+    if (window.wniosekplOpenProfileTab) window.wniosekplOpenProfileTab("overview");
+    else location.hash = "#profile";
+    if (window.wniosekplRefreshProfile) window.wniosekplRefreshProfile();
   }
 
   async function login(ev) {
@@ -194,6 +198,9 @@
     setNote("Zalogowano.");
     await refreshAuthUI();
     closeAuthModal();
+    if (window.wniosekplOpenProfileTab) window.wniosekplOpenProfileTab("overview");
+    else location.hash = "#profile";
+    if (window.wniosekplRefreshProfile) window.wniosekplRefreshProfile();
   }
 
   async function checkout(product) {
