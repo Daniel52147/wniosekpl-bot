@@ -9,3 +9,4 @@ class FormStates(StatesGroup):
     waiting_podstawa_custom = State()
     profile_editing = State()
     waiting_feedback = State()
+    waiting_ai_question = State()

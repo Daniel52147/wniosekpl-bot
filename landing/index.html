@@ -3,82 +3,819 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="WniosekPL — darmowy bot Telegram: PESEL, Meldunek EL/ZC/1, pakiet Przeprowadzka. Pomocnik, nie urząd." />
-  <meta property="og:title" content="WniosekPL — formularze urzędowe w Telegram" />
-  <meta property="og:description" content="Darmowy bot: PESEL gov.pl, Meldunek EL/ZC/1, pakiet Przeprowadzka (3 PDF). Pomocnik — nie urząd." />
-  <meta property="og:type" content="website" />
-  <meta property="og:locale" content="pl_PL" />
-  <meta property="og:image" content="og.svg" />
-  <meta property="og:image:type" content="image/svg+xml" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="WniosekPL — formularze urzędowe w Telegram" />
-  <meta name="twitter:description" content="PESEL, Meldunek, pakiet Przeprowadzka — 100% bezpłatnie w Telegram." />
-  <meta name="twitter:image" content="og.svg" />
-  <title>WniosekPL — formularze urzędowe w Telegram</title>
+  <meta name="description" content="WniosekPL — AI-pomocnik dla cudzoziemców w Polsce. MOS 2.0, PESEL, meldunek, karty pobytu i PDF." />
+  <title>WniosekPL — AI-pomocnik dla cudzoziemców w Polsce</title>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#147a61" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
   <style>
-    * { box-sizing: border-box; }
-    body { font-family: system-ui, sans-serif; margin: 0; background: #0f172a; color: #e2e8f0; }
-    .wrap { max-width: 560px; margin: 0 auto; padding: 2rem 1.5rem; }
-    h1 { color: #fff; font-size: 1.85rem; text-align: center; }
-    .sub { text-align: center; color: #94a3b8; line-height: 1.6; }
-    .langs { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 1.2rem 0; }
-    .langs button { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
-    .langs button.active { background: #2563eb; border-color: #2563eb; }
-    .card { background: #1e293b; border-radius: 12px; padding: 1.2rem; margin: 1rem 0; }
-    ul { margin: 0.5rem 0; padding-left: 1.2rem; }
-    li { margin: 0.35rem 0; }
-    .btn {
-      display: block; text-align: center; margin: 1.5rem auto 0; padding: 14px 28px;
-      background: #2563eb; color: #fff; text-decoration: none; border-radius: 10px; font-weight: 600; max-width: 280px;
+    :root {
+      --ink: #102421;
+      --moss: #147a61;
+      --moss-deep: #0b4f40;
+      --citron: #d2ef6a;
+      --line: rgba(16, 36, 33, 0.10);
+      --muted: rgba(16, 36, 33, 0.68);
+      --white: #ffffff;
+      --shadow: 0 18px 40px rgba(10, 40, 34, 0.10);
+      --focus: 0 0 0 3px rgba(20, 122, 97, 0.22);
     }
-    .badge { text-align: center; font-size: 0.9rem; color: #fbbf24; margin-top: 1rem; }
-    .foot { text-align: center; font-size: 0.75rem; color: #64748b; margin-top: 2rem; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "DM Sans", sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse 80% 45% at 10% -10%, rgba(210, 239, 106, 0.2), transparent 55%),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(20, 122, 97, 0.14), transparent 50%),
+        linear-gradient(180deg, #f5faf7 0%, #eaf3ef 55%, #e3efe9 100%);
+    }
+    .shell { width: min(1080px, calc(100% - 2rem)); margin: 0 auto; position: relative; z-index: 1; }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.9rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      backdrop-filter: blur(16px);
+      background: rgba(245, 250, 247, 0.88);
+    }
+    .top-left {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      min-width: 0;
+    }
+    .profile-entry {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      text-decoration: none;
+      color: var(--white);
+      background: var(--moss-deep);
+      font-weight: 700;
+      font-size: 0.92rem;
+      padding: 0.55rem 0.85rem;
+      border-radius: 12px;
+      flex-shrink: 0;
+      transition: transform 0.15s ease;
+    }
+    .profile-entry:hover { transform: translateY(-1px); }
+    .profile-entry i {
+      width: 1.35rem;
+      height: 1.35rem;
+      border-radius: 50%;
+      background: var(--citron);
+      color: var(--moss-deep);
+      display: inline-grid;
+      place-items: center;
+      font-style: normal;
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+    .brand {
+      font-family: Syne, sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.04em;
+      text-decoration: none;
+      color: var(--ink);
+    }
+    .brand span {
+      display: inline-block;
+      width: 0.4em;
+      height: 0.4em;
+      margin-left: 0.12em;
+      border-radius: 2px;
+      background: var(--citron);
+      vertical-align: 0.12em;
+    }
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .langs { display: flex; gap: 0.15rem; }
+    .langs button, .cta, .ghost, .auth-btn {
+      font: inherit;
+      cursor: pointer;
+      border: 0;
+    }
+    .langs button {
+      background: transparent;
+      color: var(--muted);
+      padding: 0.4rem 0.5rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.78rem;
+      min-width: 2.1rem;
+    }
+    .langs button.active {
+      background: var(--moss-deep);
+      color: var(--white);
+    }
+    .auth-btn, .cta, .ghost {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      padding: 0.55rem 0.9rem;
+      border-radius: 11px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    .auth-btn.ghost, .ghost {
+      background: var(--white);
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    .auth-btn.solid, .cta {
+      background: var(--moss-deep);
+      color: var(--white);
+    }
+    .auth-user {
+      max-width: 10rem;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--moss-deep);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-decoration: none;
+    }
+    .hidden { display: none !important; }
+    .auth-cluster { display: flex; align-items: center; gap: 0.4rem; }
+    .auth-guest { display: flex; gap: 0.35rem; }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 2rem;
+      align-items: center;
+      padding: 1.5rem 0 2.2rem;
+      min-height: min(72vh, 640px);
+    }
+    .hero h1 {
+      font-family: Syne, sans-serif;
+      font-size: clamp(2.4rem, 6vw, 3.8rem);
+      letter-spacing: -0.045em;
+      line-height: 0.95;
+      margin: 0 0 0.85rem;
+    }
+    .hero p.lead {
+      margin: 0 0 1.25rem;
+      color: var(--muted);
+      font-size: 1.08rem;
+      max-width: 36ch;
+      line-height: 1.5;
+    }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    .tg-status { margin: 0.85rem 0 0; font-size: 0.9rem; color: var(--muted); }
+    .tg-status.ok { color: var(--moss-deep); }
+
+    .hero-card {
+      border-radius: 24px;
+      padding: 1.4rem 1.35rem;
+      background:
+        linear-gradient(160deg, rgba(11, 79, 64, 0.92), rgba(20, 122, 97, 0.88)),
+        var(--moss-deep);
+      color: #eef7f3;
+      box-shadow: var(--shadow);
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .hero-card .kicker {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--citron);
+      margin-bottom: 0.5rem;
+    }
+    .hero-card h2 {
+      font-family: Syne, sans-serif;
+      font-size: clamp(1.4rem, 3vw, 1.85rem);
+      letter-spacing: -0.03em;
+      margin: 0 0 1rem;
+      line-height: 1.15;
+    }
+    .hero-card ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 0.65rem;
+    }
+    .hero-card li {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.65rem;
+      align-items: start;
+      font-size: 0.98rem;
+      line-height: 1.4;
+    }
+    .hero-card li i {
+      width: 0.55rem;
+      height: 0.55rem;
+      margin-top: 0.45rem;
+      border-radius: 2px;
+      background: var(--citron);
+    }
+    .hero-card .note {
+      margin: 1.1rem 0 0;
+      opacity: 0.85;
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.85rem;
+      padding: 0.5rem 0 2.5rem;
+    }
+    .features article {
+      padding: 1.15rem 1.1rem;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.82);
+      border: 1px solid var(--line);
+    }
+    .features strong {
+      display: block;
+      font-family: Syne, sans-serif;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+      font-size: 1.1rem;
+    }
+    .features p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.45;
+    }
+
+    .band {
+      padding: 1.4rem 1.3rem;
+      border-radius: 20px;
+      border: 1px solid rgba(20, 122, 97, 0.2);
+      background: linear-gradient(135deg, rgba(210, 239, 106, 0.22), rgba(255,255,255,0.92));
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 2.5rem;
+    }
+    .band h2 {
+      font-family: Syne, sans-serif;
+      margin: 0 0 0.35rem;
+      letter-spacing: -0.03em;
+      font-size: 1.45rem;
+    }
+    .band p { margin: 0; color: var(--muted); max-width: 42ch; }
+
+    .pricing-teaser {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 2.5rem;
+    }
+    .pricing-teaser article {
+      padding: 1rem;
+      border-radius: 16px;
+      background: var(--white);
+      border: 1px solid var(--line);
+    }
+    .pricing-teaser strong {
+      font-family: Syne, sans-serif;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+    .pricing-teaser .price {
+      font-weight: 800;
+      color: var(--moss-deep);
+      margin-bottom: 0.35rem;
+    }
+    .pricing-teaser p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+
+    .official-bar {
+      display: grid;
+      gap: 0.5rem;
+      margin: 0 0 1.25rem;
+      padding: 0.85rem 1rem;
+      border-radius: 14px;
+      border: 1px solid rgba(16, 36, 33, 0.12);
+      background: rgba(255,255,255,0.7);
+    }
+    .official-bar .kicker {
+      margin: 0;
+      font-size: 0.75rem;
+      font-weight: 750;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--moss);
+    }
+    .official-bar .note { margin: 0; color: var(--muted); font-size: 0.92rem; }
+    .official-links { display: flex; flex-wrap: wrap; gap: 0.45rem 0.9rem; }
+    .official-links a {
+      color: var(--moss-deep);
+      font-weight: 700;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(11, 79, 64, 0.25);
+    }
+    .path-section {
+      margin: 0.25rem 0 1.5rem;
+      padding: 1.2rem 0 0;
+      border-top: 1px solid var(--line);
+    }
+    .path-section h2 {
+      font-family: Syne, sans-serif;
+      margin: 0 0 0.35rem;
+      font-size: clamp(1.35rem, 3vw, 1.75rem);
+    }
+    .path-section > .sub { margin: 0 0 0.9rem; color: var(--muted); max-width: 38rem; }
+    .path-grid {
+      display: grid;
+      gap: 0.75rem;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .path-grid article {
+      padding: 0.9rem 0.95rem;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.65);
+    }
+    .path-grid strong { display: block; margin-bottom: 0.3rem; font-family: Syne, sans-serif; }
+    .path-grid p { margin: 0; color: var(--muted); font-size: 0.92rem; line-height: 1.4; }
+    @media (max-width: 800px) {
+      .path-grid { grid-template-columns: 1fr; }
+    }
+
+    .trust {
+      margin: 0.5rem 0 1.5rem;
+      padding: 1.25rem 0 0;
+      border-top: 1px solid var(--line);
+    }
+    .trust .kicker {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--moss);
+      margin: 0 0 0.35rem;
+    }
+    .trust h2 {
+      font-family: Syne, sans-serif;
+      margin: 0 0 0.4rem;
+      font-size: clamp(1.4rem, 3vw, 1.85rem);
+    }
+    .trust > p { margin: 0 0 0.85rem; color: var(--muted); max-width: 40rem; }
+    .trust-links { display: flex; flex-wrap: wrap; gap: 0.65rem 1.1rem; margin: 0.4rem 0 1rem; }
+    .trust-links a { color: var(--moss-deep); font-weight: 650; }
+    .faq-list { display: grid; gap: 0.45rem; }
+    .faq-list details {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0.65rem 0.85rem;
+      background: rgba(255,255,255,0.55);
+    }
+    .faq-list summary { cursor: pointer; font-weight: 650; }
+    .faq-list p { margin: 0.4rem 0 0; color: var(--muted); font-size: 0.92rem; }
+
+    .foot {
+      padding: 1.2rem 0 2.2rem;
+      color: var(--muted);
+      font-size: 0.86rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      border-top: 1px solid var(--line);
+    }
+    .foot a { color: var(--moss-deep); }
+
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(12, 32, 28, 0.42);
+      display: none; align-items: center; justify-content: center; padding: 1rem; z-index: 40;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      width: min(440px, 100%);
+      background: var(--white);
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      padding: 1.2rem;
+    }
+    .modal h3 { font-family: Syne, sans-serif; margin: 0 0 0.35rem; }
+    .modal input {
+      font: inherit;
+      width: 100%;
+      padding: 0.7rem 0.85rem;
+      border-radius: 11px;
+      border: 1px solid var(--line);
+    }
+    .auth-tabs {
+      display: flex;
+      gap: 0.3rem;
+      margin: 0.9rem 0;
+      padding: 0.25rem;
+      background: rgba(20, 122, 97, 0.08);
+      border-radius: 12px;
+    }
+    .auth-tabs button {
+      flex: 1;
+      font: inherit;
+      border: 0;
+      cursor: pointer;
+      padding: 0.65rem;
+      border-radius: 10px;
+      font-weight: 700;
+      background: transparent;
+      color: var(--muted);
+    }
+    .auth-tabs button.active {
+      background: var(--white);
+      color: var(--moss-deep);
+    }
+    .oauth-row { display: flex; gap: 0.5rem; margin-top: 0.8rem; }
+    .oauth-row a { flex: 1; text-align: center; }
+    #auth-modal-note { min-height: 1.2em; margin: 0.6rem 0 0; color: var(--muted); font-size: 0.9rem; }
+
+    @media (max-width: 900px) {
+      .hero, .features, .pricing-teaser { grid-template-columns: 1fr; }
+      .hero { min-height: auto; padding-top: 1rem; }
+    }
+    @media (max-width: 560px) {
+      .shell { width: min(100% - 1.25rem, 1080px); }
+      .brand { display: none; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>WniosekPL</h1>
-    <p class="sub" id="tagline">Pomocnik — <strong>nie urząd</strong>. Odpowiadasz po rusku / angielsku / ukraińsku — dostajesz PDF.</p>
-    <div class="langs">
-      <button type="button" data-lang="pl" class="active">PL</button>
-      <button type="button" data-lang="ru">RU</button>
-      <button type="button" data-lang="en">EN</button>
-      <button type="button" data-lang="ua">UA</button>
-    </div>
-    <div class="card">
-      <ul id="features">
-        <li>PESEL (gov.pl)</li>
-        <li>Meldunek EL/ZC/1 i EL/ZPS/1</li>
-        <li>Pakiet Przeprowadzka — 3 PDF naraz</li>
-        <li>Checklisty do urzędu + podgląd PDF</li>
-      </ul>
-    </div>
-    <a class="btn" id="tg-link" href="https://t.me/wniosekpl_bot">Otwórz w Telegram</a>
-    <p class="badge" id="free">🎁 100% bezpłatnie — bez płatności</p>
-    <p class="foot">Nie jesteśmy urzędem. Sprawdź dane przed złożeniem.</p>
+  <div class="shell">
+    <header class="topbar">
+      <div class="top-left">
+        <a class="profile-entry" id="profile-entry" href="/profile">
+          <i id="profile-entry-icon">P</i>
+          <span id="profile-entry-label">Profil</span>
+        </a>
+        <a class="brand" href="/">WniosekPL<span></span></a>
+      </div>
+      <div class="top-right">
+        <div class="langs" id="langs">
+          <button type="button" data-lang="pl" class="active">PL</button>
+          <button type="button" data-lang="ru">RU</button>
+          <button type="button" data-lang="en">EN</button>
+          <button type="button" data-lang="ua">UA</button>
+        </div>
+        <div class="auth-cluster" id="auth-cluster">
+          <div class="auth-guest" id="auth-guest">
+            <button type="button" class="auth-btn ghost" id="btn-open-login">Zaloguj</button>
+            <button type="button" class="auth-btn solid" id="btn-open-register">Załóż konto</button>
+          </div>
+          <div class="auth-session hidden" id="auth-session">
+            <a class="auth-user" id="auth-user-chip" href="/profile" title="Profil"></a>
+            <button type="button" class="auth-btn ghost" id="btn-top-logout">Wyloguj</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <aside class="official-bar" id="official-bar" aria-label="Oficjalne źródła">
+      <p class="kicker" id="official-kicker">Oficjalna ścieżka</p>
+      <p class="note" id="official-note">Wniosek składasz tylko na mos.cudzoziemcy.gov.pl — portal UdSC. My przygotowujemy Cię krok po kroku.</p>
+      <div class="official-links" id="official-links"></div>
+    </aside>
+
+    <section class="hero">
+      <div>
+        <h1 id="hero-title">WniosekPL</h1>
+        <p class="lead" id="hero-sub">Przewodnik dla cudzoziemców w Polsce: przygotujesz się do oficjalnego MOS 2.0 — PESEL, dokumenty i checklista — zanim wejdziesz na portal gov.pl.</p>
+        <div class="cta-row">
+          <a class="cta" id="cta-profile" href="/profile">Zacznij przygotowanie</a>
+          <a class="ghost" id="cta-tg" href="/profile?tab=account&link=1">Połącz Telegram</a>
+        </div>
+        <p class="tg-status" id="tg-status"></p>
+      </div>
+      <div class="hero-card" aria-hidden="true">
+        <div>
+          <div class="kicker" id="visual-kicker">Co dostajesz</div>
+          <h2 id="visual-title">Przygotowanie, nie urząd</h2>
+          <ul id="can-do-list">
+            <li><i></i><span>Checklistę przed oficjalnym wnioskiem w MOS</span></li>
+            <li><i></i><span>PDF (PESEL, meldunek, pisma) z zapisem postępu</span></li>
+            <li><i></i><span>Wyjaśnienia PL / RU / UA / EN — bez składania za Ciebie</span></li>
+          </ul>
+        </div>
+        <p class="note" id="visual-note">Oficjalny wniosek i decyzje — tylko MOS / UdSC na gov.pl. My prowadzimy Cię do tego momentu.</p>
+      </div>
+    </section>
+
+    <section class="path-section" aria-label="Ścieżka">
+      <h2 id="path-section-title">Oficjalna droga do wniosku</h2>
+      <p class="sub" id="path-section-sub">Najpierw przygotowanie u nas — złożenie tylko w MOS na gov.pl.</p>
+      <div class="path-grid" id="landing-path"></div>
+    </section>
+
+    <section class="features" aria-label="Funkcje">
+      <article>
+        <strong id="f1-title">Przewodnik MOS</strong>
+        <p id="f1-body">Checklist gotowości, załączniki, szablon do pracodawcy i przypomnienie o końcu legalnego pobytu.</p>
+      </article>
+      <article>
+        <strong id="f2-title">AI-asystent</strong>
+        <p id="f2-body">Pytasz swoim językiem — dostajesz plan i przyciski do dokumentów, bez szukania po stronie.</p>
+      </article>
+      <article>
+        <strong id="f3-title">PDF i terminy</strong>
+        <p id="f3-body">PESEL, meldunek, pisma, odwołanie. Terminy i postęp zapisujesz w profilu.</p>
+      </article>
+    </section>
+
+    <section class="band">
+      <div>
+        <h2 id="band-title">Zarządzasz wszystkim w profilu</h2>
+        <p id="band-body">Trzy zakładki: następny krok, dokumenty PDF i konto (login / Telegram). Prosto, oficjalnie, bez chaosu.</p>
+      </div>
+      <a class="cta" id="band-cta" href="/profile">Zacznij przygotowanie</a>
+    </section>
+
+    <section class="pricing-teaser" aria-label="Taryfy">
+      <article>
+        <strong id="free-title">Start</strong>
+        <div class="price" id="free-price">0 zł</div>
+        <p id="free-desc">PDF + 5 pytań AI dziennie.</p>
+      </article>
+      <article>
+        <strong id="ai-title">AI bez limitu</strong>
+        <div class="price" id="ai-price">19 zł / mies.</div>
+        <p id="ai-desc">Bez limitu pytań i więcej pomocy w profilu.</p>
+      </article>
+      <article>
+        <strong id="review-title">Human review</strong>
+        <div class="price" id="review-price">29 zł</div>
+        <p id="review-desc">Sprawdzenie przez człowieka przed urzędem.</p>
+      </article>
+    </section>
+
+    <section class="trust" id="trust" aria-label="Zaufanie">
+      <p class="kicker" id="trust-kicker">Zaufanie</p>
+      <h2 id="trust-title">Nie jesteśmy urzędem</h2>
+      <p id="trust-body">Pomagamy przygotować się do MOS. Oficjalne decyzje i złożenie wniosku — tylko na gov.pl / MOS.</p>
+      <strong id="trust-gov-title">Oficjalne źródła</strong>
+      <div class="trust-links" id="trust-gov-links"></div>
+      <strong id="trust-faq-title">Krótki FAQ</strong>
+      <div class="faq-list" id="trust-faq"></div>
+      <p style="margin:1rem 0 0">
+        <a id="trust-contact" href="mailto:hello@wniosekpl.pl">Napisz do nas</a>
+      </p>
+    </section>
+
+    <footer class="foot">
+      <span id="foot">Nie jesteśmy urzędem. To nie porada prawna.</span>
+      <span>WniosekPL · v2.4.2 · <a href="/profile">Profil</a> · <a href="/setup">Setup</a></span>
+    </footer>
   </div>
+
+  <div class="modal-backdrop" id="auth-modal" aria-hidden="true">
+    <div class="modal auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+      <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem">
+        <div>
+          <h3 id="auth-modal-title">Wejdź do WniosekPL</h3>
+          <p class="muted" style="margin:0;color:var(--muted)">Potem otworzysz profil ze wszystkimi funkcjami.</p>
+        </div>
+        <button type="button" class="ghost" id="auth-modal-close">Zamknij</button>
+      </div>
+      <div class="auth-tabs" role="tablist">
+        <button type="button" class="active" data-auth-tab="login">Zaloguj</button>
+        <button type="button" data-auth-tab="register">Załóż konto</button>
+      </div>
+      <form id="login-form" style="display:grid;gap:0.65rem">
+        <input id="login-email" type="email" placeholder="Email" required autocomplete="email" />
+        <input id="login-password" type="password" placeholder="Hasło" required autocomplete="current-password" />
+        <button class="cta" type="submit">Zaloguj się</button>
+      </form>
+      <form id="register-form" style="display:none;gap:0.65rem">
+        <input id="reg-name" placeholder="Imię" autocomplete="name" />
+        <input id="reg-email" type="email" placeholder="Email" required autocomplete="email" />
+        <input id="reg-password" type="password" placeholder="Hasło (min. 8)" required minlength="8" autocomplete="new-password" />
+        <button class="cta" type="submit">Utwórz konto</button>
+      </form>
+      <div class="oauth-row">
+        <a class="ghost" id="btn-google" href="/api/auth/google/start">Google</a>
+        <a class="ghost" id="btn-facebook" href="/api/auth/facebook/start">Facebook</a>
+      </div>
+      <p id="auth-modal-note"></p>
+      <p id="magic-note" class="hidden"></p>
+    </div>
+  </div>
+
   <script>
+    const LANG_KEY = "wniosekpl_lang";
     const BOT = "wniosekpl_bot";
-    const ref = new URLSearchParams(location.search).get("ref");
-    const start = ref ? `?start=ref_${encodeURIComponent(ref)}` : "";
-    document.getElementById("tg-link").href = `https://t.me/${BOT}${start}`;
+    let lang = localStorage.getItem(LANG_KEY) || "pl";
 
     const copy = {
-      pl: { tagline: "Pomocnik — <strong>nie urząd</strong>. PDF na polskich blankach.", btn: "Otwórz w Telegram", free: "🎁 100% za darmo" },
-      ru: { tagline: "Помощник — <strong>не urząd</strong>. PDF на польских бланках.", btn: "Открыть в Telegram", free: "🎁 100% бесплатно" },
-      en: { tagline: "Helper — <strong>not a government office</strong>. Official PDFs.", btn: "Open in Telegram", free: "🎁 100% free" },
-      ua: { tagline: "Помічник — <strong>не urząd</strong>. PDF на польських бланках.", btn: "Відкрити в Telegram", free: "🎁 100% безкоштовно" },
+      pl: {
+        profile: "Profil",
+        heroSub: "Przewodnik dla cudzoziemców w Polsce: przygotujesz się do oficjalnego MOS 2.0 — PESEL, dokumenty i checklista — zanim wejdziesz na portal gov.pl.",
+        ctaProfile: "Zacznij przygotowanie",
+        ctaTg: "Połącz Telegram",
+        kicker: "Co dostajesz",
+        visualTitle: "Przygotowanie, nie urząd",
+        canDo: [
+          "Checklistę przed oficjalnym wnioskiem w MOS",
+          "PDF (PESEL, meldunek, pisma) z zapisem postępu",
+          "Wyjaśnienia PL / RU / UA / EN — bez składania za Ciebie",
+        ],
+        visualNote: "Oficjalny wniosek i decyzje — tylko MOS / UdSC na gov.pl. My prowadzimy Cię do tego momentu.",
+        f1t: "Przewodnik MOS", f1b: "Checklist gotowości, załączniki, szablon do pracodawcy i przypomnienie o końcu pobytu.",
+        f2t: "AI-asystent", f2b: "Pytasz swoim językiem — dostajesz plan i przyciski do dokumentów.",
+        f3t: "PDF i terminy", f3b: "PESEL, meldunek, pisma. Postęp i terminy zapisujesz w profilu.",
+        bandTitle: "Zarządzasz wszystkim w profilu",
+        bandBody: "Trzy zakładki: następny krok, dokumenty PDF i konto (login / Telegram). Prosto, oficjalnie, bez chaosu.",
+        bandCta: "Zacznij przygotowanie",
+        freeTitle: "Start", freePrice: "0 zł", freeDesc: "PDF + 5 pytań AI dziennie.",
+        aiTitle: "AI bez limitu", aiPrice: "19 zł / mies.", aiDesc: "Bez limitu pytań w profilu.",
+        reviewTitle: "Human review", reviewPrice: "29 zł", reviewDesc: "Sprawdzenie przez człowieka.",
+        foot: "Nie jesteśmy urzędem. To nie porada prawna.",
+        login: "Zaloguj", register: "Załóż konto", logout: "Wyloguj",
+      },
+      ru: {
+        profile: "Профиль",
+        heroSub: "Гид для иностранцев в Польше: подготовка к официальному MOS 2.0 — PESEL, документы и чеклист — до входа на портал gov.pl.",
+        ctaProfile: "Начать подготовку",
+        ctaTg: "Связать Telegram",
+        kicker: "Что получаешь",
+        visualTitle: "Подготовка, не urząd",
+        canDo: [
+          "Чеклист перед официальным wniosком в MOS",
+          "PDF (PESEL, meldunek, письма) с сохранением прогресса",
+          "Пояснения RU / PL / UA / EN — без подачи за тебя",
+        ],
+        visualNote: "Официальный wniosek и решения — только MOS / UdSC на gov.pl. Мы ведём тебя до этого момента.",
+        f1t: "Гид MOS", f1b: "Чеклист готовности, приложения, текст работодателю и напоминание о сроке pobytu.",
+        f2t: "AI-ассистент", f2b: "Спрашиваешь на своём языке — получаешь план и кнопки к документам.",
+        f3t: "PDF и сроки", f3b: "PESEL, meldunek, письма. Прогресс хранится в профиле.",
+        bandTitle: "Всё управление — в профиле",
+        bandBody: "Три вкладки: следующий шаг, PDF и аккаунт (вход / Telegram). Просто и официально.",
+        bandCta: "Начать подготовку",
+        freeTitle: "Старт", freePrice: "0 zł", freeDesc: "PDF + 5 вопросов AI в день.",
+        aiTitle: "AI без лимита", aiPrice: "19 zł / мес.", aiDesc: "Без лимита вопросов в профиле.",
+        reviewTitle: "Human review", reviewPrice: "29 zł", reviewDesc: "Проверка человеком.",
+        foot: "Мы не urząd. Это не юридическая консультация.",
+        login: "Войти", register: "Регистрация", logout: "Выйти",
+      },
+      en: {
+        profile: "Profile",
+        heroSub: "A guide for foreigners in Poland: prepare for official MOS 2.0 — PESEL, documents and checklist — before you enter the gov.pl portal.",
+        ctaProfile: "Start preparing",
+        ctaTg: "Link Telegram",
+        kicker: "What you get",
+        visualTitle: "Preparation, not a government office",
+        canDo: [
+          "A checklist before the official MOS application",
+          "PDFs (PESEL, meldunek, letters) with saved progress",
+          "Explanations in EN / PL / RU / UA — we do not file for you",
+        ],
+        visualNote: "Official filing and decisions — only MOS / UdSC on gov.pl. We guide you up to that point.",
+        f1t: "MOS guide", f1b: "Readiness checklist, attachments, employer message and stay deadline reminder.",
+        f2t: "AI assistant", f2b: "Ask in your language — get a plan and document buttons.",
+        f3t: "PDFs & deadlines", f3b: "PESEL, meldunek, letters. Progress lives in your profile.",
+        bandTitle: "Manage everything in your profile",
+        bandBody: "Three tabs: next step, PDF documents, and account (login / Telegram). Simple and official.",
+        bandCta: "Start preparing",
+        freeTitle: "Starter", freePrice: "0 zł", freeDesc: "PDFs + 5 AI questions / day.",
+        aiTitle: "Unlimited AI", aiPrice: "19 zł / mo", aiDesc: "Unlimited questions in the profile.",
+        reviewTitle: "Human review", reviewPrice: "29 zł", reviewDesc: "Human check before filing.",
+        foot: "We are not a government office. Not legal advice.",
+        login: "Log in", register: "Sign up", logout: "Log out",
+      },
+      ua: {
+        profile: "Профіль",
+        heroSub: "Гід для іноземців у Польщі: підготовка до офіційного MOS 2.0 — PESEL, документи і чекліст — до входу на портал gov.pl.",
+        ctaProfile: "Почати підготовку",
+        ctaTg: "Повʼязати Telegram",
+        kicker: "Що отримуєш",
+        visualTitle: "Підготовка, не urząd",
+        canDo: [
+          "Чекліст перед офіційним wniosком у MOS",
+          "PDF (PESEL, meldunek, листи) зі збереженням прогресу",
+          "Пояснення UA / PL / RU / EN — без подання за тебе",
+        ],
+        visualNote: "Офіційний wniosek і рішення — лише MOS / UdSC на gov.pl. Ми ведемо тебе до цього моменту.",
+        f1t: "Гід MOS", f1b: "Чекліст готовності, додатки, текст роботодавцю і нагадування про строк.",
+        f2t: "AI-асистент", f2b: "Питаєш своєю мовою — отримуєш план і кнопки до документів.",
+        f3t: "PDF і строки", f3b: "PESEL, meldunek, листи. Прогрес у профілі.",
+        bandTitle: "Усе керування — в профілі",
+        bandBody: "Три вкладки: наступний крок, PDF і акаунт (вхід / Telegram). Просто й офіційно.",
+        bandCta: "Почати підготовку",
+        freeTitle: "Старт", freePrice: "0 zł", freeDesc: "PDF + 5 питань AI на день.",
+        aiTitle: "AI без ліміту", aiPrice: "19 zł / міс.", aiDesc: "Без ліміту питань у профілі.",
+        reviewTitle: "Human review", reviewPrice: "29 zł", reviewDesc: "Перевірка людиною.",
+        foot: "Ми не urząd. Це не юридична консультація.",
+        login: "Увійти", register: "Реєстрація", logout: "Вийти",
+      },
     };
+
+    function applyLang() {
+      const c = copy[lang] || copy.pl;
+      document.documentElement.lang = lang;
+      document.getElementById("profile-entry-label").textContent = c.profile;
+      document.getElementById("hero-sub").textContent = c.heroSub;
+      document.getElementById("cta-profile").textContent = c.ctaProfile;
+      document.getElementById("cta-tg").textContent = c.ctaTg;
+      document.getElementById("visual-kicker").textContent = c.kicker;
+      document.getElementById("visual-title").textContent = c.visualTitle;
+      document.getElementById("visual-note").textContent = c.visualNote;
+      const ul = document.getElementById("can-do-list");
+      ul.innerHTML = "";
+      c.canDo.forEach((line) => {
+        const li = document.createElement("li");
+        li.innerHTML = "<i></i><span></span>";
+        li.querySelector("span").textContent = line;
+        ul.appendChild(li);
+      });
+      document.getElementById("f1-title").textContent = c.f1t;
+      document.getElementById("f1-body").textContent = c.f1b;
+      document.getElementById("f2-title").textContent = c.f2t;
+      document.getElementById("f2-body").textContent = c.f2b;
+      document.getElementById("f3-title").textContent = c.f3t;
+      document.getElementById("f3-body").textContent = c.f3b;
+      document.getElementById("band-title").textContent = c.bandTitle;
+      document.getElementById("band-body").textContent = c.bandBody;
+      document.getElementById("band-cta").textContent = c.bandCta;
+      document.getElementById("free-title").textContent = c.freeTitle;
+      document.getElementById("free-price").textContent = c.freePrice;
+      document.getElementById("free-desc").textContent = c.freeDesc;
+      document.getElementById("ai-title").textContent = c.aiTitle;
+      document.getElementById("ai-price").textContent = c.aiPrice;
+      document.getElementById("ai-desc").textContent = c.aiDesc;
+      document.getElementById("review-title").textContent = c.reviewTitle;
+      document.getElementById("review-price").textContent = c.reviewPrice;
+      document.getElementById("review-desc").textContent = c.reviewDesc;
+      document.getElementById("foot").textContent = c.foot;
+      document.getElementById("btn-open-login").textContent = c.login;
+      document.getElementById("btn-open-register").textContent = c.register;
+      document.getElementById("btn-top-logout").textContent = c.logout;
+      document.querySelectorAll(".langs button").forEach((b) => {
+        b.classList.toggle("active", b.dataset.lang === lang);
+      });
+    }
+
     document.querySelectorAll(".langs button").forEach((btn) => {
       btn.addEventListener("click", () => {
-        document.querySelectorAll(".langs button").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        const c = copy[btn.dataset.lang];
-        document.getElementById("tagline").innerHTML = c.tagline;
-        document.getElementById("tg-link").textContent = c.btn;
-        document.getElementById("free").textContent = c.free;
+        lang = btn.dataset.lang;
+        localStorage.setItem(LANG_KEY, lang);
+        applyLang();
       });
     });
+
+    // Redirect old hash deep-links to the app page
+    const hash = location.hash || "";
+    if (hash && ["#profile", "#account", "#assistant", "#mos", "#documents", "#pricing"].some((h) => hash.startsWith(h))) {
+      const map = {
+        "#profile": "/profile",
+        "#account": "/profile?tab=account",
+        "#assistant": "/profile#assistant",
+        "#mos": "/profile#mos",
+        "#documents": "/profile#documents",
+        "#pricing": "/profile#pricing",
+      };
+      const key = Object.keys(map).find((h) => hash.startsWith(h));
+      if (key) location.replace(map[key] + (hash.includes("?") ? "" : ""));
+    }
+
+    (async function ping() {
+      applyLang();
+      try {
+        const res = await fetch("/api/meta");
+        const data = await res.json();
+        const tg = document.getElementById("tg-status");
+        if (data.telegram_configured) {
+          tg.textContent = lang === "ru" ? "Telegram готов — свяжи с сайтом в профиле" : lang === "en" ? "Telegram ready — link it in your profile" : lang === "ua" ? "Telegram готовий — повʼяжи в профілі" : "Telegram gotowy — połącz w profilu";
+          tg.className = "tg-status ok";
+          document.getElementById("cta-tg").href = "/profile?tab=account&link=1";
+        }
+      } catch (_) { /* ignore */ }
+    })();
   </script>
+  <script src="/static/auth.js"></script>
+  <script src="/static/trust.js"></script>
+  <script src="/static/guide.js"></script>
 </body>
 </html>

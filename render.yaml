@@ -1,21 +1,59 @@
-# Blueprint Render — Background Worker (Telegram polling)
-# https://render.com/docs/blueprint-spec
+# One-click Render Blueprint for WniosekPL
+# https://dashboard.render.com/select-repo?type=blueprint
+#
+# IMPORTANT: API + bot must share ONE SQLite file.
+# This blueprint runs both in a single web service via scripts/start_render.sh.
+# Do NOT add a second worker with its own disk — that splits accounts/progress.
 services:
-  - type: worker
-    name: wniosekpl-bot
+  - type: web
+    name: wniosekpl
     runtime: python
     plan: free
+    region: frankfurt
     buildCommand: pip install -r requirements.txt
-    startCommand: python bot.py
+    startCommand: bash scripts/start_render.sh
+    healthCheckPath: /health
     envVars:
+      - key: WEB_CORS_ORIGINS
+        value: "*"
+      - key: AI_FREE_DAILY_LIMIT
+        value: "5"
+      - key: DATABASE_PATH
+        value: /data/urzad.db
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: APP_SECRET
+        generateValue: true
+      - key: ADMIN_API_KEY
+        generateValue: true
       - key: BOT_TOKEN
         sync: false
       - key: BOT_USERNAME
+        value: wniosekpl_bot
+      - key: OMNIROUTE_ENABLED
+        value: "false"
+      - key: OPENAI_API_KEY
         sync: false
-      - key: ADMIN_TELEGRAM_IDS
+      - key: STRIPE_SECRET_KEY
         sync: false
-      - key: DATABASE_PATH
-        value: /data/urzad.db
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_AI_MONTHLY
+        sync: false
+      - key: STRIPE_PRICE_HUMAN_REVIEW
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: FACEBOOK_APP_ID
+        sync: false
+      - key: FACEBOOK_APP_SECRET
+        sync: false
+      - key: ALLOW_STRIPE_WITHOUT_WEBHOOK
+        value: "false"
     disk:
       name: wniosekpl-data
       mountPath: /data

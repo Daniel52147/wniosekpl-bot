@@ -1,0 +1,185 @@
+articles:
+  - id: pesel
+    tags: [pesel, gmina, documents]
+    title:
+      ru: "PESEL для иностранцев"
+      en: "PESEL for foreigners"
+      ua: "PESEL для іноземців"
+      pl: "PESEL dla cudzoziemców"
+    body:
+      ru: |
+        PESEL обычно получают в urzędzie gminy. Нужны документ личности, адрес в Польше,
+        основание (meldunek / работа / учёба) и заполненный wniosek. После meldunku процесс проще.
+      en: |
+        PESEL is usually obtained at the commune office. You need ID, a Polish address,
+        a legal basis, and a completed application. It is easier after meldunek.
+      ua: |
+        PESEL зазвичай отримують в urzędzie gminy. Потрібні документ особи, адреса в Польщі,
+        підстава та заповнений wniosek.
+      pl: |
+        PESEL zwykle nadaje urząd gminy. Potrzebujesz dokumentu tożsamości, adresu w Polsce,
+        podstawy prawnej i wniosku.
+  - id: meldunek
+    tags: [meldunek, address, gmina]
+    title:
+      ru: "Meldunek"
+      en: "Address registration"
+      ua: "Meldunek"
+      pl: "Meldunek"
+    body:
+      ru: |
+        Для временного пребывания используют EL/ZC/1, для постоянного EL/ZPS/1.
+        Нужна подпись właściciela lokalu и обычно umowa najmu. Срок: часто 30 дней с приезда.
+      en: |
+        Temporary stay uses EL/ZC/1, permanent EL/ZPS/1. Landlord signature and a rental
+        contract are usually required. Deadline is often 30 days after arrival.
+      ua: |
+        Тимчасовий pobyt — EL/ZC/1, постійний — EL/ZPS/1. Потрібен підпис власника і часто umowa najmu.
+      pl: |
+        Pobyt czasowy: EL/ZC/1, stały: EL/ZPS/1. Potrzebny podpis właściciela i zwykle umowa najmu.
+  - id: karta_pobytu
+    tags: [karta, pobytu, residence, wojewoda, mos]
+    title:
+      ru: "Karta pobytu / MOS 2.0"
+      en: "Residence card / MOS 2.0"
+      ua: "Karta pobytu / MOS 2.0"
+      pl: "Karta pobytu / MOS 2.0"
+    body:
+      ru: |
+        С 27.04.2026 большинство wniosków на pobyt czasowy / stały / rezydent UE
+        подаются ТОЛЬКО онлайн через официальный портал MOS 2.0:
+        https://mos.cudzoziemcy.gov.pl (нужны PESEL + Profil Zaufany / login.gov.pl).
+        Бумажный бланк воеводства для этих дел больше не принимают (есть редкие исключения).
+        WniosekPL помогает подготовить данные, checklist и документы ДО входа в MOS —
+        мы не заменяем государственный портал.
+      en: |
+        Since 27 Apr 2026 most temporary/permanent/EU long-term residence applications
+        must be filed ONLY online via official MOS 2.0: https://mos.cudzoziemcy.gov.pl
+        (PESEL + trusted profile / login.gov.pl required). Paper voivodeship forms are
+        no longer accepted for those cases (few exceptions remain).
+        WniosekPL helps prepare data, checklists and attachments BEFORE MOS —
+        we do not replace the government portal.
+      ua: |
+        З 27.04.2026 більшість заяв на pobyt подають ТІЛЬКИ онлайн через MOS 2.0:
+        https://mos.cudzoziemcy.gov.pl (потрібні PESEL і Profil Zaufany).
+        WniosekPL допомагає підготувати дані та чекліст перед входом у MOS.
+      pl: |
+        Od 27.04.2026 wnioski o pobyt czasowy/stały/rezydenta UE składasz zasadniczo
+        TYLKO online w MOS 2.0: https://mos.cudzoziemcy.gov.pl
+        (PESEL + Profil Zaufany / login.gov.pl). Papierowe blankiety wojewody dla tych spraw
+        nie są już przyjmowane (są wyjątki ustawowe).
+        WniosekPL pomaga przygotować dane, checklistę i załączniki PRZED wejściem do MOS —
+        nie zastępujemy portalu rządowego.
+  - id: office_letter
+    tags: [pismo, wezwanie, urząd, letter]
+    title:
+      ru: "Письмо / wezwanie из urzędu"
+      en: "Office letter / summons"
+      ua: "Лист / wezwanie з urzędu"
+      pl: "Pismo / wezwanie z urzędu"
+    body:
+      ru: |
+        Найдите срок (часто 7 или 14 дней), что именно требуют, и ответьте письменно.
+        Можно использовать шаблон Pismo do urzędu. Не игнорируйте письмо даже если это не отказ.
+      en: |
+        Find the deadline (often 7 or 14 days), check what is requested, and reply in writing.
+        Use the Pismo do urzędu template. Do not ignore the letter.
+      ua: |
+        Знайдіть строк, що вимагають, і дайте письмову відповідь шаблоном Pismo do urzędu.
+      pl: |
+        Znajdź termin, sprawdź żądanie urzędu i odpowiedz pismem. Szablon: Pismo do urzędu.
+  - id: zus_nfz
+    tags: [zus, nfz, insurance]
+    title:
+      ru: "ZUS / NFZ"
+      en: "ZUS / NFZ"
+      ua: "ZUS / NFZ"
+      pl: "ZUS / NFZ"
+    body:
+      ru: |
+        При официальной работе работодатель обычно регистрирует в ZUS. Доступ к NFZ зависит
+        от активной страховки. Проверьте umowę и status w IKP.
+      en: |
+        With legal employment the employer usually registers you in ZUS. NFZ access depends
+        on active insurance. Check your contract and IKP status.
+      ua: |
+        При офіційній роботі роботодавець зазвичай реєструє в ZUS. NFZ залежить від страховки.
+      pl: |
+        Przy legalnej pracy pracodawca zwykle zgłasza do ZUS. Dostęp do NFZ zależy od ubezpieczenia.
+  - id: praca
+    tags: [praca, umowa, work, zezwolenie]
+    title:
+      ru: "Работа и договор"
+      en: "Work and contracts"
+      ua: "Робота і договір"
+      pl: "Praca i umowa"
+    body:
+      ru: |
+        Храните umowę o pracę / zlecenie, расчётные листки и подтверждение регистрации в ZUS.
+        Для некоторых граждан нужны zezwolenie / oświadczenie pracodawcy — уточните у работодателя
+        до начала работы. Копии договоров часто нужны для karty pobytu.
+      en: |
+        Keep your employment/civil contract, payslips and ZUS registration proof.
+        Some nationals need a work permit/employer declaration — confirm before starting.
+        Contracts are often required for residence card applications.
+      ua: |
+        Зберігайте umowę, розрахунки та підтвердження ZUS. Для karty pobytu часто потрібні копії.
+      pl: |
+        Przechowuj umowę, paski i potwierdzenie ZUS. Do karty pobytu zwykle potrzebne są kopie.
+  - id: odmowa
+    tags: [odmowa, refusal, odwołanie, decision]
+    title:
+      ru: "Отказ (odmowa) и odwołanie"
+      en: "Refusal and appeal"
+      ua: "Відмова і odwołanie"
+      pl: "Odmowa i odwołanie"
+    body:
+      ru: |
+        В решении ищите срок на odwołanie (часто 14 дней) и орган, куда подавать.
+        Не пропускайте срок. Можно подготовить черновик письма в сервисе и затем
+        проверить с юристом из marketplace.
+      en: |
+        Check the appeal deadline (often 14 days) and the authority. Do not miss it.
+        Draft a letter in the app, then optionally review with a marketplace lawyer.
+      ua: |
+        Перевірте строк odwołanie і орган. Не пропускайте термін — можна підготувати чернетку в сервісі.
+      pl: |
+        Sprawdź termin odwołania i organ. Nie przegap terminu — możesz przygotować pismo w serwisie.
+  - id: upowaznienie
+    tags: [upoważnienie, proxy, representation]
+    title:
+      ru: "Upoważnienie (доверенность)"
+      en: "Authorization / proxy"
+      ua: "Upoważnienie (довіреність)"
+      pl: "Upoważnienie"
+    body:
+      ru: |
+        Чтобы представитель сдал документы за вас, часто нужно upoważnienie.
+        Шаблон есть в документах сервиса. Иногда urzęd требует нотариальную форму —
+        уточните в своём urzędzie.
+      en: |
+        To let someone file for you, you often need an authorization form.
+        A helper template is available in the app. Some offices require notarization.
+      ua: |
+        Щоб хтось подав документи за вас, часто потрібне upoważnienie. Уточніть форму в urzędzie.
+      pl: |
+        Aby ktoś złożył dokumenty za Ciebie, zwykle potrzebne jest upoważnienie.
+        Sprawdź, czy urząd wymaga formy notarialnej.
+  - id: studenci
+    tags: [studia, student, uczelnia]
+    title:
+      ru: "Студенты"
+      en: "Students"
+      ua: "Студенти"
+      pl: "Studenci"
+    body:
+      ru: |
+        Нужны: зачисление / статус студента, страховка, адрес, часто подтверждение средств.
+        Сроки karty pobytu зависят от цели «studia». Сохраняйте potwierdzenie opłat za studia.
+      en: |
+        Usually needed: enrollment/student status, insurance, address, sometimes proof of funds.
+        Residence-card timelines depend on the 'studies' purpose. Keep tuition payment proofs.
+      ua: |
+        Потрібні статус студента, страховка, адреса, часто підтвердження коштів.
+      pl: |
+        Zwykle: status studenta, ubezpieczenie, adres, czasem środki. Zachowaj potwierdzenia opłat.

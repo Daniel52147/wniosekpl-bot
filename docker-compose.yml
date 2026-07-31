@@ -1,0 +1,76 @@
+# WniosekPL + OmniRoute AI gateway
+# OmniRoute: https://github.com/diegosouzapw/OmniRoute
+#
+# Usage:
+#   cp .env.example .env   # fill BOT_TOKEN, OMNIROUTE_API_KEY, etc.
+#   docker compose up -d
+#
+# Dashboard: http://localhost:20128
+# API:       http://localhost:8000
+# LLM:       http://localhost:20128/v1  (used by WniosekPL)
+
+services:
+  omniroute:
+    image: diegosouzapw/omniroute:latest
+    container_name: wniosekpl-omniroute
+    restart: unless-stopped
+    stop_grace_period: 40s
+    ports:
+      - "20128:20128"
+    volumes:
+      - omniroute-data:/app/data
+    environment:
+      PORT: "20128"
+      INITIAL_PASSWORD: ${OMNIROUTE_INITIAL_PASSWORD:-CHANGEME}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:20128').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wniosekpl-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      OMNIROUTE_ENABLED: "true"
+      OMNIROUTE_BASE_URL: http://omniroute:20128/v1
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://127.0.0.1:8000}
+      DATABASE_PATH: /data/urzad.db
+    volumes:
+      - wniosekpl-data:/data
+    depends_on:
+      - omniroute
+    command: >
+      python -m uvicorn server:app --host 0.0.0.0 --port 8000
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wniosekpl-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      OMNIROUTE_ENABLED: "true"
+      OMNIROUTE_BASE_URL: http://omniroute:20128/v1
+      DATABASE_PATH: /data/urzad.db
+    volumes:
+      - wniosekpl-data:/data
+    depends_on:
+      - api
+      - omniroute
+    command: python bot.py
+    profiles: ["bot"]
+
+volumes:
+  omniroute-data:
+  wniosekpl-data:

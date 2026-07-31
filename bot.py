@@ -10,6 +10,7 @@ from src.fsm_storage import SQLiteStorage
 from src.telegram_session import create_bot
 from src.database import init_db
 from src.documents import load_all_documents
+from src.form_flow import init as init_form_flow
 from src.handlers import router
 import src.handlers as handlers
 from src.reminders import reminder_loop
@@ -31,6 +32,7 @@ async def main() -> None:
         logger.info("Downloading official templates: %s", ", ".join(missing))
         ensure_official_templates()
     handlers.DOCUMENTS = load_all_documents()
+    init_form_flow(handlers.DOCUMENTS)
 
     bot = create_bot()
     dp = Dispatcher(storage=SQLiteStorage())
@@ -40,6 +42,7 @@ async def main() -> None:
         await bot.set_my_commands(
             [
                 BotCommand(command="start", description="Menu główne / Main menu"),
+                BotCommand(command="ask", description="AI pomocnik / AI assistant"),
                 BotCommand(command="docs", description="Wybierz formularz"),
                 BotCommand(command="lang", description="Zmień język"),
                 BotCommand(command="help", description="Pomoc"),
@@ -49,6 +52,12 @@ async def main() -> None:
                 BotCommand(command="ostatni", description="Powtórz ostatni formularz"),
                 BotCommand(command="profil", description="Zapisane dane / Profile"),
                 BotCommand(command="guide", description="Co mi potrzebne? / Guide"),
+                BotCommand(command="review", description="Sprawdzenie dokumentów / Human review"),
+                BotCommand(command="premium", description="Plan / płatności"),
+                BotCommand(command="karta", description="Checklista karty pobytu"),
+                BotCommand(command="calendar", description="Kalendarz terminów"),
+                BotCommand(command="lawyers", description="Marketplace prawników"),
+                BotCommand(command="countries", description="Kraje / roadmap"),
                 BotCommand(command="feedback", description="Opinia / Feedback"),
             ]
         )

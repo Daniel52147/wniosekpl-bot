@@ -6,23 +6,32 @@ from aiogram.filters.command import CommandObject
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, FSInputFile, Message
 
+from src.ai_assistant import answer_question_smart
 from src.checklists import checklist
-from src.config import ADMIN_IDS, OUTPUT_DIR
+from src.config import ADMIN_IDS, AI_FREE_DAILY_LIMIT, OUTPUT_DIR, PUBLIC_BASE_URL
 from src.database import (
+    add_calendar_event,
     add_reminder,
+    ai_questions_today,
     delete_user_data,
     feedback_count,
+    get_karta_progress,
     get_language,
     get_stats,
     join_waitlist,
+    list_calendar_events,
+    record_ai_question,
     record_completion,
     save_feedback,
+    set_karta_progress,
     set_language,
     set_referral,
     upsert_user,
     user_exists,
     waitlist_count,
 )
+from src.entitlements import can_ask_ai, user_plan
+from src.karta_wizard import default_progress, progress_view
 from src.field_explainer import explain_field
 from src.profile import (
     clear_profile,
@@ -55,6 +64,7 @@ from src.documents import DocumentDef, load_all_documents
 from src.form_versions import version_line
 from src.keyboards import (
     after_pdf_keyboard,
+    ai_upgrade_keyboard,
     confirm_keyboard,
     documents_keyboard,
     edit_fields_keyboard,
@@ -68,6 +78,7 @@ from src.keyboards import (
     profile_keyboard,
     quick_keyboard,
     reminder_keyboard,
+    review_keyboard,
 )
 from src.pdf_preview import add_preview_watermark
 from src.packages import (
@@ -114,10 +125,17 @@ async def _show_profile(message: Message, lang: str) -> None:
     await message.answer("\n".join(lines), reply_markup=profile_keyboard(profile, lang))
 
 
-async def _open_main_menu(message: Message, state: FSMContext, pending_ref: str | None = None) -> None:
+async def _open_main_menu(
+    message: Message,
+    state: FSMContext,
+    pending_ref: str | None = None,
+    pending_action: str | None = None,
+) -> None:
     await state.clear()
     if pending_ref:
         await state.update_data(pending_ref=pending_ref)
+    if pending_action:
+        await state.update_data(pending_action=pending_action)
 
     user = message.from_user
     assert user
@@ -131,6 +149,17 @@ async def _open_main_menu(message: Message, state: FSMContext, pending_ref: str 
 
     lang = await _register_user(message)
     await message.answer(t("welcome", lang), reply_markup=main_reply_keyboard(lang))
+    if pending_action == "review":
+        await message.answer(t("review_offer", lang), reply_markup=review_keyboard(lang))
+        return
+    if pending_action == "ai":
+        await state.set_state(FormStates.waiting_ai_question)
+        used = await ai_questions_today(user.id)
+        left = max(AI_FREE_DAILY_LIMIT - used, 0)
+        await message.answer(
+            f"{t('ai_prompt', lang)}\n\n{t('ai_usage_left', lang).format(left=left)}"
+        )
+        return
     await message.answer(t("choose_doc", lang), reply_markup=quick_keyboard(lang))
     draft = await load_draft(user.id)
     if draft:
@@ -142,9 +171,78 @@ async def _open_main_menu(message: Message, state: FSMContext, pending_ref: str 
 @router.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext, command: CommandObject) -> None:
     pending_ref = None
+    pending_action = None
+    if command.args and command.args.startswith("link_"):
+        from src.account_link import link_telegram_with_code
+
+        code = command.args[5:]
+        result = await link_telegram_with_code(message.from_user.id, code)
+        lang = await get_language(message.from_user.id)
+        if result.get("ok"):
+            await message.answer(
+                {
+                    "pl": "✓ Konto strony powiązane. Wspólne: MOS, szkice PDF, terminy i subskrypcja.",
+                    "ru": "✓ Аккаунт сайта связан. Общее: MOS, черновики PDF, сроки и подписка.",
+                    "en": "✓ Website linked. Shared: MOS, PDF drafts, deadlines and subscription.",
+                    "ua": "✓ Акаунт сайту повʼязано. Спільне: MOS, чернетки PDF, строки і підписка.",
+                }.get(lang, "✓ Linked.")
+            )
+        else:
+            await message.answer(
+                {
+                    "pl": "Kod wygasł lub jest nieprawidłowy. Wygeneruj nowy w profilu na stronie (Konto).",
+                    "ru": "Код истёк или неверный. Сгенерируй новый в кабинете на сайте (Konto).",
+                    "en": "Code expired or invalid. Generate a new one in the website profile (Account).",
+                    "ua": "Код прострочений або невірний. Згенеруй новий у кабінеті на сайті (Konto).",
+                }.get(lang, "Invalid code.")
+            )
+        await _open_main_menu(message, state, None, None)
+        return
     if command.args and command.args.startswith("ref_"):
         pending_ref = command.args[4:]
-    await _open_main_menu(message, state, pending_ref)
+    elif command.args == "review":
+        pending_action = "review"
+    elif command.args == "ai":
+        pending_action = "ai"
+    await _open_main_menu(message, state, pending_ref, pending_action)
+
+
+@router.message(Command("link"))
+async def cmd_link(message: Message, command: CommandObject) -> None:
+    """Manually link website account: /link 123456"""
+    from src.account_link import link_telegram_with_code
+
+    lang = await get_language(message.from_user.id)
+    code = (command.args or "").strip()
+    if not code:
+        await message.answer(
+            {
+                "pl": "Użycie: /link KOD — kod z profilu na stronie (zakładka Konto).",
+                "ru": "Использование: /link КОД — код из кабинета на сайте (вкладка Konto).",
+                "en": "Usage: /link CODE — code from the website profile (Account tab).",
+                "ua": "Використання: /link КОД — код з кабінету на сайті (вкладка Konto).",
+            }.get(lang, "Usage: /link CODE")
+        )
+        return
+    result = await link_telegram_with_code(message.from_user.id, code)
+    if result.get("ok"):
+        await message.answer(
+            {
+                "pl": "✓ Konto strony powiązane. Wspólne: MOS, szkice PDF, terminy i subskrypcja.",
+                "ru": "✓ Аккаунт сайта связан. Общее: MOS, черновики PDF, сроки и подписка.",
+                "en": "✓ Website linked. Shared: MOS, PDF drafts, deadlines and subscription.",
+                "ua": "✓ Акаунт сайту повʼязано. Спільне: MOS, чернетки PDF, строки і підписка.",
+            }.get(lang, "✓ Linked.")
+        )
+    else:
+        await message.answer(
+            {
+                "pl": "Kod wygasł lub jest nieprawidłowy. Wygeneruj nowy w profilu na stronie.",
+                "ru": "Код истёк или неверный. Сгенерируй новый в кабинете на сайте.",
+                "en": "Code expired or invalid. Generate a new one on the website.",
+                "ua": "Код прострочений або невірний. Згенеруй новий на сайті.",
+            }.get(lang, "Invalid code.")
+        )
 
 
 @router.callback_query(F.data.startswith("lang:"))
@@ -152,6 +250,7 @@ async def on_language(callback: CallbackQuery, state: FSMContext) -> None:
     lang = callback.data.split(":")[1]
     data = await state.get_data()
     pending_ref = data.get("pending_ref")
+    pending_action = data.get("pending_action")
     await state.clear()
     await set_language(callback.from_user.id, lang)
     await upsert_user(
@@ -167,6 +266,19 @@ async def on_language(callback: CallbackQuery, state: FSMContext) -> None:
     except Exception:
         pass
     await callback.message.answer(t("welcome", lang), reply_markup=main_reply_keyboard(lang))
+    if pending_action == "review":
+        await callback.message.answer(t("review_offer", lang), reply_markup=review_keyboard(lang))
+        await callback.answer()
+        return
+    if pending_action == "ai":
+        await state.set_state(FormStates.waiting_ai_question)
+        used = await ai_questions_today(callback.from_user.id)
+        left = max(AI_FREE_DAILY_LIMIT - used, 0)
+        await callback.message.answer(
+            f"{t('ai_prompt', lang)}\n\n{t('ai_usage_left', lang).format(left=left)}"
+        )
+        await callback.answer()
+        return
     await callback.message.answer(t("choose_doc", lang), reply_markup=quick_keyboard(lang))
     await callback.message.answer(t("all_docs", lang), reply_markup=documents_keyboard(DOCUMENTS, lang))
     await callback.answer()
@@ -191,6 +303,25 @@ async def cmd_guide(message: Message) -> None:
     await message.answer(t("guide_text", lang))
 
 
+@router.message(Command("ask"))
+@router.message(Command("ai"))
+async def cmd_ai_assistant(message: Message, state: FSMContext) -> None:
+    await state.clear()
+    await state.set_state(FormStates.waiting_ai_question)
+    lang = await _register_user(message)
+    used = await ai_questions_today(message.from_user.id)
+    left = max(AI_FREE_DAILY_LIMIT - used, 0)
+    await message.answer(
+        f"{t('ai_prompt', lang)}\n\n{t('ai_usage_left', lang).format(left=left)}"
+    )
+
+
+@router.message(Command("review"))
+async def cmd_review(message: Message) -> None:
+    lang = await _register_user(message)
+    await message.answer(t("review_offer", lang), reply_markup=review_keyboard(lang))
+
+
 @router.message(Command("feedback"))
 async def cmd_feedback(message: Message, state: FSMContext) -> None:
     await state.set_state(FormStates.waiting_feedback)
@@ -206,6 +337,203 @@ async def on_feedback(message: Message, state: FSMContext) -> None:
     await save_feedback(message.from_user.id, message.text.strip())
     await state.clear()
     await message.answer(t("feedback_ok", lang))
+
+
+@router.message(FormStates.waiting_ai_question)
+async def on_ai_question(message: Message, state: FSMContext) -> None:
+    if not message.text:
+        return
+    lang = await get_language(message.from_user.id)
+    allowed, plan = await can_ask_ai(message.from_user.id)
+    if not allowed:
+        await state.clear()
+        await message.answer(t("ai_limit_reached", lang), reply_markup=ai_upgrade_keyboard(lang))
+        return
+
+    answer = await answer_question_smart(message.text.strip(), lang)
+    await record_ai_question(message.from_user.id, message.text.strip(), answer.topic)
+    plan_after = await user_plan(message.from_user.id)
+    left = plan_after.get("ai_left")
+    left_txt = "∞" if plan_after.get("unlimited") else str(left)
+    await message.answer(
+        f"{answer.text}\n\n{t('ai_usage_left', lang).format(left=left_txt)}",
+        reply_markup=ai_upgrade_keyboard(lang) if (left == 0 and not plan_after.get("unlimited")) else None,
+    )
+    await state.clear()
+
+
+@router.message(Command("premium"))
+async def cmd_premium(message: Message) -> None:
+    lang = await _register_user(message)
+    plan = await user_plan(message.from_user.id)
+    await message.answer(
+        f"Plan: <b>{plan['plan']}</b>\n"
+        f"Web checkout: {PUBLIC_BASE_URL}\n"
+        f"/mos — przewodnik MOS 2.0 (pobyt online)\n"
+        f"/promo WAKACJE — 1 miesiąc AI gratis\n"
+        f"/review — human check 29 zł\n"
+        f"AI unlimited — 19 zł/mies (site checkout)\n"
+        f"/lawyers — marketplace\n"
+        f"/countries — roadmap krajów",
+    )
+
+
+async def _send_mos_guide(message: Message, user_id: int, lang: str) -> None:
+    from src.database import get_mos_progress
+    from src.keyboards import mos_checklist_keyboard
+    from src.mos_guide import MOS_INFO_URL, MOS_PORTAL_URL, guide_payload, next_action
+
+    lang = lang if lang in {"pl", "ru", "en", "ua"} else "pl"
+    done = await get_mos_progress(user_id)
+    data = guide_payload(lang, done=done)
+    copy = data["copy"]
+    nxt = next_action(done, lang)
+    lines = [
+        f"<b>{copy['title']}</b>",
+        copy["sub"],
+        "",
+        f"<b>{copy['next_title']}</b>",
+        f"→ {nxt['title']}",
+        nxt["hint"],
+        "",
+        f"Postęp: {nxt['done_count']}/{nxt['total']}",
+        f"🌐 {MOS_PORTAL_URL}",
+        f"ℹ️ {MOS_INFO_URL}",
+        f"Web: {PUBLIC_BASE_URL}/#mos",
+        "",
+        "Odznaczaj punkty poniżej:",
+    ]
+    await message.answer(
+        "\n".join(lines),
+        reply_markup=mos_checklist_keyboard(lang, done),
+    )
+
+
+@router.message(Command("mos"))
+async def cmd_mos(message: Message) -> None:
+    lang = await _register_user(message)
+    assert message.from_user
+    await _send_mos_guide(message, message.from_user.id, lang)
+
+
+@router.callback_query(F.data.startswith("mos:toggle:"))
+async def mos_toggle_step(callback: CallbackQuery) -> None:
+    from src.database import get_mos_progress, set_mos_progress
+    from src.keyboards import mos_checklist_keyboard
+    from src.mos_guide import READY_STEPS, next_action
+
+    assert callback.from_user and callback.data and callback.message
+    lang = await get_language(callback.from_user.id)
+    lang = lang if lang in {"pl", "ru", "en", "ua"} else "pl"
+    step_id = callback.data.split(":", 2)[-1]
+    valid = {s["id"] for s in READY_STEPS}
+    if step_id not in valid:
+        await callback.answer("?")
+        return
+    done = await get_mos_progress(callback.from_user.id)
+    done[step_id] = not bool(done.get(step_id))
+    await set_mos_progress(callback.from_user.id, done)
+    nxt = next_action(done, lang)
+    try:
+        await callback.message.edit_reply_markup(
+            reply_markup=mos_checklist_keyboard(lang, done)
+        )
+    except Exception:
+        pass
+    await callback.answer(f"{nxt['done_count']}/{nxt['total']} · {nxt['title'][:40]}")
+
+
+@router.message(Command("promo"))
+async def cmd_promo(message: Message, command: CommandObject) -> None:
+    await _register_user(message)
+    code = (command.args or "").strip()
+    if not code:
+        await message.answer(
+            "Użycie: <code>/promo WAKACJE</code>\n"
+            "Kod WAKACJE = 1 miesiąc AI bez limitu za darmo."
+        )
+        return
+    from src.promos import redeem_promo
+
+    try:
+        result = await redeem_promo(message.from_user.id, code)
+    except ValueError as exc:
+        err = str(exc)
+        if err == "promo_already_used":
+            await message.answer("Ten kod już wykorzystałeś na tym koncie.")
+        elif err == "invalid_promo":
+            await message.answer("Nieprawidłowy kod promocyjny.")
+        else:
+            await message.answer(f"Nie udało się aktywować: {err}")
+        return
+    await message.answer(
+        f"✅ {result['message']}\n"
+        f"Sprawdź plan: /premium"
+    )
+
+
+@router.message(Command("lawyers"))
+async def cmd_lawyers(message: Message) -> None:
+    await _register_user(message)
+    from src.marketplace import list_lawyers
+
+    lines = ["<b>Marketplace prawników</b>", f"Lead online: {PUBLIC_BASE_URL}/#lawyers", ""]
+    for item in list_lawyers()[:6]:
+        lines.append(
+            f"• <b>{item['name']}</b> ({item['city']}) — od {item['price_from_pln']} zł\n"
+            f"  {', '.join(item['specialties'])}"
+        )
+    await message.answer("\n".join(lines))
+
+
+@router.message(Command("countries"))
+async def cmd_countries(message: Message) -> None:
+    await _register_user(message)
+    from src.countries import list_countries
+
+    lines = ["<b>Kraje WniosekPL</b>"]
+    for item in list_countries():
+        lines.append(f"• {item['name']} ({item['code']}) — {item['status']}")
+    await message.answer("\n".join(lines))
+
+
+@router.message(Command("karta"))
+async def cmd_karta(message: Message) -> None:
+    lang = await _register_user(message)
+    steps = await get_karta_progress(message.from_user.id)
+    if not steps:
+        steps = default_progress()
+        await set_karta_progress(message.from_user.id, steps)
+    lines = ["<b>Karta pobytu checklist</b>"]
+    for step in progress_view(steps, lang):
+        mark = "✅" if step["done"] else "☐"
+        lines.append(f"{mark} {step['title']}")
+    cl = checklist("karta_pobytu", lang)
+    if cl:
+        lines.append("")
+        lines.append(cl)
+    await message.answer("\n".join(lines))
+
+
+@router.message(Command("calendar"))
+async def cmd_calendar(message: Message) -> None:
+    lang = await _register_user(message)
+    events = await list_calendar_events(message.from_user.id)
+    if not events:
+        from datetime import datetime, timedelta, timezone
+
+        due = (datetime.now(timezone.utc) + timedelta(days=30)).date().isoformat()
+        await add_calendar_event(
+            message.from_user.id,
+            "Przygotuj dokumenty do karty pobytu",
+            due,
+            "karta",
+        )
+        events = await list_calendar_events(message.from_user.id)
+    lines = ["<b>Kalendarz</b>"]
+    for ev in events[:15]:
+        lines.append(f"• {ev['due_at']}: {ev['title']}")
+    await message.answer("\n".join(lines))
 
 
 @router.message(Command("profil"))
@@ -347,6 +675,34 @@ async def action_guide(callback: CallbackQuery) -> None:
     await callback.answer()
 
 
+@router.callback_query(F.data == "action:mos")
+async def action_mos(callback: CallbackQuery) -> None:
+    assert callback.message and callback.from_user
+    lang = await get_language(callback.from_user.id)
+    await _send_mos_guide(callback.message, callback.from_user.id, lang)
+    await callback.answer()
+
+
+@router.callback_query(F.data == "action:ask_ai")
+async def action_ask_ai(callback: CallbackQuery, state: FSMContext) -> None:
+    await state.clear()
+    await state.set_state(FormStates.waiting_ai_question)
+    lang = await get_language(callback.from_user.id)
+    used = await ai_questions_today(callback.from_user.id)
+    left = max(AI_FREE_DAILY_LIMIT - used, 0)
+    await callback.message.answer(
+        f"{t('ai_prompt', lang)}\n\n{t('ai_usage_left', lang).format(left=left)}"
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data == "action:review")
+async def action_review(callback: CallbackQuery) -> None:
+    lang = await get_language(callback.from_user.id)
+    await callback.message.answer(t("review_offer", lang), reply_markup=review_keyboard(lang))
+    await callback.answer()
+
+
 @router.callback_query(F.data == "action:resume_draft")
 async def action_resume_draft(callback: CallbackQuery, state: FSMContext) -> None:
     lang = await get_language(callback.from_user.id)
@@ -425,6 +781,14 @@ async def on_waitlist(callback: CallbackQuery) -> None:
     product = callback.data.split(":")[1]
     lang = await get_language(callback.from_user.id)
     ok = await join_waitlist(callback.from_user.id, product)
+    if product == "ai_subscription":
+        await callback.message.answer(t("ai_subscription_ok" if ok else "ai_subscription_dup", lang))
+        await callback.answer()
+        return
+    if product == "human_review":
+        await callback.message.answer(t("review_waitlist_ok" if ok else "review_waitlist_dup", lang))
+        await callback.answer()
+        return
     await callback.message.answer(t("waitlist_ok" if ok else "waitlist_dup", lang))
     cl = checklist("karta_pobytu", lang)
     if cl:
@@ -872,12 +1236,17 @@ async def cmd_stats(message: Message) -> None:
     lines = [
         f"Users: {stats['users']} (+{stats['users_1d']} / 24h, +{stats['users_7d']} / 7d)",
         f"PDFs: {stats['completions']}",
+        f"AI questions: {stats['ai_questions']} (+{stats['ai_questions_7d']} / 7d)",
         f"Feedback: {fb}",
     ]
     for doc_id, count in stats["by_document"]:
         lines.append(f"  - {doc_id}: {count}")
     karta = await waitlist_count("karta_pobytu")
     lines.append(f"Waitlist karta pobytu: {karta}")
+    human_review = await waitlist_count("human_review")
+    lines.append(f"Paid review leads: {human_review}")
+    ai_subscription = await waitlist_count("ai_subscription")
+    lines.append(f"AI subscription leads: {ai_subscription}")
     if stats.get("by_referral"):
         lines.append("Referrals:")
         for ref, count in stats["by_referral"]:

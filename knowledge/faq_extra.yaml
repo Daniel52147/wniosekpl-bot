@@ -1,0 +1,134 @@
+articles:
+  - id: mos_2
+    tags: [mos, mos2, pobyt, karta, cudzoziemcy, online]
+    title:
+      ru: "MOS 2.0 — официальная подача pobytu online"
+      en: "MOS 2.0 — official online residence filing"
+      ua: "MOS 2.0 — офіційна подача pobytu online"
+      pl: "MOS 2.0 — oficjalne składanie wniosku o pobyt online"
+    body:
+      ru: |
+        MOS 2.0 (Moduł Obsługi Spraw) — государственный портал UdSC:
+        https://mos.cudzoziemcy.gov.pl
+        С 27 апреля 2026: pobyt czasowy / stały / rezydent UE — в основном ТОЛЬКО через MOS.
+        Нужны: новое аккаунт в MOS, login через login.gov.pl (Profil Zaufany), PESEL,
+        сканы паспорта, фото, оплаты, иногда e-подписанный заłączник от pracodawcy/uczelni.
+        После отправки — UPO; потом urząd вызовет на odciski / паспорт.
+        WniosekPL: готовим checklist, документы и ответы AI — подача идёт в MOS.
+      en: |
+        MOS 2.0 is the official UdSC portal: https://mos.cudzoziemcy.gov.pl
+        Since 27 April 2026 temporary/permanent/EU long-term residence is mostly online-only.
+        You need a new MOS account, login.gov.pl (trusted profile), PESEL, passport scans,
+        photo, fees, and sometimes an e-signed employer/university attachment.
+        After submit you get UPO; later the office calls you for fingerprints/passport.
+        WniosekPL prepares checklists and docs — filing happens in MOS.
+      ua: |
+        MOS 2.0 — офіційний портал: https://mos.cudzoziemcy.gov.pl
+        З 27.04.2026 більшість заяв на pobyt — тільки online. Потрібні PESEL і Profil Zaufany.
+        WniosekPL готує чекліст і документи; подача — в MOS.
+      pl: |
+        MOS 2.0 to oficjalny portal UdSC: https://mos.cudzoziemcy.gov.pl
+        Od 27.04.2026 wnioski o pobyt czasowy/stały/rezydenta UE składasz głównie tylko online.
+        Potrzebujesz: nowego konta MOS, login.gov.pl (Profil Zaufany), PESEL, skanów paszportu,
+        zdjęcia, opłat, czasem e-podpisanego załącznika od pracodawcy/uczelni.
+        Po wysłaniu dostajesz UPO; urząd wzywa potem na odciski/paszport.
+        WniosekPL przygotowuje checklistę i dokumenty — wniosek składasz w MOS.
+  - id: kolejka_uw
+    tags: [kolejka, uw, wizyta, urzad]
+    title:
+      ru: "Очередь в urząd wojewódzki"
+      en: "Voivodeship office queue"
+      ua: "Черга в urząd wojewódzki"
+      pl: "Kolejka w urzędzie wojewódzkim"
+    body:
+      ru: |
+        Запись часто через интернет-календарь или infolinię вашего воеводства.
+        Приходите с копиями, оригиналами и заполненным wnioskiem. Фото и opłata — проверьте заранее.
+      en: |
+        Booking is often via your voivodeship online calendar or hotline.
+        Bring copies, originals and a completed form. Check photo/fee rules in advance.
+      ua: |
+        Запис часто через інтернет-календар воєводства. Візьміть копії, оригінали і wypełniony wniosek.
+      pl: |
+        Rezerwacja często przez kalendarz online UW. Weź kopie, oryginały i wypełniony wniosek.
+  - id: dzieci_szkola
+    tags: [dzieci, szkola, edukacja]
+    title:
+      ru: "Дети и школа"
+      en: "Children and school"
+      ua: "Діти і школа"
+      pl: "Dzieci i szkoła"
+    body:
+      ru: |
+        Для записи в школу обычно нужны: документ ребёнка, адрес, прививки/медосмотр по правилам школы,
+        иногда PESEL. Уточните в konkretной placówce oświatowej.
+      en: |
+        School enrollment usually needs the child's ID, address, and health docs per school rules,
+        sometimes PESEL. Confirm with the specific school.
+      ua: |
+        Для школи зазвичай потрібні документи дитини, адреса, медогляд; іноді PESEL.
+      pl: |
+        Do szkoły zwykle: dokumenty dziecka, adres, badania; czasem PESEL. Sprawdź w placówce.
+  - id: bank_konto
+    tags: [bank, konto, pesel]
+    title:
+      ru: "Счёт в банке"
+      en: "Bank account"
+      ua: "Рахунок у банку"
+      pl: "Konto bankowe"
+    body:
+      ru: |
+        Банки часто просят паспорт, PESEL или адрес, иногда umowę o pracę / kartę pobytu.
+        Требования отличаются — сверьте на сайте банка до визита.
+      en: |
+        Banks often ask for passport, PESEL or address, sometimes employment/residence docs.
+        Requirements vary — check the bank website before visiting.
+      ua: |
+        Банки часто просять паспорт, PESEL/адресу, інколи umowę або kartę pobytu.
+      pl: |
+        Banki zwykle proszą o paszport, PESEL/adres, czasem umowę lub kartę pobytu.
+  - id: podatki_pit
+    tags: [pit, podatki, us]
+    title:
+      ru: "PIT / налоги"
+      en: "PIT / taxes"
+      ua: "PIT / податки"
+      pl: "PIT / podatki"
+    body:
+      ru: |
+        При работе по umowie часто сдаёте PIT раз в год. NIP/PESEL и urząd skarbowy зависят от адреса.
+        Для сложных случаев — księgowy или marketplace консультант.
+      en: |
+        With employment you usually file PIT yearly. Tax office depends on your address.
+        For complex cases use an accountant or marketplace advisor.
+      ua: |
+        При роботі часто подаєте PIT раз на рік. Уточніть urząd skarbowy за адресою.
+      pl: |
+        Przy umowie zwykle składasz PIT raz w roku. US zależy od adresu.
+  - id: site_telegram_sync
+    tags: [telegram, sync, konto, link, progress]
+    title:
+      ru: "Сайт и Telegram — один прогресс"
+      en: "Website and Telegram — one progress"
+      ua: "Сайт і Telegram — один прогрес"
+      pl: "Strona i Telegram — jeden postęp"
+    body:
+      ru: |
+        В профиле (Konto → Связать Telegram) получи код или открой deep link.
+        В боте: /start link_КОД или /link КОД.
+        После связки общие: чеклист MOS, черновики PDF, календарь и активная подписка.
+        Официальную подачу всё равно делаешь только в MOS: https://mos.cudzoziemcy.gov.pl
+      en: |
+        In Account → Link Telegram, get a code or open the deep link.
+        In the bot: /start link_CODE or /link CODE.
+        Shared after linking: MOS checklist, PDF drafts, calendar, active subscription.
+        You still file only in MOS: https://mos.cudzoziemcy.gov.pl
+      ua: |
+        У Konto → Повʼязати Telegram отримай код або deep link.
+        У боті: /start link_КОД або /link КОД.
+        Спільне: чекліст MOS, чернетки PDF, календар, активна підписка.
+      pl: |
+        W Konto → Połącz Telegram wygeneruj kod lub otwórz deep link.
+        W bocie: /start link_KOD albo /link KOD.
+        Wspólne: checklista MOS, szkice PDF, kalendarz, aktywna subskrypcja.
+        Wniosek składasz tylko w MOS: https://mos.cudzoziemcy.gov.pl

@@ -3,27 +3,34 @@ BRAND = "WniosekPL"
 TEXTS = {
     "welcome": {
         "ru": (
-            f"👋 <b>{BRAND}</b> — pomocnik, <b>nie urząd</b>.\n\n"
-            "Бесплатно: официальные PDF (PESEL gov.pl, Meldunek EL/ZC/1) "
-            "или <b>📦 Пакет «Переезд»</b> — 3 документа за один раз.\n\n"
-            "⚠️ Не юридическая консультация. Проверьте dane i podpis właściciela.\n\n"
-            "💯 <b>100% бесплатно</b> — без оплаты, без подписки."
+            f"👋 <b>{BRAND}</b> — AI-помощник для иностранцев в Польше, "
+            "<b>nie urząd</b>.\n\n"
+            "Бесплатно: <b>/ask</b> (5 вопросов в день), официальные PDF "
+            "(PESEL, Meldunek) или <b>📦 Пакет «Переезд»</b>.\n\n"
+            "Опционально: проверка человеком за 29 zł, подписка AI 19 zł/мес.\n\n"
+            "⚠️ Не юридическая консультация. Проверьте dane i podpis właściciela."
         ),
         "en": (
-            f"👋 <b>{BRAND}</b> — helper, <b>not a government office</b>.\n\n"
-            "Free official PDFs or <b>📦 Relocation package</b> (3 docs at once).\n\n"
-            "💯 <b>100% free</b> — no payment, no subscription."
+            f"👋 <b>{BRAND}</b> — AI assistant for foreigners in Poland, "
+            "<b>not a government office</b>.\n\n"
+            "Free: <b>/ask</b> (5 questions/day), official PDFs, "
+            "or <b>📦 Relocation package</b>.\n\n"
+            "Optional: human review 29 zł, AI subscription 19 zł/mo."
         ),
         "ua": (
-            f"👋 <b>{BRAND}</b> — помічник, <b>не urząd</b>.\n\n"
-            "Безкоштовно: офіційні PDF (PESEL, Meldunek) або "
-            "<b>📦 Пакет «Переїзд»</b> — 3 документи за раз.\n\n"
-            "💯 <b>100% безкоштовно</b> — без оплати, без підписки."
+            f"👋 <b>{BRAND}</b> — AI-помічник для іноземців у Польщі, "
+            "<b>не urząd</b>.\n\n"
+            "Безкоштовно: <b>/ask</b> (5 питань/день), офіційні PDF "
+            "або <b>📦 Пакет «Переїзд»</b>.\n\n"
+            "Опційно: перевірка людиною 29 zł, підписка AI 19 zł/міс."
         ),
         "pl": (
-            f"👋 <b>{BRAND}</b> — pomocnik, <b>nie urząd</b>.\n\n"
-            "Bezpłatnie: PESEL, Meldunek, pakiet Przeprowadzka.\n\n"
-            "💯 <b>100% za darmo</b> — bez płatności."
+            f"👋 <b>{BRAND}</b> — AI-pomocnik dla cudzoziemców w Polsce, "
+            "<b>nie urząd</b>.\n\n"
+            "Za darmo: <b>/ask</b> (5 pytań/dzień), PESEL, Meldunek, "
+            "pakiet Przeprowadzka.\n\n"
+            "Opcjonalnie: sprawdzenie przez człowieka 29 zł, "
+            "subskrypcja AI 19 zł/mies."
         ),
     },
     "all_docs": {
@@ -43,6 +50,79 @@ TEXTS = {
         "en": "📄 Document or package:",
         "ua": "📄 Документ або пакет:",
         "pl": "📄 Formularz lub pakiet:",
+    },
+    "ai_ask_btn": {
+        "ru": "🤖 Спросить AI-помощника",
+        "en": "🤖 Ask AI assistant",
+        "ua": "🤖 Запитати AI-помічника",
+        "pl": "🤖 Zapytaj asystenta AI",
+    },
+    "ai_subscription_btn": {
+        "ru": "🚀 Хочу безлимит за 19 zł/мес",
+        "en": "🚀 I want unlimited for 19 zł/mo",
+        "ua": "🚀 Хочу безліміт за 19 zł/міс",
+        "pl": "🚀 Chcę bez limitu za 19 zł/mies.",
+    },
+    "ai_prompt": {
+        "ru": (
+            "🤖 Напишите вопрос о жизни и документах в Польше.\n\n"
+            "Пример: «Я гражданин Украины, работаю официально, хочу карту побыту».\n"
+            "Бесплатно: 5 вопросов в день. /cancel — отмена."
+        ),
+        "en": (
+            "🤖 Send a question about life and paperwork in Poland.\n\n"
+            "Example: “I am Ukrainian, legally employed, and need a residence card”.\n"
+            "Free: 5 questions per day. /cancel to abort."
+        ),
+        "ua": (
+            "🤖 Напишіть питання про життя і документи в Польщі.\n\n"
+            "Приклад: «Я громадянин України, працюю офіційно, хочу карту побиту».\n"
+            "Безкоштовно: 5 питань на день. /cancel — скасувати."
+        ),
+        "pl": (
+            "🤖 Napisz pytanie o życie i dokumenty w Polsce.\n\n"
+            "Przykład: „Jestem z Ukrainy, pracuję legalnie i chcę kartę pobytu”.\n"
+            "Za darmo: 5 pytań dziennie. /cancel — anuluj."
+        ),
+    },
+    "ai_usage_left": {
+        "ru": "Осталось бесплатных вопросов сегодня: {left}.",
+        "en": "Free questions left today: {left}.",
+        "ua": "Залишилось безкоштовних питань сьогодні: {left}.",
+        "pl": "Darmowe pytania na dziś: {left}.",
+    },
+    "ai_limit_reached": {
+        "ru": (
+            "Лимит бесплатных AI-вопросов на сегодня закончился.\n\n"
+            "Идея подписки: <b>19 zł/мес</b> — больше вопросов, анализ PDF/фото и генерация писем. "
+            "Нажмите кнопку, если хотите такой тариф."
+        ),
+        "en": (
+            "You reached today's free AI question limit.\n\n"
+            "Subscription idea: <b>19 zł/mo</b> for more questions, PDF/photo analysis, and letter generation. "
+            "Tap if you want this plan."
+        ),
+        "ua": (
+            "Ліміт безкоштовних AI-питань на сьогодні закінчився.\n\n"
+            "Ідея підписки: <b>19 zł/міс</b> — більше питань, аналіз PDF/фото і генерація листів."
+        ),
+        "pl": (
+            "Dzisiejszy limit darmowych pytań AI został wykorzystany.\n\n"
+            "Pomysł subskrypcji: <b>19 zł/mies.</b> — więcej pytań, analiza PDF/zdjęć i generowanie pism. "
+            "Kliknij, jeśli chcesz taki plan."
+        ),
+    },
+    "ai_subscription_ok": {
+        "ru": "✅ Интерес к подписке сохранён. Это поможет понять спрос и запустить тариф быстрее.",
+        "en": "✅ Subscription interest saved. This helps validate demand and launch the plan faster.",
+        "ua": "✅ Інтерес до підписки збережено.",
+        "pl": "✅ Zainteresowanie subskrypcją zapisane. To pomoże szybciej uruchomić plan.",
+    },
+    "ai_subscription_dup": {
+        "ru": "Вы уже отметили интерес к подписке.",
+        "en": "You already marked interest in the subscription.",
+        "ua": "Ви вже відмітили інтерес до підписки.",
+        "pl": "Już zaznaczyłeś zainteresowanie subskrypcją.",
     },
     "cancelled": {
         "ru": "Отменено. /start — снова.",
@@ -234,36 +314,37 @@ TEXTS = {
         "ru": (
             f"<b>{BRAND}</b>\n"
             "/start — меню\n"
-            "/docs — документы\n"
-            "/lang — язык\n"
-            "/cancel — отмена\n"
-            "/usun — удалить данные\n"
-            "/privacy — политика\n"
-            "/ostatni — повторить последний PDF\n"
-            "/profil — ваши сохранённые данные\n"
-            "/guide — что мне нужно?\n"
-            "/feedback — отзыв или проблема\n\n"
-            "📦 Пакет «Переезд» · EL/ZC/1 · EL/ZPS/1"
+            "/ask — AI-помощник\n"
+            "/docs — документы (PESEL, meldunek, odwołanie…)\n"
+            "/karta — checklist karty pobytu\n"
+            "/calendar — сроки\n"
+            "/premium — план и оплата\n"
+            "/lawyers — marketplace юристов\n"
+            "/countries — страны\n"
+            "/review — проверка человеком 29 zł\n"
+            "/profil /ostatni /guide /feedback\n"
+            "/lang /cancel /usun /privacy\n\n"
+            "📦 Пакет «Переезд» · сайт тоже доступен"
         ),
         "en": (
             f"<b>{BRAND}</b>\n"
-            "/start /docs /lang /cancel /usun /privacy\n"
-            "📦 Relocation package · EL/ZC/1 · EL/ZPS/1"
+            "/start /ask /docs /karta /calendar /premium /lawyers /countries /review\n"
+            "/profil /privacy /usun · Relocation package on the website too"
         ),
-        "ua": f"<b>{BRAND}</b>\n/start /docs /lang /cancel /usun",
+        "ua": (
+            f"<b>{BRAND}</b>\n"
+            "/start /ask /docs /karta /calendar /premium /lawyers /review /usun"
+        ),
         "pl": (
             f"<b>{BRAND}</b>\n"
             "/start — menu\n"
-            "/docs — formularze\n"
-            "/lang — język\n"
-            "/cancel — anuluj\n"
-            "/usun — usuń dane (RODO)\n"
-            "/privacy — polityka\n"
-            "/ostatni — ostatni formularz\n"
-            "/profil — zapisane dane\n"
-            "/guide — przewodnik\n"
-            "/feedback — opinia\n\n"
-            "📦 Pakiet Przeprowadzka · meldunek czasowy/stały · PESEL"
+            "/ask — asystent AI\n"
+            "/docs — formularze (PESEL, meldunek, odwołanie…)\n"
+            "/karta /calendar /premium /lawyers /countries\n"
+            "/review — sprawdzenie 29 zł\n"
+            "/profil /ostatni /guide /feedback\n"
+            "/lang /cancel /usun /privacy\n\n"
+            "📦 Pakiet Przeprowadzka też na stronie www"
         ),
     },
     "skip_hint": {
@@ -445,6 +526,62 @@ TEXTS = {
         "en": "❓ What do I need?",
         "ua": "❓ Що мені потрібно?",
         "pl": "❓ Czego potrzebuję?",
+    },
+    "review_btn": {
+        "ru": "🔎 Проверка человеком — 29 zł",
+        "en": "🔎 Human review — 29 zł",
+        "ua": "🔎 Перевірка людиною — 29 zł",
+        "pl": "🔎 Sprawdzenie przez człowieka — 29 zł",
+    },
+    "review_waitlist_btn": {
+        "ru": "✅ Хочу проверку за 29 zł",
+        "en": "✅ I want review for 29 zł",
+        "ua": "✅ Хочу перевірку за 29 zł",
+        "pl": "✅ Chcę sprawdzenie za 29 zł",
+    },
+    "review_offer": {
+        "ru": (
+            "<b>Платная проверка документов</b>\n\n"
+            "Бот бесплатно генерирует PDF. За <b>29 zł</b> можно запросить "
+            "проверку человеком перед подачей: данные, типичные ошибки, "
+            "чеклист и что взять в urząd.\n\n"
+            "Это не юридическая консультация и не гарантия решения urzędu. "
+            "Сейчас собираем первые заявки — нажмите кнопку, если вам это нужно."
+        ),
+        "en": (
+            "<b>Paid document review</b>\n\n"
+            "The bot generates PDFs for free. For <b>29 zł</b>, you can request "
+            "a human check before submission: data, common mistakes, checklist, "
+            "and what to take to the office.\n\n"
+            "Not legal advice and not a government decision guarantee. "
+            "We are collecting early requests now."
+        ),
+        "ua": (
+            "<b>Платна перевірка документів</b>\n\n"
+            "Бот безкоштовно генерує PDF. За <b>29 zł</b> можна замовити "
+            "перевірку людиною перед подачею: дані, типові помилки, чекліст.\n\n"
+            "Це не юридична консультація. Зараз збираємо перші заявки."
+        ),
+        "pl": (
+            "<b>Płatne sprawdzenie dokumentów</b>\n\n"
+            "Bot generuje PDF za darmo. Za <b>29 zł</b> możesz poprosić "
+            "o sprawdzenie przez człowieka przed złożeniem: dane, typowe błędy, "
+            "checklista i co zabrać do urzędu.\n\n"
+            "To nie porada prawna ani gwarancja decyzji urzędu. "
+            "Teraz zbieramy pierwsze zgłoszenia."
+        ),
+    },
+    "review_waitlist_ok": {
+        "ru": "✅ Заявка сохранена. Админ увидит её в статистике и сможет связаться с вами в Telegram.",
+        "en": "✅ Request saved. The admin will see it in stats and can contact you on Telegram.",
+        "ua": "✅ Заявку збережено. Адмін побачить її в статистиці.",
+        "pl": "✅ Zgłoszenie zapisane. Admin zobaczy je w statystykach i może odezwać się na Telegramie.",
+    },
+    "review_waitlist_dup": {
+        "ru": "Вы уже оставили заявку на проверку.",
+        "en": "You already requested a review.",
+        "ua": "Ви вже залишили заявку.",
+        "pl": "Masz już zgłoszenie na sprawdzenie.",
     },
     "guide_text": {
         "ru": (

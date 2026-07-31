@@ -216,6 +216,78 @@ CHECKLISTS: dict[str, dict[str, str]] = {
             "☐ Paszport; zaświadczenie meldunkowe: 17 zł"
         ),
     },
+    "pismo_do_urzedu": {
+        "ru": (
+            "<b>Чеклист (Pismo do urzędu)</b>\n"
+            "☐ Дата и znak sprawy (если есть)\n"
+            "☐ Чёткая просьба / ответ на wezwanie\n"
+            "☐ Копии приложений\n"
+            "☐ Подпись и телефон"
+        ),
+        "en": (
+            "<b>Checklist (Office letter)</b>\n"
+            "☐ Date and case number if available\n"
+            "☐ Clear request / reply to summons\n"
+            "☐ Copies of attachments\n"
+            "☐ Signature and phone"
+        ),
+        "ua": "<b>Чекліст (Pismo)</b>\n☐ Дата, znak sprawy\n☐ Копії\n☐ Підпис",
+        "pl": (
+            "<b>Checklista (Pismo do urzędu)</b>\n"
+            "☐ Data i znak sprawy\n"
+            "☐ Jasna prośba / odpowiedź na wezwanie\n"
+            "☐ Kopie załączników\n"
+            "☐ Podpis i telefon"
+        ),
+    },
+    "upowaznienie": {
+        "ru": (
+            "<b>Чеклист (Upoważnienie)</b>\n"
+            "☐ Dane mocodawcy i pełnomocnika\n"
+            "☐ Чёткий zakres\n"
+            "☐ Подпись mocodawcy\n"
+            "☐ Если urząd требует notarialne — этот szablon не подойдёт"
+        ),
+        "en": (
+            "<b>Checklist (Authorization)</b>\n"
+            "☐ Principal and attorney details\n"
+            "☐ Clear scope\n"
+            "☐ Principal signature\n"
+            "☐ Notarial form may be required"
+        ),
+        "ua": "<b>Чекліст (Upoważnienie)</b>\n☐ Дані сторін\n☐ Zakres\n☐ Підпис",
+        "pl": (
+            "<b>Checklista (Upoważnienie)</b>\n"
+            "☐ Dane mocodawcy i pełnomocnika\n"
+            "☐ Jasny zakres\n"
+            "☐ Podpis mocodawcy\n"
+            "☐ Jeśli urząd wymaga notarialnego — ten szablon nie wystarczy"
+        ),
+    },
+    "oswiadczenie_dochodow": {
+        "ru": (
+            "<b>Чеклист (Oświadczenie o dochodach)</b>\n"
+            "☐ Источник дохода и сумма netto\n"
+            "☐ Период\n"
+            "☐ Приложите umowę / PIT если urząd просит\n"
+            "☐ Подпись"
+        ),
+        "en": (
+            "<b>Checklist (Income declaration)</b>\n"
+            "☐ Income source and net amount\n"
+            "☐ Covered period\n"
+            "☐ Attach employment / tax proof if requested\n"
+            "☐ Signature"
+        ),
+        "ua": "<b>Чекліст (Dochody)</b>\n☐ Джерело і сума\n☐ Період\n☐ Підпис",
+        "pl": (
+            "<b>Checklista (Oświadczenie o dochodach)</b>\n"
+            "☐ Źródło dochodu i kwota netto\n"
+            "☐ Okres\n"
+            "☐ Dołącz umowę / PIT jeśli urząd wymaga\n"
+            "☐ Podpis"
+        ),
+    },
 }
 
 
