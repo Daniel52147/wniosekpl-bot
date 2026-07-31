@@ -58,7 +58,10 @@
     const id = normalizeTab(tabId);
     localStorage.setItem(TAB_KEY, id);
     document.querySelectorAll("[data-profile-tab]").forEach((btn) => {
-      btn.classList.toggle("active", btn.getAttribute("data-profile-tab") === id);
+      const on = btn.getAttribute("data-profile-tab") === id;
+      btn.classList.toggle("active", on);
+      btn.setAttribute("aria-selected", on ? "true" : "false");
+      btn.setAttribute("tabindex", on ? "0" : "-1");
     });
     document.querySelectorAll("[data-profile-panel]").forEach((panel) => {
       panel.hidden = panel.getAttribute("data-profile-panel") !== id;
@@ -154,7 +157,10 @@
     if (!open.length) {
       const p = document.createElement("p");
       p.className = "profile-empty";
-      p.textContent = t("profileEmptyTodo", "Brak otwartych zadań z AI.");
+      p.textContent = t(
+        "profileEmptyTodo",
+        "Brak otwartych zadań z AI. Zapytaj asystenta w zakładce Teraz."
+      );
       box.appendChild(p);
       return;
     }
@@ -183,7 +189,16 @@
     const box = document.getElementById("profile-cal");
     if (!box) return;
     box.innerHTML = "";
-    if (!events || !events.length) return;
+    if (!events || !events.length) {
+      const p = document.createElement("p");
+      p.className = "profile-empty";
+      p.textContent = t(
+        "profileEmptyCal",
+        "Brak terminów. Dodaj datę końca legalnego pobytu poniżej."
+      );
+      box.appendChild(p);
+      return;
+    }
     events.slice(0, 2).forEach((ev) => {
       const el = document.createElement("div");
       el.className = "profile-item";

@@ -90,3 +90,14 @@ def test_mos_step_and_deadline_api(tmp_path, monkeypatch):
         saved = guide.json().get("saved_progress") or {}
         assert saved.get("pesel") is True
         assert saved.get("legal_stay") is True
+
+
+def test_mos_guide_ru_avoids_bare_polish_jargon():
+    data = guide_payload("ru")
+    action = data["ready"][0]["action"]
+    assert "регистрац" in action or "PESEL" in action
+    stay = next(s for s in data["ready"] if s["id"] == "legal_stay")
+    assert "пребыван" in stay["action"]
+    assert "заявлен" in data["copy"]["sub"] or "MOS" in data["copy"]["sub"]
+    assert data["copy"]["load_error"]
+    assert data["copy"]["retry"]

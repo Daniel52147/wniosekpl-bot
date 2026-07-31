@@ -400,15 +400,61 @@
     });
   }
 
+  function showMosError(message) {
+    const title = document.getElementById("mos-next-title");
+    const body = document.getElementById("mos-next-body");
+    const actions = document.querySelector("#mos-next .mos-actions");
+    if (title) title.textContent = message || "Error";
+    if (body) body.textContent = "";
+    if (!actions) return;
+    let retry = document.getElementById("mos-retry");
+    if (!retry) {
+      retry = document.createElement("button");
+      retry.type = "button";
+      retry.className = "cta";
+      retry.id = "mos-retry";
+      actions.prepend(retry);
+    }
+    retry.hidden = false;
+    retry.textContent =
+      (uiCopy && uiCopy.retry) ||
+      (window.wniosekplGuideCopy && window.wniosekplGuideCopy.retry) ||
+      "Retry";
+    retry.onclick = () => loadMosGuide().catch(() => {});
+  }
+
   async function loadMosGuide() {
+    const titleEl = document.getElementById("mos-next-title");
+    if (titleEl && !guideData) {
+      titleEl.textContent =
+        (window.wniosekplGuideCopy && window.wniosekplGuideCopy.mos_loading) ||
+        "…";
+    }
     const qs = new URLSearchParams({ lang: lang() });
     if (userId()) qs.set("user_id", String(userId()));
     const purpose = localStorage.getItem(PURPOSE_KEY);
     if (purpose) qs.set("purpose", purpose);
-    const res = await fetch(`${API}/api/mos/guide?${qs}`, {
-      headers: token() ? { Authorization: `Bearer ${token()}` } : {},
-    });
-    if (!res.ok) return;
+    let res;
+    try {
+      res = await fetch(`${API}/api/mos/guide?${qs}`, {
+        headers: token() ? { Authorization: `Bearer ${token()}` } : {},
+      });
+    } catch (_) {
+      showMosError(
+        (window.wniosekplGuideCopy && window.wniosekplGuideCopy.load_error) ||
+          "Could not load"
+      );
+      return;
+    }
+    if (!res.ok) {
+      showMosError(
+        (window.wniosekplGuideCopy && window.wniosekplGuideCopy.load_error) ||
+          "Could not load"
+      );
+      return;
+    }
+    const retryBtn = document.getElementById("mos-retry");
+    if (retryBtn) retryBtn.hidden = true;
     const data = await res.json();
     guideData = data;
     uiCopy = data.copy || {};

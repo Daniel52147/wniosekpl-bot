@@ -1,12 +1,22 @@
 (() => {
   const API = "";
   const HOW_KEY = "wniosekpl_how_dismissed";
+  const WHATS_NEW_KEY = "wniosekpl_whats_new_v244";
   const LANG_KEY = "wniosekpl_lang";
   const READY_KEY = "wniosekpl_mos_ready";
   const PLAN_KEY = "wniosekpl_onboarding_plan";
 
   function lang() {
     return localStorage.getItem(LANG_KEY) || "pl";
+  }
+
+  function planCompleted() {
+    try {
+      const plan = JSON.parse(localStorage.getItem(PLAN_KEY) || "null");
+      return !!(plan && plan.completed);
+    } catch (_) {
+      return false;
+    }
   }
 
   function detectStage() {
@@ -63,6 +73,13 @@
     });
   }
 
+  function syncJourneyVisibility() {
+    const card = document.getElementById("journey-card");
+    if (!card) return;
+    // Hide the 3-stage card until onboarding is done — fewer first-visit walls.
+    card.hidden = !planCompleted();
+  }
+
   function renderHow(copy) {
     const card = document.getElementById("how-card");
     if (!card) return;
@@ -91,6 +108,52 @@
     }
   }
 
+  function renderWhatsNew(copy) {
+    const card = document.getElementById("whats-new");
+    if (!card) return;
+    if (localStorage.getItem(WHATS_NEW_KEY) === "1") {
+      card.hidden = true;
+      return;
+    }
+    card.hidden = false;
+    setText("whats-new-title", copy.whats_new_title || "");
+    const list = document.getElementById("whats-new-list");
+    if (list) {
+      list.innerHTML = "";
+      (copy.whats_new_items || []).forEach((line) => {
+        const li = document.createElement("li");
+        li.textContent = line;
+        list.appendChild(li);
+      });
+    }
+    const btn = document.getElementById("whats-new-dismiss");
+    if (btn) {
+      btn.textContent = copy.whats_new_dismiss || "OK";
+      btn.onclick = () => {
+        localStorage.setItem(WHATS_NEW_KEY, "1");
+        card.hidden = true;
+      };
+    }
+  }
+
+  function applyAccountLabels(copy) {
+    const map = [
+      ["acc-session-title", "acc_session_title"],
+      ["acc-session-hint", "acc_session_hint"],
+      ["acc-billing-title", "acc_billing_title"],
+      ["tg-link-title", "acc_tg_title"],
+      ["tg-link-hint", "acc_tg_hint"],
+      ["btn-account-login", "acc_login"],
+      ["btn-account-register", "acc_register"],
+      ["btn-open-login", "acc_login"],
+      ["btn-open-register", "acc_register"],
+    ];
+    map.forEach(([id, key]) => {
+      const el = document.getElementById(id);
+      if (el && copy[key]) el.textContent = copy[key];
+    });
+  }
+
   function applyCabinetLabels(copy) {
     setText("profile-title", copy.cabinet_title);
     setText("profile-sub", copy.cabinet_sub);
@@ -106,7 +169,6 @@
       const hint = btn.querySelector(".tab-hint");
       if (hint) {
         hint.textContent = copy[hintKey] || "";
-        // Keep label text node before the hint span
         const label = document.createTextNode(copy[key] + " ");
         while (btn.firstChild && btn.firstChild !== hint) {
           btn.removeChild(btn.firstChild);
@@ -116,6 +178,9 @@
         btn.textContent = copy[key];
       }
     });
+    applyAccountLabels(copy);
+    // Expose shared strings for docs/MOS error UI
+    window.wniosekplGuideCopy = copy;
   }
 
   function applyLanding(copy, links) {
@@ -126,10 +191,6 @@
     const band = document.getElementById("band-cta");
     if (band && copy.landing_cta) band.textContent = copy.landing_cta;
     renderOfficialBar(links, copy.official_note, copy.official_kicker);
-    const pathLanding = document.getElementById("landing-path");
-    if (pathLanding && copy) {
-      // path rendered via journey-path on landing if present
-    }
   }
 
   async function loadGuide() {
@@ -142,7 +203,9 @@
     renderOfficialBar(data.official_links, copy.official_note, copy.official_kicker);
     setText("journey-title", copy.path_title);
     renderPath(data.path, data.stage || stage);
+    syncJourneyVisibility();
     renderHow(copy);
+    renderWhatsNew(copy);
 
     if (document.getElementById("profile-title")) {
       applyCabinetLabels(copy);
@@ -175,4 +238,5 @@
   }
 
   window.wniosekplLoadGuide = loadGuide;
+  window.wniosekplSyncJourney = syncJourneyVisibility;
 })();

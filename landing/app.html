@@ -718,6 +718,22 @@
       color: var(--muted);
       line-height: 1.45;
     }
+    .whats-new {
+      margin: 0 0 1rem;
+      padding: 0.9rem 1rem;
+      border-radius: 16px;
+      border: 1px solid rgba(210, 239, 106, 0.55);
+      background: linear-gradient(135deg, rgba(210, 239, 106, 0.22), rgba(255,255,255,0.85));
+      animation: rise 0.5s ease both;
+    }
+    .whats-new h3 { margin: 0 0 0.4rem; font-size: 1.02rem; }
+    .whats-new ul {
+      margin: 0 0 0.7rem;
+      padding-left: 1.1rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
     .profile-tabs button .tab-hint {
       display: block;
       font-size: 0.72rem;
@@ -1010,9 +1026,13 @@
       display: flex;
       flex-wrap: wrap;
       gap: 0.3rem;
-      padding: 0.75rem 1rem;
+      padding: 0.55rem 1rem 0.7rem;
       border-bottom: 1px solid var(--line);
-      background: #f7fbf9;
+      background: rgba(247, 251, 249, 0.94);
+      position: sticky;
+      top: 3.55rem;
+      z-index: 25;
+      backdrop-filter: blur(12px);
     }
     .profile-tabs button {
       font: inherit;
@@ -1506,12 +1526,21 @@
       .auth-btn { padding: 0.48rem 0.72rem; font-size: 0.84rem; }
       .messages { max-height: 300px; }
       .chat { min-height: 360px; }
+      .profile-tabs { top: 3.35rem; }
+      .shell {
+        padding-bottom: env(safe-area-inset-bottom, 0);
+      }
     }
     @media (max-width: 560px) {
       .shell { width: min(100% - 1.25rem, 1080px); }
       .langs button { padding: 0.35rem 0.4rem; }
       .composer { grid-template-columns: 1fr; }
       .send { width: 100%; }
+      .profile-tabs button .tab-hint { display: none; }
+      .auth-guest .auth-btn.solid { display: none; }
+      .topbar { padding-top: max(0.65rem, env(safe-area-inset-top, 0)); }
+      .official-bar .note { font-size: 0.86rem; }
+      .journey-card { margin-bottom: 0.75rem; }
     }
   </style>
 </head>
@@ -1574,20 +1603,26 @@
         </div>
 
         <div class="profile-tabs" role="tablist" aria-label="Profil">
-          <button type="button" class="active" data-profile-tab="now" id="tab-now">Teraz <span class="tab-hint" id="tab-now-hint">Następny krok</span></button>
-          <button type="button" data-profile-tab="docs" id="tab-docs">Dokumenty <span class="tab-hint" id="tab-docs-hint">PDF</span></button>
-          <button type="button" data-profile-tab="account" id="tab-account">Konto <span class="tab-hint" id="tab-account-hint">Login / Telegram</span></button>
+          <button type="button" class="active" role="tab" aria-selected="true" aria-controls="panel-now" id="tab-now" data-profile-tab="now" tabindex="0">Teraz <span class="tab-hint" id="tab-now-hint">Następny krok</span></button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="panel-docs" id="tab-docs" data-profile-tab="docs" tabindex="-1">Dokumenty <span class="tab-hint" id="tab-docs-hint">PDF</span></button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="panel-account" id="tab-account" data-profile-tab="account" tabindex="-1">Konto <span class="tab-hint" id="tab-account-hint">Login / Telegram</span></button>
         </div>
 
         <!-- NOW -->
-        <div class="profile-tab-panel" data-profile-panel="now" id="panel-now">
+        <div class="profile-tab-panel" data-profile-panel="now" id="panel-now" role="tabpanel" aria-labelledby="tab-now">
+          <div class="whats-new" id="whats-new" hidden>
+            <h3 id="whats-new-title">Co nowego</h3>
+            <ul id="whats-new-list"></ul>
+            <button type="button" class="ghost" id="whats-new-dismiss">OK</button>
+          </div>
+
           <div class="how-card" id="how-card" hidden>
             <h3 id="how-title">Jak korzystać z profilu</h3>
             <ul id="how-list"></ul>
             <button type="button" class="cta" id="how-dismiss">Rozumiem</button>
           </div>
 
-          <div class="journey-card" id="journey-card">
+          <div class="journey-card" id="journey-card" hidden>
             <h3 id="journey-title">Jak to działa — 3 etapy</h3>
             <ol class="journey-path" id="journey-path"></ol>
           </div>
@@ -1776,7 +1811,7 @@
         </div>
 
         <!-- DOCS -->
-        <div class="profile-tab-panel" data-profile-panel="docs" id="panel-docs" hidden>
+        <div class="profile-tab-panel" data-profile-panel="docs" id="panel-docs" role="tabpanel" aria-labelledby="tab-docs" hidden>
           <div class="docs-back-bar">
             <div>
               <strong id="docs-title" style="display:block">Dokumenty PDF</strong>
@@ -1788,7 +1823,7 @@
         </div>
 
         <!-- ACCOUNT -->
-        <div class="profile-tab-panel" data-profile-panel="account" id="panel-account" hidden>
+        <div class="profile-tab-panel" data-profile-panel="account" id="panel-account" role="tabpanel" aria-labelledby="tab-account" hidden>
           <div class="profile-grid">
             <article class="profile-card">
               <strong class="card-title" id="acc-session-title">Sesja</strong>
@@ -1975,7 +2010,12 @@
         appHome: "← Strona główna",
         profileTitle: "Kabinet",
         profileSub: "Jeden następny krok. Reszta — tylko gdy potrzebujesz.",
-        profileEmptyTodo: "Brak otwartych zadań z AI.",
+        profileEmptyTodo: "Brak otwartych zadań z AI. Zapytaj asystenta w zakładce Teraz.",
+        profileEmptyCal: "Brak terminów. Dodaj datę końca legalnego pobytu poniżej.",
+        docsLoading: "Ładowanie dokumentów…",
+        docsEmpty: "Brak dokumentów na liście.",
+        docsError: "Nie udało się wczytać dokumentów.",
+        retry: "Spróbuj ponownie",
         profileTeaserBody: "{n} zadań · MOS, terminy, płatności w zakładkach",
         profileOpenFull: "Otwórz profil",
         tabOverview: "Przegląd",
@@ -2067,7 +2107,12 @@
         appHome: "← Главная",
         profileTitle: "Кабинет",
         profileSub: "Один следующий шаг. Остальное — только когда нужно.",
-        profileEmptyTodo: "Нет открытых задач из AI.",
+        profileEmptyTodo: "Нет открытых задач из AI. Спроси ассистента во вкладке «Сейчас».",
+        profileEmptyCal: "Нет сроков. Добавь дату конца легального пребывания ниже.",
+        docsLoading: "Загрузка документов…",
+        docsEmpty: "Список документов пуст.",
+        docsError: "Не удалось загрузить документы.",
+        retry: "Попробовать снова",
         profileTeaserBody: "{n} задач · MOS, сроки, оплата во вкладках",
         profileOpenFull: "Открыть профиль",
         tabOverview: "Обзор",
@@ -2093,7 +2138,7 @@
         usage: (left, limit) => `Бесплатных вопросов сегодня: ${left}/${limit}`,
         placeholder: "Напр. Я из Украины, работаю официально и хочу карту побыту",
         send: "Отправить",
-        welcome: "Привет. Напишите, что нужно — PESEL, meldunek, karta pobytu, письмо в urząd, upoważnienie или заявление о доходах.",
+        welcome: "Привет. Напишите, что нужно — PESEL, регистрация адреса (meldunek), карта побыту, письмо в ужонд, доверенность или заявление о доходах.",
         thinking: "Думаю…",
         limit: "Лимит бесплатных вопросов на сегодня закончился. Оставьте интерес к подписке 19 zł/мес.",
         leadOk: "Сохранено. Спасибо — это помогает быстрее запустить тариф.",
@@ -2121,14 +2166,14 @@
         aiBtn: "Хочу подписку",
         reviewTitle: "Проверка человеком",
         reviewPrice: "29 zł",
-        reviewDesc: "Проверка данных, типичных ошибок и чеклиста перед urzędem.",
+        reviewDesc: "Проверка данных, типичных ошибок и чеклиста перед ужондом.",
         reviewBtn: "Хочу проверку",
-        foot: "Мы не urząd. Это не юридическая консультация. Проверьте данные перед подачей.",
+        foot: "Мы не ужонд. Это не юридическая консультация. Проверьте данные перед подачей.",
         chips: [
-          "Как подать wniosek в MOS 2.0?",
+          "Как подать заявление в MOS 2.0?",
           "Как получить PESEL?",
           "Хочу карту побыту",
-          "Нужно письмо в urząd",
+          "Нужно письмо в ужонд",
         ],
       },
       en: {
@@ -2159,7 +2204,12 @@
         appHome: "← Home",
         profileTitle: "Cabinet",
         profileSub: "One next step. Everything else only when you need it.",
-        profileEmptyTodo: "No open AI tasks.",
+        profileEmptyTodo: "No open AI tasks. Ask the assistant in the Now tab.",
+        profileEmptyCal: "No deadlines. Add your legal stay end date below.",
+        docsLoading: "Loading documents…",
+        docsEmpty: "No documents on the list.",
+        docsError: "Could not load documents.",
+        retry: "Try again",
         profileTeaserBody: "{n} tasks · MOS, deadlines, billing in tabs",
         profileOpenFull: "Open profile",
         tabOverview: "Overview",
@@ -2251,7 +2301,12 @@
         appHome: "← Головна",
         profileTitle: "Кабінет",
         profileSub: "Один наступний крок. Решта — лише коли треба.",
-        profileEmptyTodo: "Немає відкритих задач з AI.",
+        profileEmptyTodo: "Немає відкритих задач з AI. Запитай асистента у вкладці «Зараз».",
+        profileEmptyCal: "Немає строків. Додай дату кінця легального перебування нижче.",
+        docsLoading: "Завантаження документів…",
+        docsEmpty: "Список документів порожній.",
+        docsError: "Не вдалося завантажити документи.",
+        retry: "Спробувати знову",
         profileTeaserBody: "{n} задач · MOS, строки, оплата у вкладках",
         profileOpenFull: "Відкрити профіль",
         tabOverview: "Огляд",
@@ -2431,10 +2486,50 @@
     }
 
     async function loadDocs() {
-      const res = await fetch(`${API}/api/documents?lang=${lang}`);
-      if (!res.ok) throw new Error("docs");
+      const box = document.getElementById("docs");
+      if (!box) return;
+      const c = copy[lang] || {};
+      box.innerHTML = `<p class="muted">${c.docsLoading || "…"}</p>`;
+      let res;
+      try {
+        res = await fetch(`${API}/api/documents?lang=${lang}`);
+      } catch (_) {
+        box.innerHTML = "";
+        const p = document.createElement("p");
+        p.className = "profile-empty";
+        p.textContent = c.docsError || "Error";
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "cta";
+        btn.textContent = c.retry || "Retry";
+        btn.addEventListener("click", () => loadDocs().catch(() => {}));
+        box.appendChild(p);
+        box.appendChild(btn);
+        return;
+      }
+      if (!res.ok) {
+        box.innerHTML = "";
+        const p = document.createElement("p");
+        p.className = "profile-empty";
+        p.textContent = c.docsError || "Error";
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "cta";
+        btn.textContent = c.retry || "Retry";
+        btn.addEventListener("click", () => loadDocs().catch(() => {}));
+        box.appendChild(p);
+        box.appendChild(btn);
+        return;
+      }
       const data = await res.json();
-      docs.innerHTML = "";
+      box.innerHTML = "";
+      if (!data.length) {
+        const p = document.createElement("p");
+        p.className = "profile-empty";
+        p.textContent = c.docsEmpty || "Empty";
+        box.appendChild(p);
+        return;
+      }
       data.forEach((doc) => {
         const item = document.createElement("article");
         item.className = "doc";
@@ -2442,11 +2537,11 @@
         item.innerHTML = `<strong></strong><p></p><div class="doc-meta"><span class="badge-mode"></span><span></span></div>`;
         item.querySelector("strong").textContent = doc.title;
         item.querySelector("p").textContent = doc.description || "";
-        item.querySelector(".badge-mode").textContent = doc.mode === "official" ? copy[lang].official : copy[lang].helper;
-        item.querySelector(".doc-meta span:last-child").textContent = `${copy[lang].fill} · ${doc.fields_count}`;
+        item.querySelector(".badge-mode").textContent = doc.mode === "official" ? c.official : c.helper;
+        item.querySelector(".doc-meta span:last-child").textContent = `${c.fill} · ${doc.fields_count}`;
         item.addEventListener("click", () => openDoc(doc.id));
         item.addEventListener("keydown", (e) => { if (e.key === "Enter") openDoc(doc.id); });
-        docs.appendChild(item);
+        box.appendChild(item);
       });
     }
 

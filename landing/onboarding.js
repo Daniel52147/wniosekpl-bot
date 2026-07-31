@@ -200,9 +200,7 @@
     if (window.wniosekplRefreshProfile) window.wniosekplRefreshProfile();
     if (window.wniosekplRefreshAccountLink) window.wniosekplRefreshAccountLink();
     if (window.wniosekplLoadGuide) window.wniosekplLoadGuide().catch(() => {});
-    // Keep the path card, but collapse it so the next step stays #1.
-    const journey = document.getElementById("journey-card");
-    if (journey) journey.hidden = true;
+    if (window.wniosekplSyncJourney) window.wniosekplSyncJourney();
     const how = document.getElementById("how-card");
     if (how && localStorage.getItem("wniosekpl_how_dismissed") === "1") how.hidden = true;
     document.getElementById("mos-next")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -217,6 +215,7 @@
     localStorage.removeItem(PLAN_KEY);
     state = { purpose: "", has_pesel: null, due_at: "" };
     setWorkspaceVisible(false);
+    if (window.wniosekplSyncJourney) window.wniosekplSyncJourney();
     const kicker = document.getElementById("ob-kicker");
     if (kicker) kicker.textContent = "1 / 3";
     showStep(1);
